@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "TaskFlow",
+    "slug": "taskflow",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "taskflow",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "task-reminders"
+        }
+      ]
+    ],
+    "android": {
+      "package": "com.taskflow.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#111827"
+      },
+      "permissions": [
+        "POST_NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM"
+      ],
+      "versionCode": 1
+    },
+    "ios": {
+      "bundleIdentifier": "com.taskflow.app"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
+      }
+    }
+  }
+}
