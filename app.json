@@ -7,7 +7,6 @@
     "orientation": "portrait",
     "scheme": "taskflow",
     "userInterfaceStyle": "automatic",
-
     "plugins": [
       "expo-router",
       "expo-sqlite",
@@ -16,9 +15,9 @@
         {
           "defaultChannel": "task-reminders"
         }
-      ]
+      ],
+      "expo-font"
     ],
-
     "android": {
       "package": "com.taskflow.app",
       "permissions": [
@@ -27,18 +26,15 @@
       ],
       "versionCode": 1
     },
-
     "ios": {
       "bundleIdentifier": "com.taskflow.app"
     },
-
     "extra": {
       "eas": {
         "projectId": "d381c44d-cca1-495e-b38f-fd707662b98c"
       },
       "router": {}
     },
-
     "owner": "newgreivin"
   }
 }
