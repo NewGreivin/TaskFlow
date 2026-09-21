@@ -3,9 +3,11 @@
     "name": "TaskFlow",
     "slug": "taskflow",
     "version": "1.0.0",
+    "icon": "./assets/icon.png",
     "orientation": "portrait",
     "scheme": "taskflow",
     "userInterfaceStyle": "automatic",
+
     "plugins": [
       "expo-router",
       "expo-sqlite",
@@ -16,26 +18,27 @@
         }
       ]
     ],
+
     "android": {
       "package": "com.taskflow.app",
-      "adaptiveIcon": {
-        "backgroundColor": "#111827"
-      },
       "permissions": [
         "POST_NOTIFICATIONS",
         "SCHEDULE_EXACT_ALARM"
       ],
       "versionCode": 1
     },
+
     "ios": {
       "bundleIdentifier": "com.taskflow.app"
     },
+
     "extra": {
       "eas": {
         "projectId": "d381c44d-cca1-495e-b38f-fd707662b98c"
       },
       "router": {}
     },
+
     "owner": "newgreivin"
   }
 }
