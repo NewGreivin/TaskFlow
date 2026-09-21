@@ -86,8 +86,11 @@ export async function migrateDbIfNeeded(db) {
 
   const taskCount = await db.getFirstAsync('SELECT COUNT(*) AS count FROM tasks');
   if ((taskCount?.count ?? 0) === 0) {
-    const today = new Date().toISOString().slice(0, 10);
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+    const now = new Date();
+    const key = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const today = key(now);
+    const tomorrowDate = new Date(now); tomorrowDate.setDate(tomorrowDate.getDate()+1);
+    const tomorrow = key(tomorrowDate);
     const categoryRows = await db.getAllAsync('SELECT id, name FROM categories');
     const categoryId = (name) => categoryRows.find((c) => c.name === name)?.id ?? null;
     const seed = [

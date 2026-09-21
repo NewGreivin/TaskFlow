@@ -1,38 +1,46 @@
-# TaskFlow — Fase 7
+# TaskFlow — Phase 8
 
-Preparación para QA y compilación Android.
+Phase 8 is the technical hardening pass. The polished UI is now wired to the local SQLite database instead of mock task data.
 
-## Ejecutar
+## What was audited/fixed
+- Home, Tareas and Calendario read real tasks from SQLite.
+- Task cards can toggle completion and refresh from the database.
+- Create/edit task writes to SQLite and reloads the detail screen.
+- Categories are persisted and used by tasks.
+- Subtasks are persisted and can be toggled from task detail.
+- Statistics are calculated from SQLite.
+- Local notifications are scheduled/cancelled when reminders are enabled, edited, deleted or completed.
+- Theme remains persisted in SQLite and all main screens respect light/dark mode.
+- Seed data uses local device dates instead of UTC date strings.
+- Added `app/diagnostics.js` for a quick database sanity check.
+- EAS/APK configuration from Phase 7 is preserved.
+
+## Run
 ```bash
 npm install
 npx expo-doctor
 npx expo start
 ```
 
-## APK
+## Android APK
 ```bash
 npx eas login
 npx eas build:configure
 npm run build:apk
 ```
 
-El perfil `preview` genera una APK instalable.
+Replace the placeholder EAS project ID in `app.json` after `eas build:configure` links the project.
 
-## AAB / Play Store
-```bash
-npm run build:aab
-```
-
-Reemplaza `REPLACE_WITH_EAS_PROJECT_ID` en `app.json` por el `projectId` que te asigne EAS.
-
-## QA manual
-1. Crear, editar, completar y eliminar tareas.
-2. Crear/editar/eliminar categorías.
-3. Probar subtareas.
-4. Cambiar Light/Dark/System.
-5. Cerrar y abrir la app para comprobar persistencia.
-6. Programar una notificación y tocarla.
-7. Probar en Android físico.
-8. Ejecutar la pantalla interna `/diagnostics`.
-
-La APK requiere autenticación con una cuenta Expo/EAS y se compila en los servicios de EAS.
+## Manual QA checklist
+1. Create a task.
+2. Edit its title/date/time/priority/category.
+3. Add and toggle subtasks.
+4. Toggle completion from Home and Tareas.
+5. Filter/search tasks.
+6. Open Calendar and verify the selected date.
+7. Enable a reminder and verify it appears in Android scheduled notifications.
+8. Edit a task reminder and verify the old notification is cancelled.
+9. Delete a task and verify its notifications disappear.
+10. Change theme to Claro/Oscuro/Sistema and restart the app.
+11. Open `/diagnostics` and verify database counts.
+12. Run `npx expo-doctor` before building the APK.

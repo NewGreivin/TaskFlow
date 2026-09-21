@@ -1,54 +1,5 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Icon, Surface, Text } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { Button, Surface, Text } from 'react-native-paper';
 import { useState } from 'react';
 import { useSQLiteContext } from '../src/data/database';
-import { useAppTheme } from '../src/theme/ThemeContext';
-
-export default function Diagnostics() {
-  const router = useRouter();
-  const db = useSQLiteContext();
-  const { palette } = useAppTheme();
-  const [result, setResult] = useState(null);
-
-  async function runChecks() {
-    try {
-      const checks = [];
-      for (const [label, sql] of [
-        ['SQLite · categorías', 'SELECT COUNT(*) AS count FROM categories'],
-        ['SQLite · tareas', 'SELECT COUNT(*) AS count FROM tasks'],
-        ['SQLite · subtareas', 'SELECT COUNT(*) AS count FROM subtasks'],
-      ]) {
-        const row = await db.getFirstAsync(sql);
-        checks.push({ label, ok: Number(row?.count) >= 0 });
-      }
-      const settings = await db.getFirstAsync('SELECT theme FROM settings WHERE id = 1');
-      checks.push({ label: 'SQLite · configuración', ok: !!settings });
-      setResult(checks);
-    } catch (error) {
-      setResult([{ label: `Error: ${error.message}`, ok: false }]);
-    }
-  }
-
-  return (
-    <ScrollView style={[styles.container, {backgroundColor: palette.background}]} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Icon source="arrow-left" size={25} color={palette.text} onPress={() => router.back()} />
-        <Text variant="headlineSmall" style={[styles.title, {color: palette.text}]}>Diagnóstico</Text>
-      </View>
-      <Text style={{color: palette.muted, marginBottom: 18}}>Comprobación interna de SQLite antes de generar la APK.</Text>
-      <Button mode="contained" icon="play" onPress={runChecks}>Ejecutar comprobaciones</Button>
-      {result?.map((item, i) => (
-        <Surface key={i} style={[styles.row, {backgroundColor: palette.surface, borderColor: palette.border}]} elevation={0}>
-          <Icon source={item.ok ? 'check-circle' : 'alert-circle'} color={item.ok ? palette.green : palette.urgent} size={22} />
-          <Text style={{color: palette.text, flex: 1}}>{item.label}</Text>
-        </Surface>
-      ))}
-    </ScrollView>
-  );
-}
-const styles = StyleSheet.create({
-  container:{flex:1}, content:{padding:20,paddingTop:55,paddingBottom:40},
-  header:{flexDirection:'row',alignItems:'center',gap:14,marginBottom:12}, title:{fontWeight:'800'},
-  row:{flexDirection:'row',alignItems:'center',gap:12,padding:15,borderRadius:16,borderWidth:1,marginTop:10}
-});
+export default function Diagnostics(){const db=useSQLiteContext(),[result,setResult]=useState(null);const run=async()=>{const [categories,tasks,subtasks,notifications,settings]=await Promise.all([db.getFirstAsync('SELECT COUNT(*) count FROM categories'),db.getFirstAsync('SELECT COUNT(*) count FROM tasks'),db.getFirstAsync('SELECT COUNT(*) count FROM subtasks'),db.getFirstAsync('SELECT COUNT(*) count FROM notifications'),db.getFirstAsync('SELECT theme, language, notifications_enabled FROM settings WHERE id=1')]);setResult({categories:categories?.count,tasks:tasks?.count,subtasks:subtasks?.count,notifications:notifications?.count,settings})};return <ScrollView style={styles.container} contentContainerStyle={styles.content}><Text variant="headlineSmall">Diagnóstico</Text><Text style={styles.help}>Comprobación rápida de SQLite para QA local.</Text><Button mode="contained" onPress={run}>Ejecutar diagnóstico</Button>{result&&<Surface style={styles.card} elevation={0}>{Object.entries(result).map(([k,v])=><View key={k} style={styles.row}><Text>{k}</Text><Text>{typeof v==='object'?JSON.stringify(v):String(v)}</Text></View>)}</Surface>}</ScrollView>};const styles=StyleSheet.create({container:{flex:1},content:{padding:20,paddingTop:55,gap:14},help:{color:'#74798A'},card:{padding:16,borderRadius:16,gap:10},row:{flexDirection:'row',justifyContent:'space-between'}});

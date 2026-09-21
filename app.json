@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "scheme": "taskflow",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "plugins": [
       "expo-router",
       "expo-sqlite",
@@ -33,8 +32,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
-      }
-    }
+        "projectId": "d381c44d-cca1-495e-b38f-fd707662b98c"
+      },
+      "router": {}
+    },
+    "owner": "newgreivin"
   }
 }

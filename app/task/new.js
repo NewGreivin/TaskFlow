@@ -1,73 +1,24 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Chip, Divider, Icon, IconButton, SegmentedButtons, Switch, Text, TextInput } from 'react-native-paper';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { Alert, Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Chip, Divider, Icon, IconButton, SegmentedButtons, Switch, Text, TextInput, Surface } from 'react-native-paper';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { useSQLiteContext } from '../../src/data/database';
+import { createTask, getCategories, getTask, updateTask } from '../../src/data/taskRepository';
+import { cancelTaskNotifications, getTaskNotification, replaceTaskNotification } from '../../src/data/notificationRepository';
+import { configureNotifications, getReminderDate, RECURRENCE_OPTIONS, REMINDER_OPTIONS, scheduleTaskNotification } from '../../src/services/notifications';
+import { validateTaskInput } from '../../src/utils/validation';
+import { toLocalDateKey } from '../../src/data/date';
 import { useAppTheme } from '../../src/theme/ThemeContext';
 
-export default function NewTask() {
-  const router = useRouter();
-  const { palette } = useAppTheme();
-  const [priority, setPriority] = useState('Urgente');
-  const [status, setStatus] = useState('Pendiente');
-  const [reminder, setReminder] = useState(true);
-
-  return (
-    <View style={[styles.container, { backgroundColor: palette.background }]}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <IconButton icon="close" onPress={() => router.back()} />
-          <Text variant="titleLarge" style={[styles.title, { color: palette.text }]}>Nueva tarea</Text>
-          <Button mode="contained" compact onPress={() => router.back()}>Guardar</Button>
-        </View>
-
-        <Text variant="labelLarge" style={[styles.eyebrow, { color: palette.primary }]}>DETALLES</Text>
-        <TextInput label="Título" placeholder="¿Qué necesitas hacer?" mode="outlined" style={[styles.input, { backgroundColor: palette.surface }]} />
-        <TextInput label="Descripción" placeholder="Añade contexto, notas o detalles..." mode="outlined" multiline numberOfLines={4} style={[styles.input, { backgroundColor: palette.surface }]} />
-
-        <Text variant="labelLarge" style={[styles.eyebrow, { color: palette.primary }]}>CUÁNDO</Text>
-        <View style={styles.row}>
-          <TextInput label="Fecha" value="22 sep. 2026" mode="outlined" style={[styles.half, { backgroundColor: palette.surface }]} left={<TextInput.Icon icon="calendar-outline" />} />
-          <TextInput label="Hora" value="10:00" mode="outlined" style={[styles.half, { backgroundColor: palette.surface }]} left={<TextInput.Icon icon="clock-outline" />} />
-        </View>
-
-        <TextInput label="Categoría" value="📚 Estudio" mode="outlined" style={[styles.input, { backgroundColor: palette.surface }]} left={<TextInput.Icon icon="folder-outline" />} />
-
-        <Text variant="titleMedium" style={[styles.label, { color: palette.text }]}>Prioridad</Text>
-        <View style={styles.chips}>
-          {['Baja','Media','Alta','Urgente'].map(x => <Chip key={x} selected={priority === x} onPress={() => setPriority(x)}>{x}</Chip>)}
-        </View>
-
-        <Text variant="titleMedium" style={[styles.label, { color: palette.text }]}>Estado</Text>
-        <SegmentedButtons value={status} onValueChange={setStatus} buttons={[{value:'Pendiente',label:'Pendiente'},{value:'En progreso',label:'En progreso'}]} />
-
-        <Divider style={[styles.divider, { backgroundColor: palette.border }]} />
-
-        <View style={styles.switchRow}>
-          <View style={styles.settingIcon}><Icon source="bell-outline" size={21} color={palette.primary} /></View>
-          <View style={{ flex: 1 }}><Text variant="titleMedium" style={{ color: palette.text, fontWeight: '700' }}>Recordatorio</Text><Text style={{ color: palette.muted }}>30 minutos antes</Text></View>
-          <Switch value={reminder} onValueChange={setReminder} />
-        </View>
-
-        <TextInput label="Repetir" value="No se repite" mode="outlined" style={[styles.input, { backgroundColor: palette.surface }]} left={<TextInput.Icon icon="repeat" />} />
-        <Text variant="titleMedium" style={[styles.label, { color: palette.text }]}>Subtareas</Text>
-        <Button icon="plus" mode="outlined" onPress={() => {}}>Añadir subtarea</Button>
-      </ScrollView>
-    </View>
-  );
+export default function NewTask(){
+ const router=useRouter(),db=useSQLiteContext(),{palette}=useAppTheme(),params=useLocalSearchParams(); const editId=params.id?Number(params.id):null; const editing=!!editId;
+ const [loading,setLoading]=useState(editing),[saving,setSaving]=useState(false),[categories,setCategories]=useState([]),[categoryOpen,setCategoryOpen]=useState(false);
+ const [title,setTitle]=useState(''),[description,setDescription]=useState(''),[dueDate,setDueDate]=useState(toLocalDateKey()),[dueTime,setDueTime]=useState('10:00'),[categoryId,setCategoryId]=useState(null),[priority,setPriority]=useState('Media'),[status,setStatus]=useState('Pendiente'),[reminder,setReminder]=useState(true),[reminderMinutes,setReminderMinutes]=useState(30),[recurrence,setRecurrence]=useState('No se repite'),[notes,setNotes]=useState(''),[subtasks,setSubtasks]=useState([]),[subtask,setSubtask]=useState('');
+ useEffect(()=>{(async()=>{setCategories(await getCategories(db));if(editing){const t=await getTask(db,editId);if(t){setTitle(t.title);setDescription(t.description||'');setDueDate(t.due_date);setDueTime(t.due_time||'10:00');setCategoryId(t.category_id);setPriority(t.priority);setStatus(t.status);setReminder(!!t.reminder_enabled);setReminderMinutes(Number(t.reminder_minutes||30));setRecurrence(t.recurrence||'No se repite');setNotes(t.notes||'');setSubtasks(t.subtasks||[])} }setLoading(false)})()},[db,editId,editing]);
+ const addSubtask=()=>{if(subtask.trim()){setSubtasks([...subtasks,{id:`new-${Date.now()}`,title:subtask.trim(),completed:false}]);setSubtask('')}};
+ const save=async()=>{const validation=validateTaskInput({title,dueDate});if(!validation.valid){Alert.alert('Revisa la tarea',validation.errors.title||validation.errors.dueDate||'Completa los datos requeridos.');return}setSaving(true);try{const payload={title,description,dueDate,dueTime,categoryId,priority,status,reminderEnabled:reminder,reminderMinutes,recurrence,notes,subtasks};const id=editing?editId:await createTask(db,payload);if(editing)await updateTask(db,id,payload);await cancelTaskNotifications(db,id);if(reminder){const ok=await configureNotifications();if(ok){const notificationId=await scheduleTaskNotification({taskId:id,title,dueDate,dueTime,reminderMinutes,recurrence});if(notificationId)await replaceTaskNotification(db,id,notificationId, getReminderDate(dueDate,dueTime,reminderMinutes).toISOString())}}router.replace(`/task/${id}`)}catch(e){Alert.alert('No se pudo guardar',e.message==='PERMISSION_DENIED'?'Debes permitir las notificaciones para usar recordatorios.':'Ocurrió un error al guardar la tarea.')}finally{setSaving(false)}};
+ const selectedCategory=categories.find(c=>Number(c.id)===Number(categoryId));
+ if(loading)return <View style={[styles.loading,{backgroundColor:palette.background}]}><Text style={{color:palette.text}}>Cargando tarea...</Text></View>;
+ return <View style={[styles.container,{backgroundColor:palette.background}]}><ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}><View style={styles.header}><IconButton icon="close" onPress={()=>router.back()}/><Text variant="titleLarge" style={[styles.title,{color:palette.text}]}>{editing?'Editar tarea':'Nueva tarea'}</Text><Button mode="contained" compact loading={saving} disabled={saving} onPress={save}>Guardar</Button></View><Text variant="labelLarge" style={[styles.eyebrow,{color:palette.primary}]}>DETALLES</Text><TextInput label="Título" value={title} onChangeText={setTitle} placeholder="¿Qué necesitas hacer?" mode="outlined" style={[styles.input,{backgroundColor:palette.surface}]}/><TextInput label="Descripción" value={description} onChangeText={setDescription} placeholder="Añade contexto, notas o detalles..." mode="outlined" multiline numberOfLines={4} style={[styles.input,{backgroundColor:palette.surface}]}/><Text variant="labelLarge" style={[styles.eyebrow,{color:palette.primary}]}>CUÁNDO</Text><View style={styles.row}><TextInput label="Fecha (AAAA-MM-DD)" value={dueDate} onChangeText={setDueDate} mode="outlined" style={[styles.half,{backgroundColor:palette.surface}]} left={<TextInput.Icon icon="calendar-outline"/>}/><TextInput label="Hora (HH:MM)" value={dueTime} onChangeText={setDueTime} mode="outlined" style={[styles.half,{backgroundColor:palette.surface}]} left={<TextInput.Icon icon="clock-outline"/>}/></View><Button mode="outlined" icon="folder-outline" onPress={()=>setCategoryOpen(true)} style={styles.categoryButton} contentStyle={{justifyContent:'flex-start'}}>{selectedCategory?.name||'Sin categoría'}</Button><Text variant="titleMedium" style={[styles.label,{color:palette.text}]}>Prioridad</Text><View style={styles.chips}>{['Baja','Media','Alta','Urgente'].map(x=><Chip key={x} selected={priority===x} onPress={()=>setPriority(x)}>{x}</Chip>)}</View><Text variant="titleMedium" style={[styles.label,{color:palette.text}]}>Estado</Text><SegmentedButtons value={status} onValueChange={setStatus} buttons={[{value:'Pendiente',label:'Pendiente'},{value:'En progreso',label:'En progreso'}]}/><Divider style={[styles.divider,{backgroundColor:palette.border}]}/><View style={styles.switchRow}><View style={[styles.settingIcon,{backgroundColor:palette.primary+'18'}]}><Icon source="bell-outline" size={21} color={palette.primary}/></View><View style={{flex:1}}><Text variant="titleMedium" style={{color:palette.text,fontWeight:'700'}}>Recordatorio</Text><Text style={{color:palette.muted}}>Avisarme antes de la tarea</Text></View><Switch value={reminder} onValueChange={setReminder}/></View>{reminder&&<View style={styles.chips}>{REMINDER_OPTIONS.map(x=><Chip key={x.value} selected={reminderMinutes===x.value} onPress={()=>setReminderMinutes(x.value)}>{x.label}</Chip>)}</View>}<Text variant="titleMedium" style={[styles.label,{color:palette.text}]}>Repetir</Text><View style={styles.chips}>{RECURRENCE_OPTIONS.map(x=><Chip key={x} selected={recurrence===x} onPress={()=>setRecurrence(x)}>{x}</Chip>)}</View><Text variant="titleMedium" style={[styles.label,{color:palette.text}]}>Subtareas</Text>{subtasks.map((s,i)=><Surface key={s.id||i} style={[styles.subtask,{backgroundColor:palette.surface,borderColor:palette.border}]} elevation={0}><Icon source={s.completed?'checkbox-marked':'checkbox-blank-outline'} size={20} color={palette.primary}/><Text style={{flex:1,color:palette.text}}>{s.title}</Text><IconButton icon="close" size={18} onPress={()=>setSubtasks(subtasks.filter((_,j)=>j!==i))}/></Surface>)}<View style={styles.subtaskInput}><TextInput label="Nueva subtarea" value={subtask} onChangeText={setSubtask} mode="outlined" style={{flex:1,backgroundColor:palette.surface}}/><IconButton icon="plus" mode="contained-tonal" onPress={addSubtask}/></View><TextInput label="Notas" value={notes} onChangeText={setNotes} mode="outlined" multiline style={[styles.input,{backgroundColor:palette.surface,marginTop:14}]}/></ScrollView><Modal visible={categoryOpen} transparent animationType="fade" onRequestClose={()=>setCategoryOpen(false)}><View style={styles.modalBackdrop}><Surface style={[styles.modal,{backgroundColor:palette.surface}]} elevation={4}><Text variant="titleLarge" style={{color:palette.text,fontWeight:'800',marginBottom:12}}>Categoría</Text><Button onPress={()=>{setCategoryId(null);setCategoryOpen(false)}}>Sin categoría</Button>{categories.map(c=><Button key={c.id} icon={c.icon} contentStyle={{justifyContent:'flex-start'}} onPress={()=>{setCategoryId(c.id);setCategoryOpen(false)}}>{c.name}</Button>)}<Button mode="outlined" onPress={()=>setCategoryOpen(false)} style={{marginTop:8}}>Cerrar</Button></Surface></View></Modal></View>;
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { padding: 20, paddingTop: 45, paddingBottom: 55 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, marginHorizontal: -8 },
-  title: { flex: 1, fontWeight: '850' },
-  eyebrow: { fontWeight: '850', letterSpacing: 0.8, marginBottom: 9 },
-  input: { marginBottom: 14 },
-  row: { flexDirection: 'row', gap: 10 },
-  half: { flex: 1, marginBottom: 14 },
-  label: { marginBottom: 10, marginTop: 5, fontWeight: '750' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  divider: { marginVertical: 22 },
-  switchRow: { flexDirection: 'row', alignItems: 'center', gap: 11, marginBottom: 18 },
-  settingIcon: { width: 42, height: 42, borderRadius: 13, backgroundColor: '#5B4BFF18', alignItems: 'center', justifyContent: 'center' },
-});
+const styles=StyleSheet.create({container:{flex:1},loading:{flex:1,alignItems:'center',justifyContent:'center'},content:{padding:20,paddingTop:45,paddingBottom:55},header:{flexDirection:'row',alignItems:'center',marginBottom:20,marginHorizontal:-8},title:{flex:1,fontWeight:'850'},eyebrow:{fontWeight:'850',letterSpacing:.8,marginBottom:9},input:{marginBottom:14},row:{flexDirection:'row',gap:10},half:{flex:1,marginBottom:14},categoryButton:{marginBottom:14,borderRadius:12},label:{marginBottom:10,marginTop:5,fontWeight:'750'},chips:{flexDirection:'row',flexWrap:'wrap',gap:8},divider:{marginVertical:22},switchRow:{flexDirection:'row',alignItems:'center',gap:11,marginBottom:14},settingIcon:{width:42,height:42,borderRadius:13,alignItems:'center',justifyContent:'center'},subtask:{flexDirection:'row',alignItems:'center',gap:8,paddingLeft:10,borderRadius:12,borderWidth:1,marginBottom:8},subtaskInput:{flexDirection:'row',alignItems:'center',gap:6},modalBackdrop:{flex:1,backgroundColor:'#0008',justifyContent:'center',padding:24},modal:{borderRadius:22,padding:18},});

@@ -56,6 +56,7 @@ export async function scheduleTaskNotification({ taskId, title, dueDate, dueTime
 
   const reminderDate = getReminderDate(dueDate, dueTime, reminderMinutes);
   if (reminderDate.getTime() <= Date.now() && recurrence === 'No se repite') return null;
+  if (!['Cada día','Cada semana','Cada mes','No se repite'].includes(recurrence)) recurrence = 'No se repite';
 
   const content = {
     title: '🔔 TaskFlow · Recordatorio',
