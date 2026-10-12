@@ -100,4 +100,13 @@ export async function getStats(db) {
   return { totals, priorities };
 }
 
+export async function getDatesWithTasks(db, startKey, endKey) {
+  const rows = await db.getAllAsync(
+    'SELECT DISTINCT due_date FROM tasks WHERE due_date >= ? AND due_date <= ?',
+    startKey,
+    endKey
+  );
+  return new Set(rows.map(r => r.due_date));
+}
+
 export function toTaskCard(row) { return { ...row, color: row.category_color || '#5B4BFF', time: row.due_time || 'Sin hora' }; }
