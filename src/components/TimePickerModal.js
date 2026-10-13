@@ -3,7 +3,7 @@ import { Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-nati
 import { Button, Surface, Text } from 'react-native-paper';
 
 const CLOCK_SIZE = 280; // Diameter of the clock circle
-const RADIUS = CLOCK_SIZE / 2;
+const RADIUS = CLOCK_SIZE / 2; // 140
 const NUMBER_DISTANCE = 100; // Distance from center to numbers
 
 export default function TimePickerModal({ visible, time, onSelect, onClose }) {
@@ -39,7 +39,6 @@ export default function TimePickerModal({ visible, time, onSelect, onClose }) {
 
   const handleHourSelect = (selectedH) => {
     setHour(selectedH);
-    // Transition automatically to minutes mode
     setMode('minutes');
   };
 
@@ -73,13 +72,18 @@ export default function TimePickerModal({ visible, time, onSelect, onClose }) {
   const currentValue = mode === 'hours' ? hour : Math.round(minute / 5) * 5 % 60;
 
   // Calculate angle for selected value
-  // 12 or 0 is at top (-90 deg or -Math.PI/2)
+  // 12 or 0 is at top (-90 deg)
   const activeIndex = currentNumbers.indexOf(currentValue);
   const angleDeg = activeIndex !== -1 ? activeIndex * 30 - 90 : -90;
   const angleRad = (angleDeg * Math.PI) / 180;
 
+  // Outer target point (center of the selection circle/number)
   const handX = RADIUS + NUMBER_DISTANCE * Math.cos(angleRad);
   const handY = RADIUS + NUMBER_DISTANCE * Math.sin(angleRad);
+
+  // Midpoint between center (RADIUS, RADIUS) and outer point (handX, handY)
+  const midX = RADIUS + (NUMBER_DISTANCE / 2) * Math.cos(angleRad);
+  const midY = RADIUS + (NUMBER_DISTANCE / 2) * Math.sin(angleRad);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -156,20 +160,21 @@ export default function TimePickerModal({ visible, time, onSelect, onClose }) {
             {/* Circular Analog Clock */}
             <View style={styles.clockContainer}>
               <View style={styles.clockCircle}>
-                {/* Center Pivot Dot */}
-                <View style={styles.pivotDot} />
-
                 {/* Clock Hand Line */}
+                {/*
+                  Placed centered at midpoint (midX, midY).
+                  Width = NUMBER_DISTANCE, Height = 2.
+                  Rotating around its center (midX, midY) by angleDeg
+                  guarantees start point is exactly (RADIUS, RADIUS) and end point is (handX, handY).
+                */}
                 <View
                   style={[
                     styles.clockHand,
                     {
+                      left: midX - NUMBER_DISTANCE / 2,
+                      top: midY - 1,
                       width: NUMBER_DISTANCE,
-                      transform: [
-                        { translateX: NUMBER_DISTANCE / 2 },
-                        { rotate: `${angleDeg}deg` },
-                        { translateX: -NUMBER_DISTANCE / 2 },
-                      ],
+                      transform: [{ rotate: `${angleDeg}deg` }],
                     },
                   ]}
                 />
@@ -185,6 +190,9 @@ export default function TimePickerModal({ visible, time, onSelect, onClose }) {
                   ]}
                 />
 
+                {/* Center Pivot Dot */}
+                <View style={styles.pivotDot} />
+
                 {/* Clock Numbers */}
                 {currentNumbers.map((num, idx) => {
                   const numDeg = idx * 30 - 90;
@@ -193,7 +201,6 @@ export default function TimePickerModal({ visible, time, onSelect, onClose }) {
                   const y = RADIUS + NUMBER_DISTANCE * Math.sin(numRad);
 
                   const isSelected = mode === 'hours' ? num === hour : num === currentValue;
-
                   const label = mode === 'hours' ? String(num) : String(num).padStart(2, '0');
 
                   return (
@@ -353,8 +360,6 @@ const styles = StyleSheet.create({
   },
   clockHand: {
     position: 'absolute',
-    left: RADIUS,
-    top: RADIUS - 1,
     height: 2,
     backgroundColor: '#C5C2FF',
     zIndex: 5,
