@@ -1,138 +1,243 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Button, Icon, Surface, Text } from 'react-native-paper';
-import { useAppTheme } from '../theme/ThemeContext';
+import { Modal, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, Surface, Text } from 'react-native-paper';
+
+const CLOCK_SIZE = 280; // Diameter of the clock circle
+const RADIUS = CLOCK_SIZE / 2; // 140
+const NUMBER_DISTANCE = 100; // Distance from center to numbers
 
 export default function TimePickerModal({ visible, time, onSelect, onClose }) {
-  const { palette } = useAppTheme();
+  // Mode: 'hours' or 'minutes'
+  const [mode, setMode] = useState('hours');
+  const [hour, setHour] = useState(10); // 1 to 12
+  const [minute, setMinute] = useState(0); // 0 to 59
+  const [period, setPeriod] = useState('AM'); // 'AM' or 'PM'
 
-  // Parse HH:MM
-  const parseTime = (tStr) => {
-    if (!tStr || typeof tStr !== 'string' || !tStr.includes(':')) {
-      return { hour: 10, minute: 0 };
-    }
-    const [h, m] = tStr.split(':').map(Number);
-    return { hour: isNaN(h) ? 10 : h, minute: isNaN(m) ? 0 : m };
-  };
-
-  const initial = parseTime(time);
-  const [selectedHour, setSelectedHour] = useState(initial.hour);
-  const [selectedMinute, setSelectedMinute] = useState(initial.minute);
-
+  // Parse incoming 24h string ("HH:MM")
   useEffect(() => {
     if (visible && time) {
-      const { hour, minute } = parseTime(time);
-      setSelectedHour(hour);
-      setSelectedMinute(minute);
+      const [hStr, mStr] = (time || '10:00').split(':');
+      let h = parseInt(hStr, 10);
+      let m = parseInt(mStr, 10);
+      if (isNaN(h)) h = 10;
+      if (isNaN(m)) m = 0;
+
+      let p = 'AM';
+      if (h >= 12) {
+        p = 'PM';
+        if (h > 12) h -= 12;
+      } else if (h === 0) {
+        h = 12;
+      }
+
+      setHour(h);
+      setMinute(m);
+      setPeriod(p);
+      setMode('hours');
     }
   }, [visible, time]);
 
+  const handleHourSelect = (selectedH) => {
+    setHour(selectedH);
+    setMode('minutes');
+  };
+
+  const handleMinuteSelect = (selectedM) => {
+    setMinute(selectedM);
+  };
+
   const handleConfirm = () => {
-    const formattedHour = String(selectedHour).padStart(2, '0');
-    const formattedMinute = String(selectedMinute).padStart(2, '0');
-    const result = `${formattedHour}:${formattedMinute}`;
-    onSelect?.(result);
+    let final24Hour = hour;
+    if (period === 'PM' && hour < 12) {
+      final24Hour = hour + 12;
+    } else if (period === 'AM' && hour === 12) {
+      final24Hour = 0;
+    }
+
+    const formattedH = String(final24Hour).padStart(2, '0');
+    const formattedM = String(minute).padStart(2, '0');
+    const time24 = `${formattedH}:${formattedM}`;
+
+    onSelect?.(time24);
     onClose?.();
   };
 
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-  const minutes = Array.from({ length: 12 }, (_, i) => i * 5); // 0, 5, 10... 55
+  // Numbers for hours: 1 to 12
+  const hourNumbers = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+
+  // Numbers for minutes: 00 to 55 (5-minute steps)
+  const minuteNumbers = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+
+  const currentNumbers = mode === 'hours' ? hourNumbers : minuteNumbers;
+  const currentValue = mode === 'hours' ? hour : Math.round(minute / 5) * 5 % 60;
+
+  // Calculate angle for selected value
+  // 12 or 0 is at top (-90 deg)
+  const activeIndex = currentNumbers.indexOf(currentValue);
+  const angleDeg = activeIndex !== -1 ? activeIndex * 30 - 90 : -90;
+  const angleRad = (angleDeg * Math.PI) / 180;
+
+  // Outer target point (center of the selection circle/number)
+  const handX = RADIUS + NUMBER_DISTANCE * Math.cos(angleRad);
+  const handY = RADIUS + NUMBER_DISTANCE * Math.sin(angleRad);
+
+  // Midpoint between center (RADIUS, RADIUS) and outer point (handX, handY)
+  const midX = RADIUS + (NUMBER_DISTANCE / 2) * Math.cos(angleRad);
+  const midY = RADIUS + (NUMBER_DISTANCE / 2) * Math.sin(angleRad);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable onPress={(e) => e.stopPropagation()}>
-          <Surface
-            elevation={4}
-            style={[
-              styles.modal,
-              { backgroundColor: palette.surface, borderColor: palette.border },
-            ]}
-          >
-            <Text variant="titleMedium" style={[styles.title, { color: palette.text }]}>
-              Seleccionar hora
-            </Text>
+          <Surface elevation={5} style={styles.modalContainer}>
+            {/* Title */}
+            <Text style={styles.modalTitle}>Seleccionar hora</Text>
 
-            {/* Display selected time */}
-            <View style={[styles.timeDisplay, { backgroundColor: palette.primarySoft || palette.primary + '18' }]}>
-              <Icon source="clock-outline" size={24} color={palette.primary} />
-              <Text variant="headlineLarge" style={[styles.timeDisplayText, { color: palette.primary }]}>
-                {String(selectedHour).padStart(2, '0')}:{String(selectedMinute).padStart(2, '0')}
-              </Text>
-            </View>
+            {/* Header: Hour Box, Separator, Minute Box, AM/PM Toggle */}
+            <View style={styles.headerRow}>
+              <View style={styles.timeDisplayGroup}>
+                {/* Hours Box */}
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setMode('hours')}
+                  style={[
+                    styles.timeBox,
+                    mode === 'hours' ? styles.timeBoxActive : styles.timeBoxInactive,
+                  ]}
+                >
+                  <Text style={[styles.timeBoxText, mode === 'hours' && styles.timeBoxTextActive]}>
+                    {String(hour).padStart(2, '0')}
+                  </Text>
+                </TouchableOpacity>
 
-            <View style={styles.pickersContainer}>
-              {/* Hours Column */}
-              <View style={styles.column}>
-                <Text style={[styles.columnHeader, { color: palette.muted }]}>HORA</Text>
-                <ScrollView style={styles.scrollList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                  {hours.map((h) => {
-                    const isSelected = h === selectedHour;
-                    return (
-                      <TouchableOpacity
-                        key={h}
-                        activeOpacity={0.7}
-                        onPress={() => setSelectedHour(h)}
-                        style={[
-                          styles.itemButton,
-                          isSelected && { backgroundColor: palette.primary },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.itemText,
-                            { color: isSelected ? '#FFFFFF' : palette.text },
-                            isSelected && styles.itemTextSelected,
-                          ]}
-                        >
-                          {String(h).padStart(2, '0')}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
+                {/* Separator */}
+                <Text style={styles.timeSeparator}>:</Text>
+
+                {/* Minutes Box */}
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setMode('minutes')}
+                  style={[
+                    styles.timeBox,
+                    mode === 'minutes' ? styles.timeBoxActive : styles.timeBoxInactive,
+                  ]}
+                >
+                  <Text style={[styles.timeBoxText, mode === 'minutes' && styles.timeBoxTextActive]}>
+                    {String(minute).padStart(2, '0')}
+                  </Text>
+                </TouchableOpacity>
               </View>
 
-              <Text style={[styles.colon, { color: palette.text }]}>:</Text>
-
-              {/* Minutes Column */}
-              <View style={styles.column}>
-                <Text style={[styles.columnHeader, { color: palette.muted }]}>MINUTOS</Text>
-                <ScrollView style={styles.scrollList} nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                  {minutes.map((m) => {
-                    const isSelected = m === selectedMinute;
-                    return (
-                      <TouchableOpacity
-                        key={m}
-                        activeOpacity={0.7}
-                        onPress={() => setSelectedMinute(m)}
-                        style={[
-                          styles.itemButton,
-                          isSelected && { backgroundColor: palette.primary },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.itemText,
-                            { color: isSelected ? '#FFFFFF' : palette.text },
-                            isSelected && styles.itemTextSelected,
-                          ]}
-                        >
-                          {String(m).padStart(2, '0')}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
+              {/* AM / PM Toggle */}
+              <View style={styles.periodContainer}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setPeriod('AM')}
+                  style={[
+                    styles.periodButton,
+                    period === 'AM' ? styles.periodActive : styles.periodInactive,
+                  ]}
+                >
+                  <Text style={[styles.periodText, period === 'AM' && styles.periodTextActive]}>
+                    AM
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setPeriod('PM')}
+                  style={[
+                    styles.periodButton,
+                    period === 'PM' ? styles.periodActive : styles.periodInactive,
+                  ]}
+                >
+                  <Text style={[styles.periodText, period === 'PM' && styles.periodTextActive]}>
+                    PM
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
 
-            {/* Actions */}
-            <View style={styles.actions}>
-              <Button mode="text" onPress={onClose}>
+            {/* Circular Analog Clock */}
+            <View style={styles.clockContainer}>
+              <View style={styles.clockCircle}>
+                {/* Clock Hand Line */}
+                {/*
+                  Placed centered at midpoint (midX, midY).
+                  Width = NUMBER_DISTANCE, Height = 2.
+                  Rotating around its center (midX, midY) by angleDeg
+                  guarantees start point is exactly (RADIUS, RADIUS) and end point is (handX, handY).
+                */}
+                <View
+                  style={[
+                    styles.clockHand,
+                    {
+                      left: midX - NUMBER_DISTANCE / 2,
+                      top: midY - 1,
+                      width: NUMBER_DISTANCE,
+                      transform: [{ rotate: `${angleDeg}deg` }],
+                    },
+                  ]}
+                />
+
+                {/* Active Selection Highlight Circle */}
+                <View
+                  style={[
+                    styles.selectionHighlight,
+                    {
+                      left: handX - 26,
+                      top: handY - 26,
+                    },
+                  ]}
+                />
+
+                {/* Center Pivot Dot */}
+                <View style={styles.pivotDot} />
+
+                {/* Clock Numbers */}
+                {currentNumbers.map((num, idx) => {
+                  const numDeg = idx * 30 - 90;
+                  const numRad = (numDeg * Math.PI) / 180;
+                  const x = RADIUS + NUMBER_DISTANCE * Math.cos(numRad);
+                  const y = RADIUS + NUMBER_DISTANCE * Math.sin(numRad);
+
+                  const isSelected = mode === 'hours' ? num === hour : num === currentValue;
+                  const label = mode === 'hours' ? String(num) : String(num).padStart(2, '0');
+
+                  return (
+                    <TouchableOpacity
+                      key={num}
+                      activeOpacity={0.7}
+                      onPress={() => (mode === 'hours' ? handleHourSelect(num) : handleMinuteSelect(num))}
+                      style={[
+                        styles.numberTouch,
+                        {
+                          left: x - 24,
+                          top: y - 24,
+                        },
+                      ]}
+                    >
+                      <Text style={[styles.numberText, isSelected && styles.numberTextSelected]}>
+                        {label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Bottom Actions */}
+            <View style={styles.actionsRow}>
+              <Button mode="text" onPress={onClose} textColor="#C5C2FF" style={styles.cancelBtn}>
                 Cancelar
               </Button>
-              <Button mode="contained" onPress={handleConfirm} style={styles.confirmButton}>
+              <Button
+                mode="contained"
+                onPress={handleConfirm}
+                buttonColor="#8B7CFF"
+                textColor="#171A24"
+                style={styles.confirmBtn}
+                labelStyle={{ fontWeight: '800' }}
+              >
                 Aceptar
               </Button>
             </View>
@@ -146,80 +251,157 @@ export default function TimePickerModal({ visible, time, onSelect, onClose }) {
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    backgroundColor: 'rgba(0, 0, 0, 0.72)',
     justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  modalContainer: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#292A32',
+    borderRadius: 24,
     padding: 24,
   },
-  modal: {
-    borderRadius: 20,
-    borderWidth: 1,
-    padding: 20,
-  },
-  title: {
-    fontWeight: '800',
-    marginBottom: 14,
-    textAlign: 'center',
-  },
-  timeDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 14,
-    marginBottom: 16,
-  },
-  timeDisplayText: {
-    fontWeight: '800',
-    letterSpacing: 1,
-  },
-  pickersContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 180,
-    marginBottom: 16,
-  },
-  column: {
-    flex: 1,
-    alignItems: 'center',
-    height: '100%',
-  },
-  columnHeader: {
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  scrollList: {
-    width: '100%',
-  },
-  colon: {
-    fontSize: 24,
-    fontWeight: '800',
-    marginHorizontal: 8,
-    marginTop: 20,
-  },
-  itemButton: {
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderRadius: 10,
-    marginVertical: 2,
-  },
-  itemText: {
-    fontSize: 16,
+  modalTitle: {
+    fontSize: 20,
     fontWeight: '600',
+    color: '#D0CFD8',
+    marginBottom: 20,
   },
-  itemTextSelected: {
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  timeDisplayGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  timeBox: {
+    width: 80,
+    height: 72,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timeBoxInactive: {
+    backgroundColor: '#41424B',
+  },
+  timeBoxActive: {
+    backgroundColor: '#41416F',
+    borderWidth: 2.5,
+    borderColor: '#C5C2FF',
+  },
+  timeBoxText: {
+    fontSize: 48,
+    fontWeight: '700',
+    color: '#D0CFD8',
+  },
+  timeBoxTextActive: {
+    color: '#C5C2FF',
+  },
+  timeSeparator: {
+    fontSize: 42,
+    fontWeight: '700',
+    color: '#D0CFD8',
+    marginHorizontal: 6,
+  },
+  periodContainer: {
+    width: 52,
+    height: 72,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#41424B',
+    backgroundColor: '#292A32',
+    overflow: 'hidden',
+  },
+  periodButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  periodInactive: {
+    backgroundColor: 'transparent',
+  },
+  periodActive: {
+    backgroundColor: '#41416F',
+  },
+  periodText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#8E8D9A',
+  },
+  periodTextActive: {
+    color: '#C5C2FF',
+  },
+  clockContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 10,
+  },
+  clockCircle: {
+    width: CLOCK_SIZE,
+    height: CLOCK_SIZE,
+    borderRadius: RADIUS,
+    backgroundColor: '#41424B',
+    position: 'relative',
+  },
+  pivotDot: {
+    position: 'absolute',
+    left: RADIUS - 7,
+    top: RADIUS - 7,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#C5C2FF',
+    zIndex: 10,
+  },
+  clockHand: {
+    position: 'absolute',
+    height: 2,
+    backgroundColor: '#C5C2FF',
+    zIndex: 5,
+  },
+  selectionHighlight: {
+    position: 'absolute',
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#C5C2FF',
+    zIndex: 6,
+  },
+  numberTouch: {
+    position: 'absolute',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 12,
+  },
+  numberText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#F2F1F7',
+  },
+  numberTextSelected: {
+    color: '#171A24',
     fontWeight: '800',
   },
-  actions: {
+  actionsRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 10,
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 20,
   },
-  confirmButton: {
-    borderRadius: 10,
+  cancelBtn: {
+    paddingHorizontal: 8,
+  },
+  confirmBtn: {
+    borderRadius: 16,
+    paddingHorizontal: 16,
   },
 });
