@@ -7,3 +7,4 @@ web-build/
 *.p12
 *.key
 .env
+.idea
