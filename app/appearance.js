@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Icon, RadioButton, Surface, Text } from 'react-native-paper';
+import { Icon, IconButton, RadioButton, Surface, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../src/theme/ThemeContext';
 
@@ -13,10 +13,18 @@ export default function Appearance() {
   const router = useRouter();
   const { mode, changeMode, palette } = useAppTheme();
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
+  };
+
   return (
     <ScrollView style={[styles.container, { backgroundColor: palette.background }]} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Icon source="arrow-left" size={25} color={palette.text} onPress={() => router.back()} />
+        <IconButton icon="arrow-left" size={24} iconColor={palette.text} onPress={handleBack} style={{ margin: 0 }} />
         <Text variant="headlineSmall" style={[styles.title, { color: palette.text }]}>Apariencia</Text>
       </View>
 
@@ -59,7 +67,7 @@ export default function Appearance() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 20, paddingTop: 55, paddingBottom: 50 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 12 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12, marginLeft: -8 },
   title: { fontWeight: '800' },
   description: { lineHeight: 21, marginBottom: 20 },
   option: { flexDirection: 'row', alignItems: 'center', borderRadius: 18, borderWidth: 1.5, padding: 12, marginBottom: 10 },
