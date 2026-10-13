@@ -1,4 +1,4 @@
-import { Alert, Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Button, Divider, Icon, IconButton, Switch, Text, TextInput, Surface } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -10,6 +10,8 @@ import { validateTaskInput } from '../../src/utils/validation';
 import { toLocalDateKey } from '../../src/data/date';
 import { useAppTheme } from '../../src/theme/ThemeContext';
 import DropdownSelect from '../../src/components/DropdownSelect';
+import DatePickerModal from '../../src/components/DatePickerModal';
+import TimePickerModal from '../../src/components/TimePickerModal';
 
 export default function NewTask() {
   const router = useRouter();
@@ -22,7 +24,9 @@ export default function NewTask() {
   const [loading, setLoading] = useState(editing);
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [categoryOpen, setCategoryOpen] = useState(false);
+
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [timePickerOpen, setTimePickerOpen] = useState(false);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -123,7 +127,16 @@ export default function NewTask() {
     }
   };
 
-  const selectedCategory = categories.find((c) => Number(c.id) === Number(categoryId));
+  // Category options standardized for DropdownSelect
+  const categoryDropdownOptions = [
+    { label: 'Sin categoría', value: null, icon: 'folder-outline' },
+    ...categories.map((c) => ({
+      label: c.name,
+      value: c.id,
+      icon: c.icon || 'folder-outline',
+      color: c.color,
+    })),
+  ];
 
   const priorityOptions = [
     { label: 'Baja', value: 'Baja', color: palette.low },
@@ -157,8 +170,16 @@ export default function NewTask() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: palette.background }]}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: palette.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* 1. Header */}
         <View style={styles.header}>
           <IconButton icon="close" onPress={() => router.back()} />
@@ -198,32 +219,47 @@ export default function NewTask() {
           CUÁNDO
         </Text>
         <View style={styles.row}>
-          <TextInput
-            label="Fecha (AAAA-MM-DD)"
-            value={dueDate}
-            onChangeText={setDueDate}
-            mode="outlined"
-            style={[styles.half, { backgroundColor: palette.surface }]}
-            left={<TextInput.Icon icon="calendar-outline" />}
-          />
-          <TextInput
-            label="Hora (HH:MM)"
-            value={dueTime}
-            onChangeText={setDueTime}
-            mode="outlined"
-            style={[styles.half, { backgroundColor: palette.surface }]}
-            left={<TextInput.Icon icon="clock-outline" />}
-          />
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => setDatePickerOpen(true)}
+            style={styles.half}
+          >
+            <TextInput
+              label="Fecha"
+              value={dueDate}
+              mode="outlined"
+              editable={false}
+              pointerEvents="none"
+              style={{ backgroundColor: palette.surface }}
+              left={<TextInput.Icon icon="calendar-outline" />}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => setTimePickerOpen(true)}
+            style={styles.half}
+          >
+            <TextInput
+              label="Hora"
+              value={dueTime}
+              mode="outlined"
+              editable={false}
+              pointerEvents="none"
+              style={{ backgroundColor: palette.surface }}
+              left={<TextInput.Icon icon="clock-outline" />}
+            />
+          </TouchableOpacity>
         </View>
-        <Button
-          mode="outlined"
+
+        {/* Standardized Category Dropdown */}
+        <DropdownSelect
+          label="Categoría"
+          value={categoryId}
+          options={categoryDropdownOptions}
+          onSelect={setCategoryId}
           icon="folder-outline"
-          onPress={() => setCategoryOpen(true)}
-          style={styles.categoryButton}
-          contentStyle={{ justifyContent: 'flex-start' }}
-        >
-          {selectedCategory?.name || 'Sin categoría'}
-        </Button>
+        />
 
         {/* 4. Priority Dropdown */}
         <DropdownSelect
@@ -290,7 +326,13 @@ export default function NewTask() {
           </Surface>
         ))}
         <View style={styles.subtaskInput}>
-          <TextInput label="Nueva subtarea" value={subtask} onChangeText={setSubtask} mode="outlined" style={{ flex: 1, backgroundColor: palette.surface }} />
+          <TextInput
+            label="Nueva subtarea"
+            value={subtask}
+            onChangeText={setSubtask}
+            mode="outlined"
+            style={{ flex: 1, backgroundColor: palette.surface }}
+          />
           <IconButton icon="plus" mode="contained-tonal" onPress={addSubtask} />
         </View>
 
@@ -301,65 +343,43 @@ export default function NewTask() {
           onChangeText={setNotes}
           mode="outlined"
           multiline
+          numberOfLines={4}
           style={[styles.input, { backgroundColor: palette.surface, marginTop: 14 }]}
         />
       </ScrollView>
 
-      {/* Category Selection Modal */}
-      <Modal visible={categoryOpen} transparent animationType="fade" onRequestClose={() => setCategoryOpen(false)}>
-        <View style={styles.modalBackdrop}>
-          <Surface style={[styles.modal, { backgroundColor: palette.surface }]} elevation={4}>
-            <Text variant="titleLarge" style={{ color: palette.text, fontWeight: '800', marginBottom: 12 }}>
-              Categoría
-            </Text>
-            <Button
-              onPress={() => {
-                setCategoryId(null);
-                setCategoryOpen(false);
-              }}
-            >
-              Sin categoría
-            </Button>
-            {categories.map((c) => (
-              <Button
-                key={c.id}
-                icon={c.icon}
-                contentStyle={{ justifyContent: 'flex-start' }}
-                onPress={() => {
-                  setCategoryId(c.id);
-                  setCategoryOpen(false);
-                }}
-              >
-                {c.name}
-              </Button>
-            ))}
-            <Button mode="outlined" onPress={() => setCategoryOpen(false)} style={{ marginTop: 8 }}>
-              Cerrar
-            </Button>
-          </Surface>
-        </View>
-      </Modal>
-    </View>
+      {/* Graphical Date & Time Picker Modals */}
+      <DatePickerModal
+        visible={datePickerOpen}
+        date={dueDate}
+        onSelect={setDueDate}
+        onClose={() => setDatePickerOpen(false)}
+      />
+
+      <TimePickerModal
+        visible={timePickerOpen}
+        time={dueTime}
+        onSelect={setDueTime}
+        onClose={() => setTimePickerOpen(false)}
+      />
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
   loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { padding: 20, paddingTop: 45, paddingBottom: 55 },
+  content: { padding: 20, paddingTop: 45, paddingBottom: 65 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, marginHorizontal: -8 },
   title: { flex: 1, fontWeight: '850' },
   eyebrow: { fontWeight: '850', letterSpacing: 0.8, marginBottom: 9 },
   input: { marginBottom: 14 },
   row: { flexDirection: 'row', gap: 10 },
   half: { flex: 1, marginBottom: 14 },
-  categoryButton: { marginBottom: 14, borderRadius: 12 },
   label: { marginBottom: 10, marginTop: 5, fontWeight: '750' },
   divider: { marginVertical: 18 },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: 11, marginBottom: 14 },
   settingIcon: { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   subtask: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 10, borderRadius: 12, borderWidth: 1, marginBottom: 8 },
   subtaskInput: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  modalBackdrop: { flex: 1, backgroundColor: '#0008', justifyContent: 'center', padding: 24 },
-  modal: { borderRadius: 22, padding: 18 },
 });
