@@ -1,0 +1,129 @@
+name: Pipeline de Produccion Mobile (CI/CD)
+
+# Se activa automáticamente en master y develop al subir código (push),
+# al pedir unir ramas (pull_request), o manualmente con un botón (workflow_dispatch)
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+  workflow_dispatch:
+
+# Si subes dos cambios seguidos muy rápido a la misma rama, cancela el anterior
+# para no gastar minutos de servidor innecesariamente
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # =========================================================================
+  # FASE 1: AUDITORÍA DE CÓDIGO, SQLITE Y EMPAQUETADO JAVASCRIPT (CI)
+  # =========================================================================
+  calidad-codigo:
+    name: 1. Inspector de Calidad y Rutas
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Descargar el código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Guardar en caché las librerías de Node (Acelera futuras ejecuciones)
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json', 'package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Instalar dependencias del proyecto de forma estricta
+        run: npm ci --no-audit || npm install --no-audit
+
+      - name: Validar configuración nativa (app.json y plugins de SQLite/Notifications)
+        run: npx expo config --type public
+
+      - name: Ejecutar diagnóstico de salud de Expo SDK 57
+        run: npm run doctor
+
+      - name: Verificar compilación real de todas las pantallas y base de datos
+        # Este comando obliga a Metro y Babel a compilar todo app/ y src/.
+        # Si existe un solo import roto, error de sintaxis o icono faltante, fallará aquí.
+        run: npx expo export --platform android --output-dir dist-ci
+
+  # =========================================================================
+  # FASE 2: FÁBRICA DE APK DE PRODUCCIÓN PARA ANDROID (CD SIN PLAY STORE)
+  # =========================================================================
+  compilar-apk:
+    name: 2. Generar Instalador APK de Produccion
+    needs: calidad-codigo
+    # Se ejecuta cuando haces push directo a master o develop, o cuando presionas el botón manual.
+    # (En un Pull Request solo corre la Fase 1 para validar rápido antes de mezclar).
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Descargar el código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Restaurar caché de Node
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json', 'package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Configurar Java 17 (Requerido por React Native 0.86 y Android Gradle)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configurar Android SDK y caché de Gradle (Hace que compilar sea el doble de rápido)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Instalar dependencias de Node
+        run: npm ci --no-audit || npm install --no-audit
+
+      - name: Generar proyecto nativo de Android (Prebuild con SQLite, Reanimated y Notifications)
+        env:
+          CI: "1"
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Optimizar memoria de la máquina virtual para compilar C++ y Hermes
+        run: |
+          echo "" >> android/gradle.properties
+          echo "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8" >> android/gradle.properties
+          echo "org.gradle.parallel=true" >> android/gradle.properties
+
+      - name: Compilar APK de Producción (Release) para teléfonos reales
+        working-directory: ./android
+        # Compila solo para procesadores de teléfonos reales (arm64-v8a y armeabi-v7a),
+        # ahorrando 12 minutos de compilación de emuladores de PC (x86).
+        run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a --no-daemon --max-workers=2
+
+      - name: Preparar archivo APK con nombre limpio
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk ./TaskFlow-${{ github.ref_name }}-v1.0.0.apk
+
+      - name: Subir APK listo para descargar en GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: TaskFlow-APK-${{ github.ref_name }}
+          path: ./TaskFlow-${{ github.ref_name }}-v1.0.0.apk
+          retention-days: 30
