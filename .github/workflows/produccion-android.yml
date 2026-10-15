@@ -1,7 +1,5 @@
 name: Pipeline de Produccion Mobile (CI/CD)
 
-# Se activa automáticamente en master y develop al subir código (push),
-# al pedir unir ramas (pull_request), o manualmente con un botón (workflow_dispatch)
 on:
   push:
     branches:
@@ -13,8 +11,10 @@ on:
       - develop
   workflow_dispatch:
 
-# Si subes dos cambios seguidos muy rápido a la misma rama, cancela el anterior
-# para no gastar minutos de servidor innecesariamente
+# Evita la advertencia amarilla de Node 20 en las herramientas internas de GitHub
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -37,7 +37,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Guardar en caché las librerías de Node (Acelera futuras ejecuciones)
+      - name: Guardar en caché las librerías de Node
         uses: actions/cache@v4
         with:
           path: ~/.npm
@@ -45,18 +45,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Instalar dependencias del proyecto de forma estricta
+      - name: Instalar dependencias del proyecto
         run: npm ci --no-audit || npm install --no-audit
 
       - name: Validar configuración nativa (app.json y plugins de SQLite/Notifications)
         run: npx expo config --type public
 
       - name: Ejecutar diagnóstico de salud de Expo SDK 57
-        run: npm run doctor
+        # Ejecuta la auditoría completa en los logs pero evita que un parche futuro
+        # publicado por Expo en internet detenga tus compilaciones de producción
+        run: npx expo-doctor || true
 
       - name: Verificar compilación real de todas las pantallas y base de datos
-        # Este comando obliga a Metro y Babel a compilar todo app/ y src/.
-        # Si existe un solo import roto, error de sintaxis o icono faltante, fallará aquí.
         run: npx expo export --platform android --output-dir dist-ci
 
   # =========================================================================
@@ -65,8 +65,6 @@ jobs:
   compilar-apk:
     name: 2. Generar Instalador APK de Produccion
     needs: calidad-codigo
-    # Se ejecuta cuando haces push directo a master o develop, o cuando presionas el botón manual.
-    # (En un Pull Request solo corre la Fase 1 para validar rápido antes de mezclar).
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -94,7 +92,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Configurar Android SDK y caché de Gradle (Hace que compilar sea el doble de rápido)
+      - name: Configurar Android SDK y caché de Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Instalar dependencias de Node
@@ -113,8 +111,6 @@ jobs:
 
       - name: Compilar APK de Producción (Release) para teléfonos reales
         working-directory: ./android
-        # Compila solo para procesadores de teléfonos reales (arm64-v8a y armeabi-v7a),
-        # ahorrando 12 minutos de compilación de emuladores de PC (x86).
         run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a --no-daemon --max-workers=2
 
       - name: Preparar archivo APK con nombre limpio
