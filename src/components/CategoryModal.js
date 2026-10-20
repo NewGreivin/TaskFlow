@@ -10,6 +10,7 @@ import {
   SectionList,
 } from 'react-native';
 import { Button, IconButton, Surface, Text, TextInput, Portal, Dialog } from 'react-native-paper';
+import ColorPicker, { Wheel, HueSlider, BrightnessSlider, Input, Panel1 } from 'reanimated-color-picker';
 import { useAppTheme } from '../theme/ThemeContext';
 import { CATEGORY_ICONS, ICON_CATEGORIES, DEFAULT_ICON_ID, getIconById } from '../constants/categoryIcons';
 import { CATEGORY_COLORS, DEFAULT_COLOR_VALUE } from '../constants/categoryColors';
@@ -93,6 +94,7 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
   // Specific Theme Tokens based on specifications
   const themeTokens = {
     modalBg: isDark ? '#161722' : '#FFFFFF',
+    dialogBg: isDark ? '#1E202C' : '#FFFFFF',
     cardBg: isDark ? '#12131C' : '#F8FAFC',
     cardBorder: isDark ? '#2B2D3C' : '#E2E8F0',
     titleText: isDark ? '#FFFFFF' : '#0F172A',
@@ -102,6 +104,11 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
     primaryBtn: isDark ? '#2E334D' : '#4F46E5',
     primaryBtnText: '#FFFFFF',
   };
+
+  const isPredefinedColor = CATEGORY_COLORS.some(
+    (col) => col.value.toUpperCase() === selectedColor.toUpperCase()
+  );
+  const isCustomSelected = !isPredefinedColor;
 
   useEffect(() => {
     if (visible) {
@@ -320,9 +327,19 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                     styles.colorCircle,
                     styles.customColorBtn,
                     { borderColor: themeTokens.sectionTitle },
+                    isCustomSelected && {
+                      backgroundColor: selectedColor,
+                      borderStyle: 'solid',
+                      borderWidth: 3,
+                      borderColor: '#FFFFFF',
+                    },
                   ]}
                 >
-                  <IconButton icon="palette-outline" size={18} iconColor={themeTokens.sectionTitle} style={{ margin: 0 }} />
+                  {isCustomSelected ? (
+                    <IconButton icon="check" size={16} iconColor="#FFFFFF" style={{ margin: 0 }} />
+                  ) : (
+                    <IconButton icon="palette-outline" size={18} iconColor={themeTokens.sectionTitle} style={{ margin: 0 }} />
+                  )}
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -437,42 +454,71 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
         </Pressable>
       </Modal>
 
-      {/* Custom HEX Color Picker Dialog */}
+      {/* Custom Color Picker Interactive Dialog */}
       <Portal>
         <Dialog
           visible={customColorDialogVisible}
           onDismiss={() => setCustomColorDialogVisible(false)}
-          style={{ backgroundColor: themeTokens.modalBg }}
+          style={{ backgroundColor: themeTokens.dialogBg, borderRadius: 24, paddingHorizontal: 8 }}
         >
-          <Dialog.Title style={{ color: themeTokens.titleText }}>Color personalizado (HEX)</Dialog.Title>
+          <Dialog.Title style={{ color: themeTokens.titleText, fontWeight: '800' }}>
+            Color personalizado
+          </Dialog.Title>
           <Dialog.Content>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
-                  backgroundColor: /^#([0-9A-F]{3}){1,2}$/i.test(customHex) ? customHex : '#8B7CFF',
-                  borderWidth: 1,
-                  borderColor: themeTokens.cardBorder,
-                }}
-              />
-              <TextInput
-                label="Código Hexadecimal"
-                placeholder="#FF5500"
-                value={customHex}
-                onChangeText={setCustomHex}
-                mode="outlined"
-                style={{ flex: 1, backgroundColor: themeTokens.cardBg }}
-                textColor={themeTokens.titleText}
-              />
-            </View>
+            <ColorPicker
+              value={customHex || selectedColor}
+              onChange={(color) => setCustomHex(color.hex.toUpperCase())}
+              style={{ width: '100%', gap: 16 }}
+            >
+              {/* Color Wheel / Spectrum */}
+              <View style={{ alignItems: 'center', marginVertical: 8 }}>
+                <Wheel size={200} />
+              </View>
+
+              {/* Sliders for Brightness & Hue */}
+              <View style={{ gap: 12 }}>
+                <Text variant="labelMedium" style={{ color: themeTokens.subText, fontWeight: '700' }}>
+                  Brillo / Matiz
+                </Text>
+                <BrightnessSlider style={{ height: 28, borderRadius: 14 }} />
+                <HueSlider style={{ height: 28, borderRadius: 14 }} />
+              </View>
+
+              {/* HEX Text Input & Preview Swatch */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 }}>
+                <View
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 19,
+                    backgroundColor: /^#([0-9A-F]{3}){1,2}$/i.test(customHex) ? customHex : selectedColor,
+                    borderWidth: 2,
+                    borderColor: themeTokens.cardBorder,
+                  }}
+                />
+                <Input
+                  style={{
+                    flex: 1,
+                    height: 44,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderColor: themeTokens.cardBorder,
+                    backgroundColor: themeTokens.cardBg,
+                    color: themeTokens.titleText,
+                    paddingHorizontal: 12,
+                    fontWeight: '700',
+                  }}
+                  placeholder="#6366F1"
+                  placeholderTextColor={themeTokens.subText}
+                />
+              </View>
+            </ColorPicker>
           </Dialog.Content>
-          <Dialog.Actions>
+          <Dialog.Actions style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
             <Button onPress={() => setCustomColorDialogVisible(false)} textColor={themeTokens.subText}>
               Cancelar
             </Button>
-            <Button onPress={handleApplyCustomColor} textColor={themeTokens.sectionTitle}>
+            <Button mode="contained" onPress={handleApplyCustomColor} style={{ backgroundColor: themeTokens.primaryBtn, borderRadius: 12 }}>
               Aplicar
             </Button>
           </Dialog.Actions>
