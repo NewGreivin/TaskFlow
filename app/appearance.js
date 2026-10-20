@@ -14,10 +14,14 @@ export default function Appearance() {
   const { mode, changeMode, palette } = useAppTheme();
 
   const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/');
+    try {
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace('/(tabs)/today');
+      }
+    } catch (e) {
+      router.replace('/(tabs)/today');
     }
   };
 
