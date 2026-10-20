@@ -120,43 +120,50 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                 style={[styles.searchInput, { backgroundColor: palette.surface }]}
               />
 
-              <View style={styles.iconGrid}>
-                {filteredIcons.map((item) => {
-                  const isSelected = selectedIconId === item.id;
-                  return (
-                    <TouchableOpacity
-                      key={item.id}
-                      activeOpacity={0.7}
-                      onPress={() => setSelectedIconId(item.id)}
-                      style={[
-                        styles.iconTile,
-                        { borderColor: palette.border, backgroundColor: palette.background },
-                        isSelected && {
-                          borderColor: selectedColor,
-                          backgroundColor: `${selectedColor}20`,
-                          borderWidth: 2,
-                        },
-                      ]}
-                    >
-                      <CategoryIcon
-                        iconId={item.id}
-                        size={22}
-                        color={isSelected ? selectedColor : palette.muted}
-                      />
-                      <Text
-                        numberOfLines={1}
+              <ScrollView
+                style={styles.iconScrollContainer}
+                nestedScrollEnabled
+                showsVerticalScrollIndicator
+                keyboardShouldPersistTaps="handled"
+              >
+                <View style={styles.iconGrid}>
+                  {filteredIcons.map((item) => {
+                    const isSelected = selectedIconId === item.id;
+                    return (
+                      <TouchableOpacity
+                        key={item.id}
+                        activeOpacity={0.7}
+                        onPress={() => setSelectedIconId(item.id)}
                         style={[
-                          styles.iconTileLabel,
-                          { color: isSelected ? palette.text : palette.muted },
-                          isSelected && { fontWeight: '700' },
+                          styles.iconTile,
+                          { borderColor: palette.border, backgroundColor: palette.background },
+                          isSelected && {
+                            borderColor: selectedColor,
+                            backgroundColor: `${selectedColor}20`,
+                            borderWidth: 2,
+                          },
                         ]}
                       >
-                        {item.name}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+                        <CategoryIcon
+                          iconId={item.id}
+                          size={22}
+                          color={isSelected ? selectedColor : palette.muted}
+                        />
+                        <Text
+                          numberOfLines={1}
+                          style={[
+                            styles.iconTileLabel,
+                            { color: isSelected ? palette.text : palette.muted },
+                            isSelected && { fontWeight: '700' },
+                          ]}
+                        >
+                          {item.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </ScrollView>
 
               {/* 4. Color Palette Selector */}
               <Text variant="labelLarge" style={[styles.sectionTitle, { color: palette.primary, marginTop: 16 }]}>
@@ -264,11 +271,15 @@ const styles = StyleSheet.create({
   searchInput: {
     marginBottom: 12,
   },
+  iconScrollContainer: {
+    maxHeight: 180,
+    marginBottom: 12,
+  },
   iconGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    maxHeight: 180,
+    paddingBottom: 4,
   },
   iconTile: {
     width: '31%',

@@ -5,11 +5,14 @@ import { createCategory, deleteCategory, getCategories, updateCategory } from '.
 import { useAppTheme } from '../../src/theme/ThemeContext';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CategoryIcon from '../../src/components/CategoryIcon';
 import CategoryModal from '../../src/components/CategoryModal';
 
 export default function Categories() {
   const db = useSQLiteContext();
+  const insets = useSafeAreaInsets();
+  const fabBottom = 60 + Math.max(insets.bottom, 6) + 16;
   const { palette } = useAppTheme();
 
   const [cats, setCats] = useState([]);
@@ -74,7 +77,6 @@ export default function Categories() {
               Categorías
             </Text>
           </View>
-          <IconButton icon="plus" mode="contained-tonal" onPress={handleOpenCreate} />
         </View>
 
         {cats.map((c) => {
@@ -109,7 +111,7 @@ export default function Categories() {
       {/* Floating Action Button (+) */}
       <FAB
         icon="plus"
-        style={[styles.fab, { backgroundColor: palette.primary }]}
+        style={[styles.fab, { backgroundColor: palette.primary, bottom: fabBottom }]}
         color="#FFF"
         onPress={handleOpenCreate}
       />
