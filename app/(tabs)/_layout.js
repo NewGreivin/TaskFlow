@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Icon } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppTheme } from '../../src/theme/ThemeContext';
 
 const tabIcon = (name) => ({ color, size }) => (
   <Icon source={name} color={color} size={size} />
@@ -8,15 +9,16 @@ const tabIcon = (name) => ({ color, size }) => (
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
-  const bottomInset = Math.max(insets.bottom, 8);
+  const { palette, isDark } = useAppTheme();
+  const bottomInset = Math.max(insets.bottom, 6);
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
 
-        tabBarActiveTintColor: '#5B4BFF',
-        tabBarInactiveTintColor: '#8A8F9F',
+        tabBarActiveTintColor: palette.primary,
+        tabBarInactiveTintColor: palette.muted,
 
         tabBarStyle: {
           position: 'absolute',
@@ -26,10 +28,21 @@ export default function TabsLayout() {
           height: 60 + bottomInset,
           paddingTop: 6,
           paddingBottom: bottomInset,
+          backgroundColor: palette.surface,
           borderTopWidth: 1,
-          borderTopColor: '#E8EAF1',
-          backgroundColor: '#FFFFFF',
+          borderTopColor: palette.border,
+          borderTopLeftRadius: 22,
+          borderTopRightRadius: 22,
+          borderLeftWidth: 1,
+          borderRightWidth: 1,
+          borderLeftColor: palette.border,
+          borderRightColor: palette.border,
           elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: isDark ? 0.3 : 0.08,
+          shadowRadius: 10,
+          overflow: 'hidden',
         },
 
         tabBarLabelStyle: {
