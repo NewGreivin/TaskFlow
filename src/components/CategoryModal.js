@@ -1,24 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Button, IconButton, Surface, Text, TextInput } from 'react-native-paper';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Button, IconButton, Surface, Text, TextInput, Portal, Dialog } from 'react-native-paper';
 import { useAppTheme } from '../theme/ThemeContext';
-import { CATEGORY_ICONS, DEFAULT_ICON_ID } from '../constants/categoryIcons';
+import { CATEGORY_ICONS, ICON_CATEGORIES, DEFAULT_ICON_ID } from '../constants/categoryIcons';
 import { CATEGORY_COLORS, DEFAULT_COLOR_VALUE } from '../constants/categoryColors';
 import CategoryIcon from './CategoryIcon';
 
 export default function CategoryModal({ visible, category, onSave, onClose }) {
-  const { palette } = useAppTheme();
+  const { palette, isDark } = useAppTheme();
 
+  // Form State
   const [name, setName] = useState('');
   const [selectedIconId, setSelectedIconId] = useState(DEFAULT_ICON_ID);
   const [selectedColor, setSelectedColor] = useState(DEFAULT_COLOR_VALUE);
-  const [searchQuery, setSearchQuery] = useState('');
+
+  // Submodal State (Icon Picker)
+  const [iconPickerVisible, setIconPickerVisible] = useState(false);
+  const [tempIconId, setTempIconId] = useState(DEFAULT_ICON_ID);
+  const [iconSearchQuery, setIconSearchQuery] = useState('');
+
+  // Custom Color Dialog State
+  const [customColorDialogVisible, setCustomColorDialogVisible] = useState(false);
+  const [customHex, setCustomHex] = useState('#6366F1');
+
+  // Specific Theme Tokens based on specifications
+  const themeTokens = {
+    modalBg: isDark ? '#161722' : '#FFFFFF',
+    cardBg: isDark ? '#12131C' : '#F8FAFC',
+    cardBorder: isDark ? '#2B2D3C' : '#E2E8F0',
+    titleText: isDark ? '#FFFFFF' : '#0F172A',
+    sectionTitle: isDark ? '#818CF8' : '#6366F1',
+    subText: isDark ? '#71788E' : '#94A3B8',
+    neutralIcon: isDark ? '#CBD5E1' : '#475569',
+    primaryBtn: isDark ? '#2E334D' : '#4F46E5',
+    primaryBtnText: '#FFFFFF',
+  };
 
   useEffect(() => {
     if (visible) {
       if (category) {
         setName(category.name || '');
-        // Resolve icon identifier from category.icon or fallback
         const matchingIcon = CATEGORY_ICONS.find(
           (item) => item.id === category.icon || item.iconName === category.icon
         );
@@ -29,20 +57,12 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
         setSelectedIconId(DEFAULT_ICON_ID);
         setSelectedColor(DEFAULT_COLOR_VALUE);
       }
-      setSearchQuery('');
+      setIconPickerVisible(false);
+      setCustomColorDialogVisible(false);
     }
   }, [visible, category]);
 
-  // Filter central icon catalog dynamically
-  const filteredIcons = CATEGORY_ICONS.filter((item) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase().trim();
-    const nameMatch = item.name.toLowerCase().includes(q);
-    const idMatch = item.id.toLowerCase().includes(q);
-    const keywordMatch = (item.keywords || []).some((kw) => kw.toLowerCase().includes(q));
-    return nameMatch || idMatch || keywordMatch;
-  });
-
+  // Handle Main Modal Save
   const handleSave = () => {
     if (!name.trim()) return;
     onSave?.({
@@ -53,6 +73,37 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
     onClose?.();
   };
 
+  // Icon Picker Submodal Handlers
+  const handleOpenIconPicker = () => {
+    setTempIconId(selectedIconId);
+    setIconSearchQuery('');
+    setIconPickerVisible(true);
+  };
+
+  const handleConfirmIconPicker = () => {
+    setSelectedIconId(tempIconId);
+    setIconPickerVisible(false);
+  };
+
+  // Custom Color Picker Handlers
+  const handleApplyCustomColor = () => {
+    const validHexPattern = /^#([0-9A-F]{3}){1,2}$/i;
+    if (validHexPattern.test(customHex.trim())) {
+      setSelectedColor(customHex.trim().toUpperCase());
+    }
+    setCustomColorDialogVisible(false);
+  };
+
+  // Filtered icons for Icon Picker Submodal
+  const filteredIcons = CATEGORY_ICONS.filter((item) => {
+    if (!iconSearchQuery.trim()) return true;
+    const q = iconSearchQuery.toLowerCase().trim();
+    const nameMatch = item.name.toLowerCase().includes(q);
+    const catMatch = (item.category || '').toLowerCase().includes(q);
+    const keywordMatch = (item.keywords || []).some((kw) => kw.toLowerCase().includes(q));
+    return nameMatch || catMatch || keywordMatch;
+  });
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
@@ -61,15 +112,15 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
             elevation={5}
             style={[
               styles.modalContainer,
-              { backgroundColor: palette.surface, borderColor: palette.border },
+              { backgroundColor: themeTokens.modalBg, borderColor: themeTokens.cardBorder },
             ]}
           >
-            {/* Header */}
+            {/* Header: Title left, Close button (✕) right */}
             <View style={styles.header}>
-              <Text variant="titleLarge" style={[styles.title, { color: palette.text }]}>
+              <Text variant="titleLarge" style={[styles.title, { color: themeTokens.titleText }]}>
                 {category ? 'Editar categoría' : 'Crear categoría'}
               </Text>
-              <IconButton icon="close" size={20} onPress={onClose} />
+              <IconButton icon="close" size={22} iconColor={themeTokens.titleText} onPress={onClose} />
             </View>
 
             <ScrollView
@@ -77,99 +128,65 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
               contentContainerStyle={styles.scrollContent}
               keyboardShouldPersistTaps="handled"
             >
-              {/* 1. Preview Card */}
-              <Text variant="labelLarge" style={[styles.sectionTitle, { color: palette.primary }]}>
+              {/* Real-time Preview Card */}
+              <Text variant="labelLarge" style={[styles.sectionTitle, { color: themeTokens.sectionTitle }]}>
                 VISTA PREVIA
               </Text>
               <Surface
                 style={[
                   styles.previewCard,
-                  { backgroundColor: palette.background, borderColor: palette.border },
+                  { backgroundColor: themeTokens.cardBg, borderColor: themeTokens.cardBorder },
                 ]}
                 elevation={0}
               >
                 <View style={[styles.previewIconBox, { backgroundColor: `${selectedColor}22` }]}>
                   <CategoryIcon iconId={selectedIconId} size={24} color={selectedColor} />
                 </View>
-                <Text variant="titleMedium" style={[styles.previewName, { color: palette.text }]}>
+                <Text variant="titleMedium" style={[styles.previewName, { color: themeTokens.titleText }]}>
                   {name.trim() || 'Nombre de la categoría'}
                 </Text>
               </Surface>
 
-              {/* 2. Category Name Input */}
+              {/* Input for category name */}
               <TextInput
                 label="Nombre de la categoría"
+                placeholder="Nombre de la categoría"
                 value={name}
                 onChangeText={setName}
                 mode="outlined"
-                placeholder="Ej. Finanzas, Libros..."
-                style={[styles.input, { backgroundColor: palette.surface }]}
+                textColor={themeTokens.titleText}
+                placeholderTextColor={themeTokens.subText}
+                outlineColor={themeTokens.cardBorder}
+                activeOutlineColor={themeTokens.sectionTitle}
+                style={[styles.input, { backgroundColor: themeTokens.cardBg }]}
               />
 
-              {/* 3. Icon Selector */}
-              <Text variant="labelLarge" style={[styles.sectionTitle, { color: palette.primary }]}>
+              {/* Trigger Button/Card for Submodal Icon Picker */}
+              <Text variant="labelLarge" style={[styles.sectionTitle, { color: themeTokens.sectionTitle }]}>
                 SELECCIONAR ICONO
               </Text>
-              <TextInput
-                placeholder="Buscar icono (ej. libro, casa...)"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                mode="outlined"
-                dense
-                left={<TextInput.Icon icon="magnify" />}
-                style={[styles.searchInput, { backgroundColor: palette.surface }]}
-              />
-
-              <ScrollView
-                style={styles.iconScrollContainer}
-                nestedScrollEnabled
-                showsVerticalScrollIndicator
-                keyboardShouldPersistTaps="handled"
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleOpenIconPicker}
+                style={[
+                  styles.iconTriggerCard,
+                  { backgroundColor: themeTokens.cardBg, borderColor: themeTokens.cardBorder },
+                ]}
               >
-                <View style={styles.iconGrid}>
-                  {filteredIcons.map((item) => {
-                    const isSelected = selectedIconId === item.id;
-                    return (
-                      <TouchableOpacity
-                        key={item.id}
-                        activeOpacity={0.7}
-                        onPress={() => setSelectedIconId(item.id)}
-                        style={[
-                          styles.iconTile,
-                          { borderColor: palette.border, backgroundColor: palette.background },
-                          isSelected && {
-                            borderColor: selectedColor,
-                            backgroundColor: `${selectedColor}20`,
-                            borderWidth: 2,
-                          },
-                        ]}
-                      >
-                        <CategoryIcon
-                          iconId={item.id}
-                          size={22}
-                          color={isSelected ? selectedColor : palette.muted}
-                        />
-                        <Text
-                          numberOfLines={1}
-                          style={[
-                            styles.iconTileLabel,
-                            { color: isSelected ? palette.text : palette.muted },
-                            isSelected && { fontWeight: '700' },
-                          ]}
-                        >
-                          {item.name}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
+                <View style={[styles.triggerIconBox, { backgroundColor: `${selectedColor}18` }]}>
+                  <CategoryIcon iconId={selectedIconId} size={22} color={selectedColor} />
                 </View>
-              </ScrollView>
+                <Text style={[styles.triggerText, { color: themeTokens.titleText }]}>
+                  Elegir icono
+                </Text>
+                <IconButton icon="chevron-right" size={22} iconColor={themeTokens.neutralIcon} />
+              </TouchableOpacity>
 
-              {/* 4. Color Palette Selector */}
-              <Text variant="labelLarge" style={[styles.sectionTitle, { color: palette.primary, marginTop: 16 }]}>
+              {/* Color Palette + Custom Color Selector */}
+              <Text variant="labelLarge" style={[styles.sectionTitle, { color: themeTokens.sectionTitle, marginTop: 16 }]}>
                 COLOR DE CATEGORÍA
               </Text>
-              <View style={styles.colorRow}>
+              <View style={styles.colorGrid}>
                 {CATEGORY_COLORS.map((col) => {
                   const isSelected = selectedColor === col.value;
                   return (
@@ -183,23 +200,43 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                         isSelected && styles.colorCircleSelected,
                       ]}
                     >
-                      {isSelected ? <IconButton icon="check" size={16} iconColor="#FFF" /> : null}
+                      {isSelected && <IconButton icon="check" size={16} iconColor="#FFFFFF" style={{ margin: 0 }} />}
                     </TouchableOpacity>
                   );
                 })}
+
+                {/* Custom Color Button */}
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    setCustomHex(selectedColor);
+                    setCustomColorDialogVisible(true);
+                  }}
+                  style={[
+                    styles.colorCircle,
+                    styles.customColorBtn,
+                    { borderColor: themeTokens.sectionTitle },
+                  ]}
+                >
+                  <IconButton icon="palette-outline" size={18} iconColor={themeTokens.sectionTitle} style={{ margin: 0 }} />
+                </TouchableOpacity>
               </View>
             </ScrollView>
 
-            {/* Actions */}
-            <View style={styles.actions}>
-              <Button mode="text" onPress={onClose}>
+            {/* Main Modal Footer Actions */}
+            <View style={[styles.actions, { borderTopColor: themeTokens.cardBorder }]}>
+              <Button mode="text" onPress={onClose} textColor={themeTokens.subText}>
                 Cancelar
               </Button>
               <Button
                 mode="contained"
                 disabled={!name.trim()}
                 onPress={handleSave}
-                style={styles.saveBtn}
+                style={[
+                  styles.saveBtn,
+                  { backgroundColor: name.trim() ? themeTokens.primaryBtn : `${themeTokens.primaryBtn}50` },
+                ]}
+                textColor={themeTokens.primaryBtnText}
               >
                 Guardar categoría
               </Button>
@@ -207,6 +244,173 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
           </Surface>
         </Pressable>
       </Pressable>
+
+      {/* Submodal Secundario: "Seleccionar icono" */}
+      <Modal visible={iconPickerVisible} transparent animationType="slide" onRequestClose={() => setIconPickerVisible(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setIconPickerVisible(false)}>
+          <Pressable onPress={(e) => e.stopPropagation()} style={styles.submodalWrapper}>
+            <Surface
+              elevation={5}
+              style={[
+                styles.modalContainer,
+                { backgroundColor: themeTokens.modalBg, borderColor: themeTokens.cardBorder },
+              ]}
+            >
+              <View style={styles.header}>
+                <Text variant="titleLarge" style={[styles.title, { color: themeTokens.titleText }]}>
+                  Seleccionar icono
+                </Text>
+                <IconButton
+                  icon="close"
+                  size={20}
+                  iconColor={themeTokens.titleText}
+                  onPress={() => setIconPickerVisible(false)}
+                />
+              </View>
+
+              {/* Search Bar */}
+              <TextInput
+                placeholder="Buscar iconos"
+                value={iconSearchQuery}
+                onChangeText={setIconSearchQuery}
+                mode="outlined"
+                dense
+                textColor={themeTokens.titleText}
+                placeholderTextColor={themeTokens.subText}
+                outlineColor={themeTokens.cardBorder}
+                activeOutlineColor={themeTokens.sectionTitle}
+                left={<TextInput.Icon icon="magnify" iconColor={themeTokens.subText} />}
+                style={[styles.searchInput, { backgroundColor: themeTokens.cardBg }]}
+              />
+
+              {/* 7-column grid with smooth vertical scroll */}
+              <ScrollView
+                style={styles.iconScrollArea}
+                showsVerticalScrollIndicator
+                keyboardShouldPersistTaps="handled"
+              >
+                {iconSearchQuery.trim() ? (
+                  <View style={styles.sevenColGrid}>
+                    {filteredIcons.map((item) => {
+                      const isSelected = tempIconId === item.id;
+                      return (
+                        <TouchableOpacity
+                          key={item.id}
+                          activeOpacity={0.7}
+                          onPress={() => setTempIconId(item.id)}
+                          style={[
+                            styles.colTile,
+                            { backgroundColor: themeTokens.cardBg, borderColor: themeTokens.cardBorder },
+                            isSelected && { borderColor: selectedColor, backgroundColor: `${selectedColor}22` },
+                          ]}
+                        >
+                          <CategoryIcon
+                            iconId={item.id}
+                            size={22}
+                            color={isSelected ? selectedColor : themeTokens.neutralIcon}
+                          />
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                ) : (
+                  ICON_CATEGORIES.map((catName) => {
+                    const catIcons = CATEGORY_ICONS.filter((item) => item.category === catName);
+                    if (catIcons.length === 0) return null;
+                    return (
+                      <View key={catName} style={styles.catGroup}>
+                        <Text style={[styles.catGroupTitle, { color: themeTokens.sectionTitle }]}>
+                          {catName}
+                        </Text>
+                        <View style={styles.sevenColGrid}>
+                          {catIcons.map((item) => {
+                            const isSelected = tempIconId === item.id;
+                            return (
+                              <TouchableOpacity
+                                key={item.id}
+                                activeOpacity={0.7}
+                                onPress={() => setTempIconId(item.id)}
+                                style={[
+                                  styles.colTile,
+                                  { backgroundColor: themeTokens.cardBg, borderColor: themeTokens.cardBorder },
+                                  isSelected && { borderColor: selectedColor, backgroundColor: `${selectedColor}25` },
+                                ]}
+                              >
+                                <CategoryIcon
+                                  iconId={item.id}
+                                  size={22}
+                                  color={isSelected ? selectedColor : themeTokens.neutralIcon}
+                                />
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+                      </View>
+                    );
+                  })
+                )}
+              </ScrollView>
+
+              {/* Submodal Actions */}
+              <View style={[styles.actions, { borderTopColor: themeTokens.cardBorder }]}>
+                <Button mode="text" onPress={() => setIconPickerVisible(false)} textColor={themeTokens.subText}>
+                  Cancelar
+                </Button>
+                <Button
+                  mode="contained"
+                  onPress={handleConfirmIconPicker}
+                  style={[styles.saveBtn, { backgroundColor: themeTokens.primaryBtn }]}
+                  textColor={themeTokens.primaryBtnText}
+                >
+                  Seleccionar
+                </Button>
+              </View>
+            </Surface>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Custom HEX Color Picker Dialog */}
+      <Portal>
+        <Dialog
+          visible={customColorDialogVisible}
+          onDismiss={() => setCustomColorDialogVisible(false)}
+          style={{ backgroundColor: themeTokens.modalBg }}
+        >
+          <Dialog.Title style={{ color: themeTokens.titleText }}>Color personalizado (HEX)</Dialog.Title>
+          <Dialog.Content>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: /^#([0-9A-F]{3}){1,2}$/i.test(customHex) ? customHex : '#8B7CFF',
+                  borderWidth: 1,
+                  borderColor: themeTokens.cardBorder,
+                }}
+              />
+              <TextInput
+                label="Código Hexadecimal"
+                placeholder="#FF5500"
+                value={customHex}
+                onChangeText={setCustomHex}
+                mode="outlined"
+                style={{ flex: 1, backgroundColor: themeTokens.cardBg }}
+                textColor={themeTokens.titleText}
+              />
+            </View>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setCustomColorDialogVisible(false)} textColor={themeTokens.subText}>
+              Cancelar
+            </Button>
+            <Button onPress={handleApplyCustomColor} textColor={themeTokens.sectionTitle}>
+              Aplicar
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </Modal>
   );
 }
@@ -214,12 +418,15 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
     justifyContent: 'center',
     padding: 16,
   },
   modalWrapper: {
-    maxHeight: '90%',
+    maxHeight: '92%',
+  },
+  submodalWrapper: {
+    maxHeight: '85%',
   },
   modalContainer: {
     borderRadius: 24,
@@ -237,11 +444,12 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   scrollContent: {
-    paddingBottom: 12,
+    paddingBottom: 8,
   },
   sectionTitle: {
     fontWeight: '800',
     letterSpacing: 0.8,
+    fontSize: 12,
     marginBottom: 8,
     marginTop: 4,
   },
@@ -268,58 +476,86 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 16,
   },
-  searchInput: {
-    marginBottom: 12,
-  },
-  iconScrollContainer: {
-    maxHeight: 180,
-    marginBottom: 12,
-  },
-  iconGrid: {
+  iconTriggerCard: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    paddingBottom: 4,
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 12,
   },
-  iconTile: {
-    width: '31%',
+  triggerIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    borderRadius: 12,
-    borderWidth: 1,
+    marginRight: 12,
   },
-  iconTileLabel: {
-    fontSize: 11,
-    marginTop: 4,
-    textAlign: 'center',
+  triggerText: {
+    flex: 1,
+    fontWeight: '600',
+    fontSize: 15,
   },
-  colorRow: {
+  colorGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
     marginTop: 4,
   },
   colorCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },
   colorCircleSelected: {
     borderWidth: 3,
-    borderColor: '#FFF',
+    borderColor: '#FFFFFF',
+  },
+  customColorBtn: {
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    backgroundColor: 'transparent',
+  },
+  searchInput: {
+    marginBottom: 12,
+  },
+  iconScrollArea: {
+    maxHeight: 320,
+    marginBottom: 12,
+  },
+  catGroup: {
+    marginBottom: 14,
+  },
+  catGroupTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+  },
+  sevenColGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  colTile: {
+    width: '12.5%',
+    aspectRatio: 1,
+    borderRadius: 10,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 10,
-    marginTop: 16,
+    marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#FFFFFF10',
   },
   saveBtn: {
     borderRadius: 12,
