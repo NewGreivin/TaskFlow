@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, View, Pressable } from 'react-native';
 import { FAB, IconButton, Surface, Text } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSQLiteContext } from '../../src/data/database';
 import { getTasks, toTaskCard, updateTaskStatus, getDatesWithTasks } from '../../src/data/taskRepository';
 import { useAppTheme } from '../../src/theme/ThemeContext';
@@ -14,7 +15,9 @@ const WEEKDAYS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 export default function Calendar() {
   const router = useRouter();
   const db = useSQLiteContext();
-  const { palette } = useAppTheme();
+  const insets = useSafeAreaInsets();
+  const fabBottom = 60 + Math.max(insets.bottom, 6) + 16;
+  const { palette, isDark } = useAppTheme();
 
   const todayKey = useMemo(() => toLocalDateKey(), []);
   const todayDate = useMemo(() => new Date(), []);
@@ -170,8 +173,8 @@ export default function Calendar() {
                           color: isSelected
                             ? '#FFFFFF'
                             : isCurrentMonth
-                            ? '#FFFFFF'
-                            : palette.muted || '#888888',
+                            ? (isDark ? palette.text : '#111827')
+                            : palette.muted,
                           fontWeight: isSelected ? '800' : isCurrentMonth ? '600' : '400',
                         },
                       ]}
@@ -231,7 +234,7 @@ export default function Calendar() {
       <FAB
         icon="plus"
         label="Nueva tarea"
-        style={[styles.fab, { backgroundColor: palette.primary }]}
+        style={[styles.fab, { backgroundColor: palette.primary, bottom: fabBottom }]}
         color="#FFF"
         onPress={() => router.push('/task/new')}
       />

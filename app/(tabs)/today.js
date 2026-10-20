@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, View, Pressable } from 'react-native';
 import { FAB, Icon, IconButton, Surface, Text } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSQLiteContext } from '../../src/data/database';
 import { getStats, getTasks, toTaskCard, updateTaskStatus } from '../../src/data/taskRepository';
 import { useAppTheme } from '../../src/theme/ThemeContext';
@@ -12,6 +13,8 @@ import SectionHeader from '../../src/components/SectionHeader';
 
 export default function Today() {
   const router = useRouter(), db = useSQLiteContext();
+  const insets = useSafeAreaInsets();
+  const fabBottom = 60 + Math.max(insets.bottom, 6) + 16;
   const { palette, isDark } = useAppTheme();
   const [selected, setSelected] = useState(toLocalDateKey());
   const [tasks, setTasks] = useState([]);
@@ -32,7 +35,7 @@ export default function Today() {
       <SectionHeader title="Tareas del día" action="Ver todas ›" onAction={()=>router.push('/(tabs)/tasks')}/>
       {tasks.length ? tasks.map((task,i)=><TaskCard key={task.id} task={task} index={i} onToggle={()=>toggle(task)} onPress={()=>router.push(`/task/${task.id}`)}/>) : <Empty palette={palette}/>} 
       <Surface style={[styles.quote,{backgroundColor:palette.primarySoft}]} elevation={0}><View style={[styles.quoteIcon,{backgroundColor:palette.primary+'20'}]}><Icon source="leaf" size={20} color={palette.primary}/></View><View style={{flex:1}}><Text style={[styles.quoteTitle,{color:palette.text}]}>Un paso a la vez</Text><Text variant="bodySmall" style={{color:palette.muted}}>La constancia convierte las tareas en progreso.</Text></View></Surface>
-    </ScrollView><FAB icon="plus" label="Nueva tarea" style={[styles.fab,{backgroundColor:palette.primary}]} color="#FFF" onPress={()=>router.push('/task/new')}/>
+    </ScrollView><FAB icon="plus" label="Nueva tarea" style={[styles.fab,{backgroundColor:palette.primary, bottom: fabBottom}]} color="#FFF" onPress={()=>router.push('/task/new')}/>
   </View>;
 }
 function Empty({palette}){return <View style={styles.empty}><View style={[styles.emptyIcon,{backgroundColor:palette.primarySoft}]}><Icon source="check-all" size={30} color={palette.primary}/></View><Text variant="titleMedium" style={{color:palette.text,fontWeight:'800'}}>Día despejado</Text><Text style={{color:palette.muted}}>No tienes tareas para esta fecha.</Text></View>}
