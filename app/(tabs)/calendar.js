@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingTop: 55,
-    paddingBottom: 125,
+    paddingBottom: 130,
   },
   header: {
     flexDirection: 'row',
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 18,
-    bottom: 88,
+    bottom: 90,
     borderRadius: 18,
   },
 });

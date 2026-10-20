@@ -127,12 +127,12 @@ export default function Categories() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { padding: 20, paddingTop: 55, paddingBottom: 110 },
+  content: { padding: 20, paddingTop: 55, paddingBottom: 130 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
   title: { fontWeight: '800' },
   card: { flexDirection: 'row', alignItems: 'center', padding: 8, borderRadius: 16, borderWidth: 1, marginBottom: 10 },
   iconBox: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   info: { flex: 1, marginLeft: 10 },
   name: { fontWeight: '700' },
-  fab: { position: 'absolute', right: 20, bottom: 88, borderRadius: 18 },
+  fab: { position: 'absolute', right: 20, bottom: 90, borderRadius: 18 },
 });
