@@ -21,7 +21,11 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: palette.muted,
 
         tabBarStyle: {
-          height: 62 + bottomInset,
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 60 + bottomInset,
           paddingTop: 6,
           paddingBottom: bottomInset,
           backgroundColor: palette.surface,

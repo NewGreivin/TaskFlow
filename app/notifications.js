@@ -29,7 +29,8 @@ export default function Notifications() {
   return (
     <ScrollView style={[styles.container, { backgroundColor: palette.background }]} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <View>
+        <IconButton icon="arrow-left" size={24} iconColor={palette.text} onPress={() => router.back()} style={{ margin: 0, marginRight: 4 }} />
+        <View style={{ flex: 1 }}>
           <Text variant="labelLarge" style={{ color: palette.primary, fontWeight: '800' }}>CENTRO</Text>
           <Text variant="headlineSmall" style={[styles.title, { color: palette.text }]}>Recordatorios</Text>
         </View>

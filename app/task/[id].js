@@ -74,8 +74,8 @@ export default function TaskDetail() {
   const totalSubtasksCount = task.subtasks ? task.subtasks.length : 0;
 
   const statusConfigs = [
-    { key: 'Pendiente', label: 'Pendiente', icon: 'clock-outline', color: palette.muted },
-    { key: 'En progreso', label: 'En progreso', icon: 'progress-clock', color: palette.purple || palette.primary },
+    { key: 'Pendiente', label: 'Pendiente', icon: 'clock-outline', color: palette.medium || '#F3B51B' },
+    { key: 'En progreso', label: 'En progreso', icon: 'progress-clock', color: palette.blue || palette.primary },
     { key: 'Completada', label: 'Completada', icon: 'check-circle-outline', color: palette.green || palette.low },
     { key: 'Cancelada', label: 'Cancelada', icon: 'close-circle-outline', color: palette.urgent },
   ];
@@ -107,36 +107,41 @@ export default function TaskDetail() {
           </View>
 
           {/* Segmented Status Selector */}
-          <View style={styles.statusesGrid}>
-            {statusConfigs.map((s) => {
-              const isSelected = task.status === s.key;
-              return (
-                <TouchableOpacity
-                  key={s.key}
-                  activeOpacity={0.7}
-                  onPress={() => changeStatus(s.key)}
-                  style={[
-                    styles.statusChip,
-                    {
-                      backgroundColor: isSelected ? `${s.color}25` : palette.background,
-                      borderColor: isSelected ? s.color : palette.border,
-                      borderWidth: isSelected ? 1.5 : 1,
-                    },
-                  ]}
-                >
-                  <Icon source={s.icon} size={16} color={isSelected ? s.color : palette.muted} />
-                  <Text
+          <View style={styles.statusSection}>
+            <Text variant="labelSmall" style={[styles.statusSectionHeader, { color: palette.muted }]}>
+              ESTADO DE LA TAREA
+            </Text>
+            <View style={styles.statusesGrid}>
+              {statusConfigs.map((s) => {
+                const isSelected = task.status === s.key;
+                return (
+                  <TouchableOpacity
+                    key={s.key}
+                    activeOpacity={0.7}
+                    onPress={() => changeStatus(s.key)}
                     style={[
-                      styles.statusChipText,
-                      { color: isSelected ? s.color : palette.muted },
-                      isSelected && styles.statusChipTextActive,
+                      styles.statusChip,
+                      {
+                        backgroundColor: isSelected ? `${s.color}20` : palette.background,
+                        borderColor: isSelected ? s.color : palette.border,
+                        borderWidth: isSelected ? 2 : 1,
+                      },
                     ]}
                   >
-                    {s.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+                    <Icon source={s.icon} size={16} color={isSelected ? s.color : palette.muted} />
+                    <Text
+                      style={[
+                        styles.statusChipText,
+                        { color: isSelected ? s.color : palette.muted },
+                        isSelected && styles.statusChipTextActive,
+                      ]}
+                    >
+                      {s.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
 
           <Divider style={[styles.divider, { backgroundColor: palette.border }]} />
@@ -252,14 +257,16 @@ const styles = StyleSheet.create({
   taskTitle: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
   dot: { width: 12, height: 12, borderRadius: 6 },
   name: { flex: 1, fontWeight: '800' },
-  statusesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: 4 },
+  statusSection: { marginVertical: 8 },
+  statusSectionHeader: { fontWeight: '800', letterSpacing: 0.8, marginBottom: 8 },
+  statusesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   statusChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
+    paddingHorizontal: 13,
+    borderRadius: 20,
   },
   statusChipText: { fontSize: 13, fontWeight: '600' },
   statusChipTextActive: { fontWeight: '800' },
