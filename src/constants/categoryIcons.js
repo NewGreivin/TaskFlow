@@ -6301,8 +6301,19 @@ export const CATEGORY_ICONS = [
 
 export const DEFAULT_ICON_ID = 'account-outline';
 
+const ICON_MAP = new Map();
+CATEGORY_ICONS.forEach((item) => {
+  if (item.id && !ICON_MAP.has(item.id)) {
+    ICON_MAP.set(item.id, item);
+  }
+  if (item.iconName && !ICON_MAP.has(item.iconName)) {
+    ICON_MAP.set(item.iconName, item);
+  }
+});
+
 export function getIconById(id) {
-  const found = CATEGORY_ICONS.find((item) => item.id === id || item.iconName === id);
+  if (!id) return ICON_MAP.get(DEFAULT_ICON_ID) || CATEGORY_ICONS[0];
+  const found = ICON_MAP.get(id);
   if (found) return found;
-  return CATEGORY_ICONS.find((item) => item.id === DEFAULT_ICON_ID) || CATEGORY_ICONS[0];
+  return ICON_MAP.get(DEFAULT_ICON_ID) || CATEGORY_ICONS[0];
 }

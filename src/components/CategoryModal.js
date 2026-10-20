@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import {
   Modal,
   Pressable,
@@ -6,12 +6,72 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  FlatList,
+  SectionList,
 } from 'react-native';
 import { Button, IconButton, Surface, Text, TextInput, Portal, Dialog } from 'react-native-paper';
 import { useAppTheme } from '../theme/ThemeContext';
-import { CATEGORY_ICONS, ICON_CATEGORIES, DEFAULT_ICON_ID } from '../constants/categoryIcons';
+import { CATEGORY_ICONS, ICON_CATEGORIES, DEFAULT_ICON_ID, getIconById } from '../constants/categoryIcons';
 import { CATEGORY_COLORS, DEFAULT_COLOR_VALUE } from '../constants/categoryColors';
 import CategoryIcon from './CategoryIcon';
+
+// Helper to chunk arrays into rows of 7
+function chunkArray(array, size = 7) {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+}
+
+// Memoized individual icon tile button
+const IconTile = memo(({ item, isSelected, selectedColor, cardBg, cardBorder, neutralIcon, onSelect }) => {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => onSelect(item.id)}
+      style={[
+        styles.colTile,
+        { backgroundColor: cardBg, borderColor: cardBorder },
+        isSelected && { borderColor: selectedColor, backgroundColor: `${selectedColor}25` },
+      ]}
+    >
+      <CategoryIcon
+        iconId={item.id}
+        size={22}
+        color={isSelected ? selectedColor : neutralIcon}
+      />
+    </TouchableOpacity>
+  );
+});
+
+// Memoized row of up to 7 icon tiles
+const IconRow = memo(({ rowIcons, tempIconId, selectedColor, cardBg, cardBorder, neutralIcon, onSelect }) => {
+  const paddingNeeded = 7 - rowIcons.length;
+  return (
+    <View style={styles.iconRow}>
+      {rowIcons.map((item) => {
+        const isSelected = tempIconId === item.id;
+        return (
+          <IconTile
+            key={item.id}
+            item={item}
+            isSelected={isSelected}
+            selectedColor={selectedColor}
+            cardBg={cardBg}
+            cardBorder={cardBorder}
+            neutralIcon={neutralIcon}
+            onSelect={onSelect}
+          />
+        );
+      })}
+      {paddingNeeded > 0 &&
+        Array.from({ length: paddingNeeded }).map((_, idx) => (
+          <View key={`spacer-${idx}`} style={styles.colTileSpacer} />
+        ))}
+    </View>
+  );
+});
 
 export default function CategoryModal({ visible, category, onSave, onClose }) {
   const { palette, isDark } = useAppTheme();
@@ -47,9 +107,7 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
     if (visible) {
       if (category) {
         setName(category.name || '');
-        const matchingIcon = CATEGORY_ICONS.find(
-          (item) => item.id === category.icon || item.iconName === category.icon
-        );
+        const matchingIcon = getIconById(category.icon);
         setSelectedIconId(matchingIcon ? matchingIcon.id : category.icon || DEFAULT_ICON_ID);
         setSelectedColor(category.color || DEFAULT_COLOR_VALUE);
       } else {
@@ -85,6 +143,10 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
     setIconPickerVisible(false);
   };
 
+  const handleSelectTempIcon = useCallback((iconId) => {
+    setTempIconId(iconId);
+  }, []);
+
   // Custom Color Picker Handlers
   const handleApplyCustomColor = () => {
     const validHexPattern = /^#([0-9A-F]{3}){1,2}$/i;
@@ -94,15 +156,57 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
     setCustomColorDialogVisible(false);
   };
 
-  // Filtered icons for Icon Picker Submodal
-  const filteredIcons = CATEGORY_ICONS.filter((item) => {
-    if (!iconSearchQuery.trim()) return true;
+  // Memoized filtered icons and pre-chunked icon rows for ultra-fast rendering
+  const filteredIcons = useMemo(() => {
+    if (!iconSearchQuery.trim()) return CATEGORY_ICONS;
     const q = iconSearchQuery.toLowerCase().trim();
-    const nameMatch = item.name.toLowerCase().includes(q);
-    const catMatch = (item.category || '').toLowerCase().includes(q);
-    const keywordMatch = (item.keywords || []).some((kw) => kw.toLowerCase().includes(q));
-    return nameMatch || catMatch || keywordMatch;
-  });
+    return CATEGORY_ICONS.filter((item) => {
+      const nameMatch = item.name.toLowerCase().includes(q);
+      const catMatch = (item.category || '').toLowerCase().includes(q);
+      const keywordMatch = (item.keywords || []).some((kw) => kw.toLowerCase().includes(q));
+      return nameMatch || catMatch || keywordMatch;
+    });
+  }, [iconSearchQuery]);
+
+  const iconSections = useMemo(() => {
+    return ICON_CATEGORIES.map((catName) => {
+      const catIcons = CATEGORY_ICONS.filter((item) => item.category === catName);
+      const rows = chunkArray(catIcons, 7);
+      return {
+        title: catName,
+        data: rows,
+      };
+    }).filter((sec) => sec.data.length > 0);
+  }, []);
+
+  const filteredRows = useMemo(() => {
+    return chunkArray(filteredIcons, 7);
+  }, [filteredIcons]);
+
+  const renderSectionHeader = useCallback(
+    ({ section: { title } }) => (
+      <Text style={[styles.catGroupTitle, { color: themeTokens.sectionTitle }]}>
+        {title}
+      </Text>
+    ),
+    [themeTokens.sectionTitle]
+  );
+
+  const renderRowItem = useCallback(
+    ({ item: rowIcons, index }) => (
+      <IconRow
+        key={`row-${index}-${rowIcons[0]?.id || ''}`}
+        rowIcons={rowIcons}
+        tempIconId={tempIconId}
+        selectedColor={selectedColor}
+        cardBg={themeTokens.cardBg}
+        cardBorder={themeTokens.cardBorder}
+        neutralIcon={themeTokens.neutralIcon}
+        onSelect={handleSelectTempIcon}
+      />
+    ),
+    [tempIconId, selectedColor, themeTokens.cardBg, themeTokens.cardBorder, themeTokens.neutralIcon, handleSelectTempIcon]
+  );
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -283,73 +387,36 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                 style={[styles.searchInput, { backgroundColor: themeTokens.cardBg }]}
               />
 
-              {/* 7-column grid with smooth vertical scroll */}
-              <ScrollView
-                style={styles.iconScrollArea}
-                showsVerticalScrollIndicator
-                keyboardShouldPersistTaps="handled"
-              >
+              {/* 7-column grid with virtualized fast vertical scroll */}
+              <View style={styles.iconScrollArea}>
                 {iconSearchQuery.trim() ? (
-                  <View style={styles.sevenColGrid}>
-                    {filteredIcons.map((item) => {
-                      const isSelected = tempIconId === item.id;
-                      return (
-                        <TouchableOpacity
-                          key={item.id}
-                          activeOpacity={0.7}
-                          onPress={() => setTempIconId(item.id)}
-                          style={[
-                            styles.colTile,
-                            { backgroundColor: themeTokens.cardBg, borderColor: themeTokens.cardBorder },
-                            isSelected && { borderColor: selectedColor, backgroundColor: `${selectedColor}22` },
-                          ]}
-                        >
-                          <CategoryIcon
-                            iconId={item.id}
-                            size={22}
-                            color={isSelected ? selectedColor : themeTokens.neutralIcon}
-                          />
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
+                  <FlatList
+                    data={filteredRows}
+                    keyExtractor={(_, index) => `search-row-${index}`}
+                    renderItem={renderRowItem}
+                    initialNumToRender={8}
+                    maxToRenderPerBatch={8}
+                    windowSize={5}
+                    removeClippedSubviews
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator
+                  />
                 ) : (
-                  ICON_CATEGORIES.map((catName) => {
-                    const catIcons = CATEGORY_ICONS.filter((item) => item.category === catName);
-                    if (catIcons.length === 0) return null;
-                    return (
-                      <View key={catName} style={styles.catGroup}>
-                        <Text style={[styles.catGroupTitle, { color: themeTokens.sectionTitle }]}>
-                          {catName}
-                        </Text>
-                        <View style={styles.sevenColGrid}>
-                          {catIcons.map((item) => {
-                            const isSelected = tempIconId === item.id;
-                            return (
-                              <TouchableOpacity
-                                key={item.id}
-                                activeOpacity={0.7}
-                                onPress={() => setTempIconId(item.id)}
-                                style={[
-                                  styles.colTile,
-                                  { backgroundColor: themeTokens.cardBg, borderColor: themeTokens.cardBorder },
-                                  isSelected && { borderColor: selectedColor, backgroundColor: `${selectedColor}25` },
-                                ]}
-                              >
-                                <CategoryIcon
-                                  iconId={item.id}
-                                  size={22}
-                                  color={isSelected ? selectedColor : themeTokens.neutralIcon}
-                                />
-                              </TouchableOpacity>
-                            );
-                          })}
-                        </View>
-                      </View>
-                    );
-                  })
+                  <SectionList
+                    sections={iconSections}
+                    keyExtractor={(_, index) => `sec-row-${index}`}
+                    renderItem={renderRowItem}
+                    renderSectionHeader={renderSectionHeader}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={10}
+                    windowSize={5}
+                    removeClippedSubviews
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator
+                    stickySectionHeadersEnabled={false}
+                  />
                 )}
-              </ScrollView>
+              </View>
 
               {/* Submodal Actions */}
               <View style={[styles.actions, { borderTopColor: themeTokens.cardBorder }]}>
@@ -533,21 +600,26 @@ const styles = StyleSheet.create({
   catGroupTitle: {
     fontSize: 12,
     fontWeight: '700',
+    marginTop: 10,
     marginBottom: 6,
     textTransform: 'uppercase',
   },
-  sevenColGrid: {
+  iconRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
+    justifyContent: 'space-between',
+    marginBottom: 6,
   },
   colTile: {
-    width: '12.5%',
+    width: '13%',
     aspectRatio: 1,
     borderRadius: 10,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  colTileSpacer: {
+    width: '13%',
+    aspectRatio: 1,
   },
   actions: {
     flexDirection: 'row',
