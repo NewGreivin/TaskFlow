@@ -84,31 +84,6 @@ export async function migrateDbIfNeeded(db) {
     `INSERT OR IGNORE INTO settings (id, theme, language, notifications_enabled) VALUES (1, 'system', 'es', 1)`
   );
 
-  const taskCount = await db.getFirstAsync('SELECT COUNT(*) AS count FROM tasks');
-  if ((taskCount?.count ?? 0) === 0) {
-    const now = new Date();
-    const key = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const today = key(now);
-    const tomorrowDate = new Date(now); tomorrowDate.setDate(tomorrowDate.getDate()+1);
-    const tomorrow = key(tomorrowDate);
-    const categoryRows = await db.getAllAsync('SELECT id, name FROM categories');
-    const categoryId = (name) => categoryRows.find((c) => c.name === name)?.id ?? null;
-    const seed = [
-      ['Estudiar para examen', 'Revisar temas de redes, virtualización y realizar resúmenes.', 'Pendiente', 'Urgente', categoryId('Estudio'), today, '10:00'],
-      ['Reunión de proyecto', 'Reunión para revisar avances del proyecto.', 'En progreso', 'Alta', categoryId('Trabajo'), today, '14:00'],
-      ['Hacer ejercicio', 'Rutina de ejercicio personal.', 'Pendiente', 'Media', categoryId('Salud'), today, '18:00'],
-      ['Llamar al banco', 'Resolver una gestión pendiente.', 'Pendiente', 'Baja', categoryId('Finanzas'), today, '19:00'],
-      ['Revisar documentación', 'Revisar y ordenar documentación.', 'Pendiente', 'Alta', categoryId('Trabajo'), tomorrow, '09:00'],
-      ['Comprar insumos', 'Comprar materiales necesarios.', 'Pendiente', 'Media', categoryId('Hogar'), tomorrow, '11:00'],
-    ];
-    for (const task of seed) {
-      await db.runAsync(
-        `INSERT INTO tasks (title, description, status, priority, category_id, due_date, due_time)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        ...task
-      );
-    }
-  }
 }
 
 export { SQLiteProvider, useSQLiteContext };
