@@ -9,3 +9,4 @@ web-build/
 .env
 .idea/
 bundle.js
+android/nios/
