@@ -4,8 +4,11 @@ import { StatusBar } from 'expo-status-bar';
 import { PaperProvider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
+import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider, migrateDbIfNeeded } from '../src/data/database';
 import { ThemeProvider, useAppTheme } from '../src/theme/ThemeContext';
+
+SplashScreen.preventAutoHideAsync();
 
 function NavigationShell() {
   const router = useRouter();
@@ -16,6 +19,10 @@ function NavigationShell() {
       const taskId = response.notification.request.content.data?.taskId;
       if (taskId) router.push(`/task/${taskId}`);
     });
+
+    // Hide splash screen when navigation is ready
+    SplashScreen.hideAsync();
+
     return () => subscription.remove();
   }, [router]);
 
