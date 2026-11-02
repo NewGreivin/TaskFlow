@@ -16,7 +16,8 @@
           "defaultChannel": "task-reminders"
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-splash-screen"
     ],
     "android": {
       "package": "com.taskflow.app",
