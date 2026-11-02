@@ -3,7 +3,12 @@ import { Button, Divider, Icon, IconButton, Surface, Text } from 'react-native-p
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useSQLiteContext } from '../../src/data/database';
-import { deleteTask, getTask, toggleSubtask, updateTaskStatus } from '../../src/data/taskRepository';
+import {
+  deleteTask,
+  getTask,
+  toggleSubtask,
+  updateTaskStatus,
+} from '../../src/data/taskRepository';
 import { cancelTaskNotifications } from '../../src/data/notificationRepository';
 import { useAppTheme } from '../../src/theme/ThemeContext';
 
@@ -70,13 +75,30 @@ export default function TaskDetail() {
       },
     ]);
 
-  const completedSubtasksCount = task.subtasks ? task.subtasks.filter((s) => s.completed).length : 0;
+  const completedSubtasksCount = task.subtasks
+    ? task.subtasks.filter((s) => s.completed).length
+    : 0;
   const totalSubtasksCount = task.subtasks ? task.subtasks.length : 0;
 
   const statusConfigs = [
-    { key: 'Pendiente', label: 'Pendiente', icon: 'clock-outline', color: palette.medium || '#F3B51B' },
-    { key: 'En progreso', label: 'En progreso', icon: 'progress-clock', color: palette.blue || palette.primary },
-    { key: 'Completada', label: 'Completada', icon: 'check-circle-outline', color: palette.green || palette.low },
+    {
+      key: 'Pendiente',
+      label: 'Pendiente',
+      icon: 'clock-outline',
+      color: palette.medium || '#F3B51B',
+    },
+    {
+      key: 'En progreso',
+      label: 'En progreso',
+      icon: 'progress-clock',
+      color: palette.blue || palette.primary,
+    },
+    {
+      key: 'Completada',
+      label: 'Completada',
+      icon: 'check-circle-outline',
+      color: palette.green || palette.low,
+    },
     { key: 'Cancelada', label: 'Cancelada', icon: 'close-circle-outline', color: palette.urgent },
   ];
 
@@ -98,9 +120,14 @@ export default function TaskDetail() {
         </View>
 
         {/* Main Card */}
-        <Surface style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.border }]} elevation={0}>
+        <Surface
+          style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.border }]}
+          elevation={0}
+        >
           <View style={styles.taskTitle}>
-            <View style={[styles.dot, { backgroundColor: task.category_color || palette.primary }]} />
+            <View
+              style={[styles.dot, { backgroundColor: task.category_color || palette.primary }]}
+            />
             <Text variant="titleLarge" style={[styles.name, { color: palette.text }]}>
               {task.title}
             </Text>
@@ -108,7 +135,10 @@ export default function TaskDetail() {
 
           {/* Segmented Status Selector */}
           <View style={styles.statusSection}>
-            <Text variant="labelSmall" style={[styles.statusSectionHeader, { color: palette.muted }]}>
+            <Text
+              variant="labelSmall"
+              style={[styles.statusSectionHeader, { color: palette.muted }]}
+            >
               ESTADO DE LA TAREA
             </Text>
             <View style={styles.statusesGrid}>
@@ -153,7 +183,11 @@ export default function TaskDetail() {
           <Info palette={palette} icon="calendar-outline" text={task.due_date} />
           <Info palette={palette} icon="clock-outline" text={task.due_time || 'Sin hora'} />
           <Info palette={palette} icon="folder-outline" text={task.category || 'Sin categoría'} />
-          <Info palette={palette} icon="flag-outline" text={`Prioridad ${task.priority ? task.priority.toLowerCase() : ''}`} />
+          <Info
+            palette={palette}
+            icon="flag-outline"
+            text={`Prioridad ${task.priority ? task.priority.toLowerCase() : ''}`}
+          />
           <Info
             palette={palette}
             icon="bell-outline"
@@ -163,18 +197,23 @@ export default function TaskDetail() {
                     task.reminder_minutes === 0
                       ? 'A la hora de la tarea'
                       : task.reminder_minutes >= 60
-                      ? `${task.reminder_minutes / 60} hora${task.reminder_minutes === 60 ? '' : 's'} antes`
-                      : `${task.reminder_minutes} minutos antes`
+                        ? `${task.reminder_minutes / 60} hora${task.reminder_minutes === 60 ? '' : 's'} antes`
+                        : `${task.reminder_minutes} minutos antes`
                   }`
                 : 'Sin recordatorio'
             }
           />
           <Info palette={palette} icon="repeat" text={task.recurrence || 'No se repite'} />
-          {task.notes ? <Info palette={palette} icon="note-text-outline" text={task.notes} /> : null}
+          {task.notes ? (
+            <Info palette={palette} icon="note-text-outline" text={task.notes} />
+          ) : null}
         </Surface>
 
         {/* Subtasks Section */}
-        <Surface style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.border }]} elevation={0}>
+        <Surface
+          style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.border }]}
+          elevation={0}
+        >
           <Text variant="titleMedium" style={[styles.sectionTitle, { color: palette.text }]}>
             Subtareas ({completedSubtasksCount}/{totalSubtasksCount})
           </Text>

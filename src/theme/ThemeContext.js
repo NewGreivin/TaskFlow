@@ -24,7 +24,9 @@ export function ThemeProvider({ children }) {
       const row = await db.getFirstAsync('SELECT theme FROM settings WHERE id = 1');
       if (mounted && row?.theme) setMode(row.theme);
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [db]);
 
   const isDark = mode === 'dark' || (mode === 'system' && systemDark);
@@ -36,13 +38,16 @@ export function ThemeProvider({ children }) {
     await db.runAsync('UPDATE settings SET theme = ? WHERE id = 1', nextMode);
   };
 
-  const value = useMemo(() => ({
-    mode,
-    isDark,
-    theme,
-    palette,
-    changeMode,
-  }), [mode, isDark, theme, palette]);
+  const value = useMemo(
+    () => ({
+      mode,
+      isDark,
+      theme,
+      palette,
+      changeMode,
+    }),
+    [mode, isDark, theme, palette]
+  );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

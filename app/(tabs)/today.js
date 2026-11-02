@@ -1,10 +1,17 @@
-import { ScrollView, StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import { FAB, Icon, IconButton, Surface, Text } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FlashList } from '@shopify/flash-list';
 import { useSQLiteContext } from '../../src/data/database';
-import { getDatesWithTasks, getStats, getTasks, toTaskCard, updateTaskStatus } from '../../src/data/taskRepository';
+import {
+  getDatesWithTasks,
+  getStats,
+  getTasks,
+  toTaskCard,
+  updateTaskStatus,
+} from '../../src/data/taskRepository';
 import { useAppTheme } from '../../src/theme/ThemeContext';
 import { cancelTaskNotifications } from '../../src/data/notificationRepository';
 import { toLocalDateKey, weekFrom, formatDateEs } from '../../src/data/date';
@@ -63,90 +70,130 @@ export default function Today() {
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text variant="labelLarge" style={{ color: palette.primary, fontWeight: '800' }}>
-              {label.toUpperCase()}
-            </Text>
-            <Text variant="headlineSmall" style={[styles.greeting, { color: palette.text }]}>
-              Tu día, a tu ritmo 👋
-            </Text>
-            <Text variant="bodyMedium" style={{ color: palette.muted, marginTop: 3 }}>
-              {pending} pendientes para este día
-            </Text>
-          </View>
-          <View style={styles.headerActions}>
-            <IconButton
-              icon={isDark ? 'white-balance-sunny' : 'weather-night'}
-              mode="contained-tonal"
-              onPress={() => router.push('/appearance')}
-            />
-            <IconButton
-              icon="bell-outline"
-              mode="contained-tonal"
-              onPress={() => router.push('/notifications')}
-            />
-          </View>
-        </View>
-
-        {/* Weekly Day Selector */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.days}>
-          {days.map((d) => {
-            const hasTasks = datesWithTasks.has(d.key);
-            const isSelected = selected === d.key;
-
-            return (
-              <Pressable
-                key={d.key}
-                onPress={() => setSelected(d.key)}
-                style={[
-                  styles.day,
-                  { backgroundColor: palette.surface, borderColor: palette.border },
-                  isSelected && { backgroundColor: palette.primary, borderColor: palette.primary },
-                ]}
-              >
-                <Text style={{ color: isSelected ? '#FFF' : palette.muted, fontSize: 12, fontWeight: '700' }}>
-                  {d.day}
+      <FlashList
+        data={tasks}
+        estimatedItemSize={76}
+        keyExtractor={(t) => t.id.toString()}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <>
+            <View style={styles.header}>
+              <View style={{ flex: 1 }}>
+                <Text variant="labelLarge" style={{ color: palette.primary, fontWeight: '800' }}>
+                  {label.toUpperCase()}
                 </Text>
-                <Text
-                  variant="titleMedium"
-                  style={{ color: isSelected ? '#FFF' : palette.text, marginTop: 4, fontWeight: '800' }}
-                >
-                  {d.date}
+                <Text variant="headlineSmall" style={[styles.greeting, { color: palette.text }]}>
+                  Tu día, a tu ritmo 👋
                 </Text>
-                {hasTasks ? (
-                  <View style={[styles.dayDot, { backgroundColor: isSelected ? '#FFF' : palette.primary }]} />
-                ) : null}
-              </Pressable>
-            );
-          })}
-        </ScrollView>
+                <Text variant="bodyMedium" style={{ color: palette.muted, marginTop: 3 }}>
+                  {pending} pendientes para este día
+                </Text>
+              </View>
+              <View style={styles.headerActions}>
+                <IconButton
+                  icon={isDark ? 'white-balance-sunny' : 'weather-night'}
+                  mode="contained-tonal"
+                  onPress={() => router.push('/appearance')}
+                />
+                <IconButton
+                  icon="bell-outline"
+                  mode="contained-tonal"
+                  onPress={() => router.push('/notifications')}
+                />
+              </View>
+            </View>
 
-        {/* Metrics */}
-        <View style={styles.metrics}>
-          <Metric value={pending} label="Pendientes" icon="clock-outline" color={palette.primary} palette={palette} />
-          <Metric value={progress} label="En progreso" icon="progress-clock" color={palette.blue} palette={palette} />
-          <Metric value={completed} label="Completadas" icon="check-circle-outline" color={palette.green} palette={palette} />
-        </View>
+            <View style={{ flexDirection: 'row', gap: 8, paddingBottom: 2, overflow: 'scroll' }}>
+              {days.map((d) => {
+                const hasTasks = datesWithTasks.has(d.key);
+                const isSelected = selected === d.key;
+                return (
+                  <Pressable
+                    key={d.key}
+                    onPress={() => setSelected(d.key)}
+                    style={[
+                      styles.day,
+                      { backgroundColor: palette.surface, borderColor: palette.border },
+                      isSelected && {
+                        backgroundColor: palette.primary,
+                        borderColor: palette.primary,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={{
+                        color: isSelected ? '#FFF' : palette.muted,
+                        fontSize: 12,
+                        fontWeight: '700',
+                      }}
+                    >
+                      {d.day}
+                    </Text>
+                    <Text
+                      variant="titleMedium"
+                      style={{
+                        color: isSelected ? '#FFF' : palette.text,
+                        marginTop: 4,
+                        fontWeight: '800',
+                      }}
+                    >
+                      {d.date}
+                    </Text>
+                    {hasTasks ? (
+                      <View
+                        style={[
+                          styles.dayDot,
+                          { backgroundColor: isSelected ? '#FFF' : palette.primary },
+                        ]}
+                      />
+                    ) : null}
+                  </Pressable>
+                );
+              })}
+            </View>
 
-        {/* Task List Section */}
-        <SectionHeader title="Tareas del día" action="Ver todas ›" onAction={() => router.push('/(tabs)/tasks')} />
-        {tasks.length ? (
-          tasks.map((task, i) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              index={i}
-              onToggle={() => toggle(task)}
-              onPress={() => router.push(`/task/${task.id}`)}
+            <View style={styles.metrics}>
+              <Metric
+                value={pending}
+                label="Pendientes"
+                icon="clock-outline"
+                color={palette.primary}
+                palette={palette}
+              />
+              <Metric
+                value={progress}
+                label="En progreso"
+                icon="progress-clock"
+                color={palette.blue}
+                palette={palette}
+              />
+              <Metric
+                value={completed}
+                label="Completadas"
+                icon="check-circle-outline"
+                color={palette.green}
+                palette={palette}
+              />
+            </View>
+
+            <SectionHeader
+              title="Tareas del día"
+              action="Ver todas ›"
+              onAction={() => router.push('/(tabs)/tasks')}
             />
-          ))
-        ) : (
-          <Empty palette={palette} />
+          </>
+        }
+        ListEmptyComponent={<Empty palette={palette} />}
+        renderItem={({ item, index }) => (
+          <TaskCard
+            task={item}
+            index={index}
+            onToggle={() => toggle(item)}
+            onPress={() => router.push(`/task/${item.id}`)}
+          />
         )}
-      </ScrollView>
+      />
 
       {/* Floating Action Button */}
       <FAB
@@ -176,7 +223,10 @@ function Empty({ palette }) {
 
 function Metric({ value, label, icon, color, palette }) {
   return (
-    <Surface style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]} elevation={0}>
+    <Surface
+      style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}
+      elevation={0}
+    >
       <Icon source={icon} color={color} size={20} />
       <Text variant="titleLarge" style={[styles.metricValue, { color: palette.text }]}>
         {value}
@@ -198,9 +248,23 @@ const styles = StyleSheet.create({
   day: { width: 55, paddingVertical: 10, borderRadius: 16, alignItems: 'center', borderWidth: 1 },
   dayDot: { width: 4, height: 4, borderRadius: 2, marginTop: 5 },
   metrics: { flexDirection: 'row', gap: 9, marginTop: 18, marginBottom: 25 },
-  metric: { flex: 1, paddingVertical: 13, borderRadius: 17, alignItems: 'center', borderWidth: 1, gap: 3 },
+  metric: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 17,
+    alignItems: 'center',
+    borderWidth: 1,
+    gap: 3,
+  },
   metricValue: { fontWeight: '850' },
   empty: { alignItems: 'center', paddingVertical: 55, gap: 7 },
-  emptyIcon: { width: 68, height: 68, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginBottom: 5 },
+  emptyIcon: {
+    width: 68,
+    height: 68,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 5,
+  },
   fab: { position: 'absolute', right: 18, borderRadius: 18 },
 });

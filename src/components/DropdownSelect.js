@@ -66,7 +66,11 @@ export default function DropdownSelect({
         <View style={styles.selectorLeft}>
           {icon ? (
             <View style={styles.iconContainer}>
-              <Icon source={icon} size={20} color={iconColor || selectedOption.color || palette.primary} />
+              <Icon
+                source={icon}
+                size={20}
+                color={iconColor || selectedOption.color || palette.primary}
+              />
             </View>
           ) : null}
           <Text
@@ -84,12 +88,7 @@ export default function DropdownSelect({
         <Icon source="chevron-down" size={22} color={palette.muted} />
       </TouchableOpacity>
 
-      <Modal
-        visible={open}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setOpen(false)}
-      >
+      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
           <Pressable onPress={(e) => e.stopPropagation()}>
             <Surface
@@ -127,9 +126,17 @@ export default function DropdownSelect({
                     >
                       <View style={styles.optionLeft}>
                         {item.icon ? (
-                          <Icon source={item.icon} size={20} color={isSelected ? palette.primary : itemColor} />
+                          <Icon
+                            source={item.icon}
+                            size={20}
+                            color={isSelected ? palette.primary : itemColor}
+                          />
                         ) : icon ? (
-                          <Icon source={icon} size={20} color={isSelected ? palette.primary : itemColor} />
+                          <Icon
+                            source={icon}
+                            size={20}
+                            color={isSelected ? palette.primary : itemColor}
+                          />
                         ) : null}
                         <Text
                           style={[

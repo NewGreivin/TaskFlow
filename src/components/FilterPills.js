@@ -5,12 +5,30 @@ import { useAppTheme } from '../theme/ThemeContext';
 export default function FilterPills({ items, value, onChange }) {
   const { palette } = useAppTheme();
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.container}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.container}
+    >
       {items.map((item) => {
         const active = item === value;
         return (
-          <Pressable key={item} onPress={() => onChange(item)} style={[styles.pill, { backgroundColor: active ? palette.primary : palette.surface, borderColor: active ? palette.primary : palette.border }]}>
-            <Text style={{ color: active ? '#FFF' : palette.text, fontWeight: '700', fontSize: 12 }}>{item}</Text>
+          <Pressable
+            key={item}
+            onPress={() => onChange(item)}
+            style={[
+              styles.pill,
+              {
+                backgroundColor: active ? palette.primary : palette.surface,
+                borderColor: active ? palette.primary : palette.border,
+              },
+            ]}
+          >
+            <Text
+              style={{ color: active ? '#FFF' : palette.text, fontWeight: '700', fontSize: 12 }}
+            >
+              {item}
+            </Text>
           </Pressable>
         );
       })}

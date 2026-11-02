@@ -43,7 +43,6 @@ function NavigationShell() {
         icon: (props) => <MaterialCommunityIcons {...props} />,
       }}
     >
-
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, animation: 'fade' }} />
     </PaperProvider>

@@ -7,8 +7,8 @@ function CategoryIcon({ iconId, size = 22, color = '#8B7CFF', style }) {
   const resolvedSource = iconEntry
     ? iconEntry.iconName
     : typeof iconId === 'string' && iconId.trim()
-    ? iconId
-    : 'folder-outline';
+      ? iconId
+      : 'folder-outline';
 
   return <Icon source={resolvedSource} size={size} color={color} style={style} />;
 }

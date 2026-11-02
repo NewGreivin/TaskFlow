@@ -4,8 +4,18 @@ import { Button, Icon, Surface, Text } from 'react-native-paper';
 import { useAppTheme } from '../theme/ThemeContext';
 
 const MONTH_NAMES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
 ];
 
 const DAY_NAMES = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
@@ -122,10 +132,18 @@ export default function DatePickerModal({ visible, date, onSelect, onClose }) {
                 {MONTH_NAMES[currentMonth]} {currentYear}
               </Text>
               <View style={styles.arrowRow}>
-                <TouchableOpacity activeOpacity={0.6} onPress={handlePrevMonth} style={styles.arrowButton}>
+                <TouchableOpacity
+                  activeOpacity={0.6}
+                  onPress={handlePrevMonth}
+                  style={styles.arrowButton}
+                >
                   <Icon source="chevron-left" size={24} color={palette.text} />
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.6} onPress={handleNextMonth} style={styles.arrowButton}>
+                <TouchableOpacity
+                  activeOpacity={0.6}
+                  onPress={handleNextMonth}
+                  style={styles.arrowButton}
+                >
                   <Icon source="chevron-right" size={24} color={palette.text} />
                 </TouchableOpacity>
               </View>
@@ -156,10 +174,7 @@ export default function DatePickerModal({ visible, date, onSelect, onClose }) {
                     style={styles.dayCell}
                   >
                     <View
-                      style={[
-                        styles.dayCircle,
-                        isSelected && { backgroundColor: palette.primary },
-                      ]}
+                      style={[styles.dayCircle, isSelected && { backgroundColor: palette.primary }]}
                     >
                       <Text
                         style={[
@@ -168,8 +183,8 @@ export default function DatePickerModal({ visible, date, onSelect, onClose }) {
                             color: isSelected
                               ? '#FFFFFF'
                               : item.isCurrentMonth
-                              ? palette.text
-                              : palette.muted + '66',
+                                ? palette.text
+                                : palette.muted + '66',
                           },
                           isSelected && styles.dayTextSelected,
                         ]}

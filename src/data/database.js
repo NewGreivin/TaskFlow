@@ -76,14 +76,18 @@ export async function migrateDbIfNeeded(db) {
       ['Otras', 'dots-horizontal', '#8A8F9F'],
     ];
     for (const [name, icon, color] of categories) {
-      await db.runAsync('INSERT INTO categories (name, icon, color) VALUES (?, ?, ?)', name, icon, color);
+      await db.runAsync(
+        'INSERT INTO categories (name, icon, color) VALUES (?, ?, ?)',
+        name,
+        icon,
+        color
+      );
     }
   }
 
   await db.runAsync(
     `INSERT OR IGNORE INTO settings (id, theme, language, notifications_enabled) VALUES (1, 'system', 'es', 1)`
   );
-
 }
 
 export { SQLiteProvider, useSQLiteContext };

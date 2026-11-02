@@ -2,4 +2,49 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Surface, Text } from 'react-native-paper';
 import { useState } from 'react';
 import { useSQLiteContext } from '../src/data/database';
-export default function Diagnostics(){const db=useSQLiteContext(),[result,setResult]=useState(null);const run=async()=>{const [categories,tasks,subtasks,notifications,settings]=await Promise.all([db.getFirstAsync('SELECT COUNT(*) count FROM categories'),db.getFirstAsync('SELECT COUNT(*) count FROM tasks'),db.getFirstAsync('SELECT COUNT(*) count FROM subtasks'),db.getFirstAsync('SELECT COUNT(*) count FROM notifications'),db.getFirstAsync('SELECT theme, language, notifications_enabled FROM settings WHERE id=1')]);setResult({categories:categories?.count,tasks:tasks?.count,subtasks:subtasks?.count,notifications:notifications?.count,settings})};return <ScrollView style={styles.container} contentContainerStyle={styles.content}><Text variant="headlineSmall">Diagnóstico</Text><Text style={styles.help}>Comprobación rápida de SQLite para QA local.</Text><Button mode="contained" onPress={run}>Ejecutar diagnóstico</Button>{result&&<Surface style={styles.card} elevation={0}>{Object.entries(result).map(([k,v])=><View key={k} style={styles.row}><Text>{k}</Text><Text>{typeof v==='object'?JSON.stringify(v):String(v)}</Text></View>)}</Surface>}</ScrollView>};const styles=StyleSheet.create({container:{flex:1},content:{padding:20,paddingTop:55,gap:14},help:{color:'#74798A'},card:{padding:16,borderRadius:16,gap:10},row:{flexDirection:'row',justifyContent:'space-between'}});
+export default function Diagnostics() {
+  const db = useSQLiteContext(),
+    [result, setResult] = useState(null);
+  const run = async () => {
+    const [categories, tasks, subtasks, notifications, settings] = await Promise.all([
+      db.getFirstAsync('SELECT COUNT(*) count FROM categories'),
+      db.getFirstAsync('SELECT COUNT(*) count FROM tasks'),
+      db.getFirstAsync('SELECT COUNT(*) count FROM subtasks'),
+      db.getFirstAsync('SELECT COUNT(*) count FROM notifications'),
+      db.getFirstAsync('SELECT theme, language, notifications_enabled FROM settings WHERE id=1'),
+    ]);
+    setResult({
+      categories: categories?.count,
+      tasks: tasks?.count,
+      subtasks: subtasks?.count,
+      notifications: notifications?.count,
+      settings,
+    });
+  };
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Text variant="headlineSmall">Diagnóstico</Text>
+      <Text style={styles.help}>Comprobación rápida de SQLite para QA local.</Text>
+      <Button mode="contained" onPress={run}>
+        Ejecutar diagnóstico
+      </Button>
+      {result && (
+        <Surface style={styles.card} elevation={0}>
+          {Object.entries(result).map(([k, v]) => (
+            <View key={k} style={styles.row}>
+              <Text>{k}</Text>
+              <Text>{typeof v === 'object' ? JSON.stringify(v) : String(v)}</Text>
+            </View>
+          ))}
+        </Surface>
+      )}
+    </ScrollView>
+  );
+}
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  content: { padding: 20, paddingTop: 55, gap: 14 },
+  help: { color: '#74798A' },
+  card: { padding: 16, borderRadius: 16, gap: 10 },
+  row: { flexDirection: 'row', justifyContent: 'space-between' },
+});

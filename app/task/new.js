@@ -1,11 +1,37 @@
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Button, Divider, Icon, IconButton, Switch, Text, TextInput, Surface } from 'react-native-paper';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {
+  Button,
+  Divider,
+  Icon,
+  IconButton,
+  Switch,
+  Text,
+  TextInput,
+  Surface,
+} from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useSQLiteContext } from '../../src/data/database';
 import { createTask, getCategories, getTask, updateTask } from '../../src/data/taskRepository';
-import { cancelTaskNotifications, replaceTaskNotification } from '../../src/data/notificationRepository';
-import { configureNotifications, getReminderDate, RECURRENCE_OPTIONS, REMINDER_OPTIONS, scheduleTaskNotification } from '../../src/services/notifications';
+import {
+  cancelTaskNotifications,
+  replaceTaskNotification,
+} from '../../src/data/notificationRepository';
+import {
+  configureNotifications,
+  getReminderDate,
+  RECURRENCE_OPTIONS,
+  REMINDER_OPTIONS,
+  scheduleTaskNotification,
+} from '../../src/services/notifications';
 import { validateTaskInput } from '../../src/utils/validation';
 import { toLocalDateKey } from '../../src/data/date';
 import { useAppTheme } from '../../src/theme/ThemeContext';
@@ -68,7 +94,10 @@ export default function NewTask() {
 
   const addSubtask = () => {
     if (subtask.trim()) {
-      setSubtasks([...subtasks, { id: `new-${Date.now()}`, title: subtask.trim(), completed: false }]);
+      setSubtasks([
+        ...subtasks,
+        { id: `new-${Date.now()}`, title: subtask.trim(), completed: false },
+      ]);
       setSubtask('');
     }
   };
@@ -76,7 +105,10 @@ export default function NewTask() {
   const save = async () => {
     const validation = validateTaskInput({ title, dueDate });
     if (!validation.valid) {
-      Alert.alert('Revisa la tarea', validation.errors.title || validation.errors.dueDate || 'Completa los datos requeridos.');
+      Alert.alert(
+        'Revisa la tarea',
+        validation.errors.title || validation.errors.dueDate || 'Completa los datos requeridos.'
+      );
       return;
     }
     setSaving(true);
@@ -110,7 +142,12 @@ export default function NewTask() {
             recurrence,
           });
           if (notificationId) {
-            await replaceTaskNotification(db, id, notificationId, getReminderDate(dueDate, dueTime, reminderMinutes).toISOString());
+            await replaceTaskNotification(
+              db,
+              id,
+              notificationId,
+              getReminderDate(dueDate, dueTime, reminderMinutes).toISOString()
+            );
           }
         }
       }
@@ -319,10 +356,25 @@ export default function NewTask() {
           Subtareas
         </Text>
         {subtasks.map((s, i) => (
-          <Surface key={s.id || i} style={[styles.subtask, { backgroundColor: palette.surface, borderColor: palette.border }]} elevation={0}>
-            <Icon source={s.completed ? 'checkbox-marked' : 'checkbox-blank-outline'} size={20} color={palette.primary} />
+          <Surface
+            key={s.id || i}
+            style={[
+              styles.subtask,
+              { backgroundColor: palette.surface, borderColor: palette.border },
+            ]}
+            elevation={0}
+          >
+            <Icon
+              source={s.completed ? 'checkbox-marked' : 'checkbox-blank-outline'}
+              size={20}
+              color={palette.primary}
+            />
             <Text style={{ flex: 1, color: palette.text }}>{s.title}</Text>
-            <IconButton icon="close" size={18} onPress={() => setSubtasks(subtasks.filter((_, j) => j !== i))} />
+            <IconButton
+              icon="close"
+              size={18}
+              onPress={() => setSubtasks(subtasks.filter((_, j) => j !== i))}
+            />
           </Surface>
         ))}
         <View style={styles.subtaskInput}>
@@ -379,7 +431,21 @@ const styles = StyleSheet.create({
   label: { marginBottom: 10, marginTop: 5, fontWeight: '750' },
   divider: { marginVertical: 18 },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: 11, marginBottom: 14 },
-  settingIcon: { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-  subtask: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 10, borderRadius: 12, borderWidth: 1, marginBottom: 8 },
+  settingIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  subtask: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingLeft: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 8,
+  },
   subtaskInput: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 });

@@ -3,9 +3,9 @@ import { Icon } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../src/theme/ThemeContext';
 
-const tabIcon = (name) => ({ color, size }) => (
-  <Icon source={name} color={color} size={size} />
-);
+const tabIcon =
+  (name) =>
+  ({ color, size }) => <Icon source={name} color={color} size={size} />;
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();

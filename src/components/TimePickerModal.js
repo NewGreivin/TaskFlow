@@ -69,7 +69,7 @@ export default function TimePickerModal({ visible, time, onSelect, onClose }) {
   const minuteNumbers = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
   const currentNumbers = mode === 'hours' ? hourNumbers : minuteNumbers;
-  const currentValue = mode === 'hours' ? hour : Math.round(minute / 5) * 5 % 60;
+  const currentValue = mode === 'hours' ? hour : (Math.round(minute / 5) * 5) % 60;
 
   // Calculate angle for selected value
   // 12 or 0 is at top (-90 deg)
@@ -122,7 +122,9 @@ export default function TimePickerModal({ visible, time, onSelect, onClose }) {
                     mode === 'minutes' ? styles.timeBoxActive : styles.timeBoxInactive,
                   ]}
                 >
-                  <Text style={[styles.timeBoxText, mode === 'minutes' && styles.timeBoxTextActive]}>
+                  <Text
+                    style={[styles.timeBoxText, mode === 'minutes' && styles.timeBoxTextActive]}
+                  >
                     {String(minute).padStart(2, '0')}
                   </Text>
                 </TouchableOpacity>
@@ -207,7 +209,9 @@ export default function TimePickerModal({ visible, time, onSelect, onClose }) {
                     <TouchableOpacity
                       key={num}
                       activeOpacity={0.7}
-                      onPress={() => (mode === 'hours' ? handleHourSelect(num) : handleMinuteSelect(num))}
+                      onPress={() =>
+                        mode === 'hours' ? handleHourSelect(num) : handleMinuteSelect(num)
+                      }
                       style={[
                         styles.numberTouch,
                         {

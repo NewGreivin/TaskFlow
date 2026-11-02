@@ -11,7 +11,12 @@ import {
 } from 'react-native';
 import { Button, IconButton, Surface, Text, TextInput } from 'react-native-paper';
 import { useAppTheme } from '../theme/ThemeContext';
-import { CATEGORY_ICONS, ICON_CATEGORIES, DEFAULT_ICON_ID, getIconById } from '../constants/categoryIcons';
+import {
+  CATEGORY_ICONS,
+  ICON_CATEGORIES,
+  DEFAULT_ICON_ID,
+  getIconById,
+} from '../constants/categoryIcons';
 import { CATEGORY_COLORS, DEFAULT_COLOR_VALUE } from '../constants/categoryColors';
 import CategoryIcon from './CategoryIcon';
 
@@ -25,53 +30,53 @@ function chunkArray(array, size = 7) {
 }
 
 // Memoized individual icon tile button
-const IconTile = memo(({ item, isSelected, selectedColor, cardBg, cardBorder, neutralIcon, onSelect }) => {
-  return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={() => onSelect(item.id)}
-      style={[
-        styles.colTile,
-        { backgroundColor: cardBg, borderColor: cardBorder },
-        isSelected && { borderColor: selectedColor, backgroundColor: `${selectedColor}25` },
-      ]}
-    >
-      <CategoryIcon
-        iconId={item.id}
-        size={22}
-        color={isSelected ? selectedColor : neutralIcon}
-      />
-    </TouchableOpacity>
-  );
-});
+const IconTile = memo(
+  ({ item, isSelected, selectedColor, cardBg, cardBorder, neutralIcon, onSelect }) => {
+    return (
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => onSelect(item.id)}
+        style={[
+          styles.colTile,
+          { backgroundColor: cardBg, borderColor: cardBorder },
+          isSelected && { borderColor: selectedColor, backgroundColor: `${selectedColor}25` },
+        ]}
+      >
+        <CategoryIcon iconId={item.id} size={22} color={isSelected ? selectedColor : neutralIcon} />
+      </TouchableOpacity>
+    );
+  }
+);
 
 // Memoized row of up to 7 icon tiles
-const IconRow = memo(({ rowIcons, tempIconId, selectedColor, cardBg, cardBorder, neutralIcon, onSelect }) => {
-  const paddingNeeded = 7 - rowIcons.length;
-  return (
-    <View style={styles.iconRow}>
-      {rowIcons.map((item) => {
-        const isSelected = tempIconId === item.id;
-        return (
-          <IconTile
-            key={item.id}
-            item={item}
-            isSelected={isSelected}
-            selectedColor={selectedColor}
-            cardBg={cardBg}
-            cardBorder={cardBorder}
-            neutralIcon={neutralIcon}
-            onSelect={onSelect}
-          />
-        );
-      })}
-      {paddingNeeded > 0 &&
-        Array.from({ length: paddingNeeded }).map((_, idx) => (
-          <View key={`spacer-${idx}`} style={styles.colTileSpacer} />
-        ))}
-    </View>
-  );
-});
+const IconRow = memo(
+  ({ rowIcons, tempIconId, selectedColor, cardBg, cardBorder, neutralIcon, onSelect }) => {
+    const paddingNeeded = 7 - rowIcons.length;
+    return (
+      <View style={styles.iconRow}>
+        {rowIcons.map((item) => {
+          const isSelected = tempIconId === item.id;
+          return (
+            <IconTile
+              key={item.id}
+              item={item}
+              isSelected={isSelected}
+              selectedColor={selectedColor}
+              cardBg={cardBg}
+              cardBorder={cardBorder}
+              neutralIcon={neutralIcon}
+              onSelect={onSelect}
+            />
+          );
+        })}
+        {paddingNeeded > 0 &&
+          Array.from({ length: paddingNeeded }).map((_, idx) => (
+            <View key={`spacer-${idx}`} style={styles.colTileSpacer} />
+          ))}
+      </View>
+    );
+  }
+);
 
 export default function CategoryModal({ visible, category, onSave, onClose }) {
   const { palette, isDark } = useAppTheme();
@@ -172,9 +177,7 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
 
   const renderSectionHeader = useCallback(
     ({ section: { title } }) => (
-      <Text style={[styles.catGroupTitle, { color: themeTokens.sectionTitle }]}>
-        {title}
-      </Text>
+      <Text style={[styles.catGroupTitle, { color: themeTokens.sectionTitle }]}>{title}</Text>
     ),
     [themeTokens.sectionTitle]
   );
@@ -192,7 +195,14 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
         onSelect={handleSelectTempIcon}
       />
     ),
-    [tempIconId, selectedColor, themeTokens.cardBg, themeTokens.cardBorder, themeTokens.neutralIcon, handleSelectTempIcon]
+    [
+      tempIconId,
+      selectedColor,
+      themeTokens.cardBg,
+      themeTokens.cardBorder,
+      themeTokens.neutralIcon,
+      handleSelectTempIcon,
+    ]
   );
 
   return (
@@ -211,7 +221,12 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
               <Text variant="titleLarge" style={[styles.title, { color: themeTokens.titleText }]}>
                 {category ? 'Editar categoría' : 'Crear categoría'}
               </Text>
-              <IconButton icon="close" size={22} iconColor={themeTokens.titleText} onPress={onClose} />
+              <IconButton
+                icon="close"
+                size={22}
+                iconColor={themeTokens.titleText}
+                onPress={onClose}
+              />
             </View>
 
             <ScrollView
@@ -220,7 +235,10 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
               keyboardShouldPersistTaps="handled"
             >
               {/* Real-time Preview Card */}
-              <Text variant="labelLarge" style={[styles.sectionTitle, { color: themeTokens.sectionTitle }]}>
+              <Text
+                variant="labelLarge"
+                style={[styles.sectionTitle, { color: themeTokens.sectionTitle }]}
+              >
                 VISTA PREVIA
               </Text>
               <Surface
@@ -233,7 +251,10 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                 <View style={[styles.previewIconBox, { backgroundColor: `${selectedColor}22` }]}>
                   <CategoryIcon iconId={selectedIconId} size={24} color={selectedColor} />
                 </View>
-                <Text variant="titleMedium" style={[styles.previewName, { color: themeTokens.titleText }]}>
+                <Text
+                  variant="titleMedium"
+                  style={[styles.previewName, { color: themeTokens.titleText }]}
+                >
                   {name.trim() || 'Nombre de la categoría'}
                 </Text>
               </Surface>
@@ -253,7 +274,10 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
               />
 
               {/* Trigger Button/Card for Submodal Icon Picker */}
-              <Text variant="labelLarge" style={[styles.sectionTitle, { color: themeTokens.sectionTitle }]}>
+              <Text
+                variant="labelLarge"
+                style={[styles.sectionTitle, { color: themeTokens.sectionTitle }]}
+              >
                 SELECCIONAR ICONO
               </Text>
               <TouchableOpacity
@@ -274,7 +298,10 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
               </TouchableOpacity>
 
               {/* Color Palette + Custom Color Selector */}
-              <Text variant="labelLarge" style={[styles.sectionTitle, { color: themeTokens.sectionTitle, marginTop: 16 }]}>
+              <Text
+                variant="labelLarge"
+                style={[styles.sectionTitle, { color: themeTokens.sectionTitle, marginTop: 16 }]}
+              >
                 COLOR DE CATEGORÍA
               </Text>
               <View style={styles.colorGrid}>
@@ -292,7 +319,14 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                         isSelected && styles.colorCircleSelected,
                       ]}
                     >
-                      {isSelected && <IconButton icon="check" size={16} iconColor="#FFFFFF" style={{ margin: 0 }} />}
+                      {isSelected && (
+                        <IconButton
+                          icon="check"
+                          size={16}
+                          iconColor="#FFFFFF"
+                          style={{ margin: 0 }}
+                        />
+                      )}
                     </TouchableOpacity>
                   );
                 })}
@@ -310,7 +344,11 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                 onPress={handleSave}
                 style={[
                   styles.saveBtn,
-                  { backgroundColor: name.trim() ? themeTokens.primaryBtn : `${themeTokens.primaryBtn}50` },
+                  {
+                    backgroundColor: name.trim()
+                      ? themeTokens.primaryBtn
+                      : `${themeTokens.primaryBtn}50`,
+                  },
                 ]}
                 textColor={themeTokens.primaryBtnText}
               >
@@ -322,7 +360,12 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
       </Pressable>
 
       {/* Submodal Secundario: "Seleccionar icono" */}
-      <Modal visible={iconPickerVisible} transparent animationType="slide" onRequestClose={() => setIconPickerVisible(false)}>
+      <Modal
+        visible={iconPickerVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIconPickerVisible(false)}
+      >
         <Pressable style={styles.backdrop} onPress={() => setIconPickerVisible(false)}>
           <Pressable onPress={(e) => e.stopPropagation()} style={styles.submodalWrapper}>
             <Surface
@@ -392,7 +435,11 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
 
               {/* Submodal Actions */}
               <View style={[styles.actions, { borderTopColor: themeTokens.cardBorder }]}>
-                <Button mode="text" onPress={() => setIconPickerVisible(false)} textColor={themeTokens.subText}>
+                <Button
+                  mode="text"
+                  onPress={() => setIconPickerVisible(false)}
+                  textColor={themeTokens.subText}
+                >
                   Cancelar
                 </Button>
                 <Button

@@ -1,13 +1,24 @@
-import { ScrollView, StyleSheet, View, Pressable } from 'react-native';
+import { StyleSheet, View, Pressable } from 'react-native';
 import { FAB, IconButton, Surface, Text } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FlashList } from '@shopify/flash-list';
 import { useSQLiteContext } from '../../src/data/database';
-import { getTasks, toTaskCard, updateTaskStatus, getDatesWithTasks } from '../../src/data/taskRepository';
+import {
+  getTasks,
+  toTaskCard,
+  updateTaskStatus,
+  getDatesWithTasks,
+} from '../../src/data/taskRepository';
 import { useAppTheme } from '../../src/theme/ThemeContext';
 import { cancelTaskNotifications } from '../../src/data/notificationRepository';
-import { toLocalDateKey, formatDateEs, getMonthCalendarDays, formatMonthYearEs } from '../../src/data/date';
+import {
+  toLocalDateKey,
+  formatDateEs,
+  getMonthCalendarDays,
+  formatMonthYearEs,
+} from '../../src/data/date';
 import TaskCard from '../../src/components/TaskCard';
 
 const WEEKDAYS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -91,145 +102,147 @@ export default function Calendar() {
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Top Header */}
-        <View style={styles.header}>
-          <View>
-            <Text variant="labelLarge" style={{ color: palette.primary, fontWeight: '800' }}>
-              PLANIFICA
-            </Text>
-            <Text variant="headlineSmall" style={[styles.title, { color: palette.text }]}>
-              Calendario
-            </Text>
-          </View>
-          <IconButton icon="calendar-today" mode="contained-tonal" onPress={handleGoToToday} />
-        </View>
-
-        {/* Monthly Calendar Grid */}
-        <Surface style={[styles.calendarContainer, { backgroundColor: palette.surface, borderColor: palette.border }]} elevation={0}>
-          {/* Month & Nav Controls */}
-          <View style={styles.monthNav}>
-            <Text style={[styles.monthTitle, { color: palette.text }]}>
-              {formatMonthYearEs(currentYear, currentMonth)}
-            </Text>
-            <View style={styles.navButtons}>
-              <IconButton
-                icon="chevron-left"
-                size={22}
-                iconColor={palette.text}
-                onPress={handlePrevMonth}
-                style={styles.navButton}
-              />
-              <IconButton
-                icon="chevron-right"
-                size={22}
-                iconColor={palette.text}
-                onPress={handleNextMonth}
-                style={styles.navButton}
-              />
-            </View>
-          </View>
-
-          {/* Weekday Headers */}
-          <View style={styles.weekdaysRow}>
-            {WEEKDAYS.map((wd) => (
-              <View key={wd} style={styles.weekdayCell}>
-                <Text style={[styles.weekdayText, { color: palette.muted }]}>
-                  {wd}
+      <FlashList
+        data={tasks}
+        estimatedItemSize={76}
+        keyExtractor={(t) => t.id.toString()}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <>
+            <View style={styles.header}>
+              <View>
+                <Text variant="labelLarge" style={{ color: palette.primary, fontWeight: '800' }}>
+                  PLANIFICA
+                </Text>
+                <Text variant="headlineSmall" style={[styles.title, { color: palette.text }]}>
+                  Calendario
                 </Text>
               </View>
-            ))}
-          </View>
+              <IconButton icon="calendar-today" mode="contained-tonal" onPress={handleGoToToday} />
+            </View>
 
-          {/* Days Grid */}
-          <View style={styles.daysGrid}>
-            {calendarDays.map((d) => {
-              const isSelected = selected === d.key;
-              const hasTasks = datesWithTasks.has(d.key);
-              const isCurrentMonth = d.isCurrentMonth;
-
-              return (
-                <Pressable
-                  key={d.key}
-                  onPress={() => {
-                    setSelected(d.key);
-                    if (!isCurrentMonth) {
-                      setCurrentYear(d.year);
-                      setCurrentMonth(d.month);
-                    }
-                  }}
-                  style={styles.dayCell}
-                >
-                  <View
-                    style={[
-                      styles.dayCircle,
-                      isSelected && { backgroundColor: palette.primary },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.dayText,
-                        {
-                          color: isSelected
-                            ? '#FFFFFF'
-                            : isCurrentMonth
-                            ? (isDark ? palette.text : '#111827')
-                            : palette.muted,
-                          fontWeight: isSelected ? '800' : isCurrentMonth ? '600' : '400',
-                        },
-                      ]}
-                    >
-                      {d.dateNumber}
-                    </Text>
+            <Surface
+              style={[
+                styles.calendarContainer,
+                { backgroundColor: palette.surface, borderColor: palette.border },
+              ]}
+              elevation={0}
+            >
+              <View style={styles.monthNav}>
+                <Text style={[styles.monthTitle, { color: palette.text }]}>
+                  {formatMonthYearEs(currentYear, currentMonth)}
+                </Text>
+                <View style={styles.navButtons}>
+                  <IconButton
+                    icon="chevron-left"
+                    size={22}
+                    iconColor={palette.text}
+                    onPress={handlePrevMonth}
+                    style={styles.navButton}
+                  />
+                  <IconButton
+                    icon="chevron-right"
+                    size={22}
+                    iconColor={palette.text}
+                    onPress={handleNextMonth}
+                    style={styles.navButton}
+                  />
+                </View>
+              </View>
+              <View style={styles.weekdaysRow}>
+                {WEEKDAYS.map((wd) => (
+                  <View key={wd} style={styles.weekdayCell}>
+                    <Text style={[styles.weekdayText, { color: palette.muted }]}>{wd}</Text>
                   </View>
-                  <View style={styles.dotContainer}>
-                    {hasTasks && (
+                ))}
+              </View>
+              <View style={styles.daysGrid}>
+                {calendarDays.map((d) => {
+                  const isSelected = selected === d.key;
+                  const hasTasks = datesWithTasks.has(d.key);
+                  const isCurrentMonth = d.isCurrentMonth;
+                  return (
+                    <Pressable
+                      key={d.key}
+                      onPress={() => {
+                        setSelected(d.key);
+                        if (!isCurrentMonth) {
+                          setCurrentYear(d.year);
+                          setCurrentMonth(d.month);
+                        }
+                      }}
+                      style={styles.dayCell}
+                    >
                       <View
                         style={[
-                          styles.dot,
-                          { backgroundColor: isSelected ? '#FFFFFF' : palette.primary },
+                          styles.dayCircle,
+                          isSelected && { backgroundColor: palette.primary },
                         ]}
-                      />
-                    )}
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Surface>
+                      >
+                        <Text
+                          style={[
+                            styles.dayText,
+                            {
+                              color: isSelected
+                                ? '#FFFFFF'
+                                : isCurrentMonth
+                                  ? isDark
+                                    ? palette.text
+                                    : '#111827'
+                                  : palette.muted,
+                              fontWeight: isSelected ? '800' : isCurrentMonth ? '600' : '400',
+                            },
+                          ]}
+                        >
+                          {d.dateNumber}
+                        </Text>
+                      </View>
+                      <View style={styles.dotContainer}>
+                        {hasTasks && (
+                          <View
+                            style={[
+                              styles.dot,
+                              { backgroundColor: isSelected ? '#FFFFFF' : palette.primary },
+                            ]}
+                          />
+                        )}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </Surface>
 
-        {/* Selected Day Info */}
-        <View style={styles.dayTitle}>
-          <View>
-            <Text variant="titleLarge" style={{ color: palette.text, fontWeight: '850' }}>
-              {formatDateEs(selected)}
-            </Text>
-            <Text style={{ color: palette.muted }}>
-              {tasks.length} {tasks.length === 1 ? 'tarea programada' : 'tareas programadas'}
-            </Text>
-          </View>
-          {selected === todayKey ? (
-            <Text style={{ color: palette.primary, fontWeight: '800' }}>Hoy</Text>
-          ) : null}
-        </View>
-
-        {/* Tasks List */}
-        {tasks.length ? (
-          tasks.map((task, i) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              index={i}
-              onToggle={() => toggle(task)}
-              onPress={() => router.push(`/task/${task.id}`)}
-            />
-          ))
-        ) : (
+            <View style={styles.dayTitle}>
+              <View>
+                <Text variant="titleLarge" style={{ color: palette.text, fontWeight: '850' }}>
+                  {formatDateEs(selected)}
+                </Text>
+                <Text style={{ color: palette.muted }}>
+                  {tasks.length} {tasks.length === 1 ? 'tarea programada' : 'tareas programadas'}
+                </Text>
+              </View>
+              {selected === todayKey ? (
+                <Text style={{ color: palette.primary, fontWeight: '800' }}>Hoy</Text>
+              ) : null}
+            </View>
+          </>
+        }
+        ListEmptyComponent={
           <Text style={{ color: palette.muted, paddingVertical: 40, textAlign: 'center' }}>
             No hay tareas para este día.
           </Text>
+        }
+        renderItem={({ item, index }) => (
+          <TaskCard
+            task={item}
+            index={index}
+            onToggle={() => toggle(item)}
+            onPress={() => router.push(`/task/${item.id}`)}
+          />
         )}
-      </ScrollView>
+      />
 
       <FAB
         icon="plus"

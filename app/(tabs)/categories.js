@@ -1,7 +1,12 @@
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { FAB, IconButton, Surface, Text } from 'react-native-paper';
 import { useSQLiteContext } from '../../src/data/database';
-import { createCategory, deleteCategory, getCategories, updateCategory } from '../../src/data/taskRepository';
+import {
+  createCategory,
+  deleteCategory,
+  getCategories,
+  updateCategory,
+} from '../../src/data/taskRepository';
 import { useAppTheme } from '../../src/theme/ThemeContext';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
@@ -49,21 +54,17 @@ export default function Categories() {
   };
 
   const remove = (c) =>
-    Alert.alert(
-      'Eliminar categoría',
-      `¿Eliminar "${c.name}"? Las tareas quedarán sin categoría.`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteCategory(db, c.id);
-            load();
-          },
+    Alert.alert('Eliminar categoría', `¿Eliminar "${c.name}"? Las tareas quedarán sin categoría.`, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteCategory(db, c.id);
+          load();
         },
-      ]
-    );
+      },
+    ]);
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
@@ -130,10 +131,28 @@ export default function Categories() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 20, paddingTop: 55, paddingBottom: 130 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
   title: { fontWeight: '800' },
-  card: { flexDirection: 'row', alignItems: 'center', padding: 8, borderRadius: 16, borderWidth: 1, marginBottom: 10 },
-  iconBox: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 10,
+  },
+  iconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   info: { flex: 1, marginLeft: 10 },
   name: { fontWeight: '700' },
   fab: { position: 'absolute', right: 20, bottom: 90, borderRadius: 18 },

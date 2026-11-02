@@ -56,14 +56,22 @@ export function getReminderDate(dueDate, dueTime, reminderMinutes = 30) {
   return new Date(buildTaskDate(dueDate, dueTime).getTime() - Number(reminderMinutes) * 60 * 1000);
 }
 
-export async function scheduleTaskNotification({ taskId, title, dueDate, dueTime, reminderMinutes = 30, recurrence = 'No se repite' }) {
+export async function scheduleTaskNotification({
+  taskId,
+  title,
+  dueDate,
+  dueTime,
+  reminderMinutes = 30,
+  recurrence = 'No se repite',
+}) {
   if (!Notifications) return null;
   const granted = await configureNotifications();
   if (!granted) throw new Error('PERMISSION_DENIED');
 
   const reminderDate = getReminderDate(dueDate, dueTime, reminderMinutes);
   if (reminderDate.getTime() <= Date.now() && recurrence === 'No se repite') return null;
-  if (!['Cada día','Cada semana','Cada mes','No se repite'].includes(recurrence)) recurrence = 'No se repite';
+  if (!['Cada día', 'Cada semana', 'Cada mes', 'No se repite'].includes(recurrence))
+    recurrence = 'No se repite';
 
   const content = {
     title: '🔔 TaskFlow · Recordatorio',
@@ -74,13 +82,34 @@ export async function scheduleTaskNotification({ taskId, title, dueDate, dueTime
 
   let trigger;
   if (recurrence === 'Cada día') {
-    trigger = { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: reminderDate.getHours(), minute: reminderDate.getMinutes(), channelId: 'task-reminders' };
+    trigger = {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+      hour: reminderDate.getHours(),
+      minute: reminderDate.getMinutes(),
+      channelId: 'task-reminders',
+    };
   } else if (recurrence === 'Cada semana') {
-    trigger = { type: Notifications.SchedulableTriggerInputTypes.WEEKLY, weekday: reminderDate.getDay() + 1, hour: reminderDate.getHours(), minute: reminderDate.getMinutes(), channelId: 'task-reminders' };
+    trigger = {
+      type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+      weekday: reminderDate.getDay() + 1,
+      hour: reminderDate.getHours(),
+      minute: reminderDate.getMinutes(),
+      channelId: 'task-reminders',
+    };
   } else if (recurrence === 'Cada mes') {
-    trigger = { type: Notifications.SchedulableTriggerInputTypes.MONTHLY, day: reminderDate.getDate(), hour: reminderDate.getHours(), minute: reminderDate.getMinutes(), channelId: 'task-reminders' };
+    trigger = {
+      type: Notifications.SchedulableTriggerInputTypes.MONTHLY,
+      day: reminderDate.getDate(),
+      hour: reminderDate.getHours(),
+      minute: reminderDate.getMinutes(),
+      channelId: 'task-reminders',
+    };
   } else {
-    trigger = { type: Notifications.SchedulableTriggerInputTypes.DATE, date: reminderDate, channelId: 'task-reminders' };
+    trigger = {
+      type: Notifications.SchedulableTriggerInputTypes.DATE,
+      date: reminderDate,
+      channelId: 'task-reminders',
+    };
   }
   return Notifications.scheduleNotificationAsync({ content, trigger });
 }
