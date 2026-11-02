@@ -463,10 +463,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "bath",
+    "id": "bathtub",
     "name": "Bañera",
     "category": "Hogar y vida",
-    "iconName": "bath",
+    "iconName": "bathtub",
     "keywords": [
       "tina",
       "baño",
@@ -529,10 +529,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "tv",
+    "id": "television",
     "name": "Televisor",
     "category": "Hogar y vida",
-    "iconName": "tv",
+    "iconName": "television",
     "keywords": [
       "pantalla",
       "tv",
@@ -639,10 +639,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "terrace",
+    "id": "balcony",
     "name": "Terraza",
     "category": "Hogar y vida",
-    "iconName": "terrace",
+    "iconName": "balcony",
     "keywords": [
       "balcon",
       "exterior",
@@ -776,7 +776,7 @@ export const CATEGORY_ICONS = [
     "id": "carousel",
     "name": "Carrusel",
     "category": "Ocio",
-    "iconName": "carousel",
+    "iconName": "ferris-wheel",
     "keywords": [
       "juegos",
       "feria",
@@ -861,10 +861,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "piñata",
+    "id": "candycane",
     "name": "Piñata",
     "category": "Ocio",
-    "iconName": "piñata",
+    "iconName": "candycane",
     "keywords": [
       "cumpleaños",
       "dulces",
@@ -916,10 +916,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "mask",
+    "id": "drama-masks",
     "name": "Disfraz",
     "category": "Ocio",
-    "iconName": "mask",
+    "iconName": "drama-masks",
     "keywords": [
       "carnaval",
       "mascara",
@@ -930,7 +930,7 @@ export const CATEGORY_ICONS = [
     "id": "circus",
     "name": "Circo",
     "category": "Ocio",
-    "iconName": "circus",
+    "iconName": "tent",
     "keywords": [
       "carpa",
       "show",
@@ -938,10 +938,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "sparkler",
+    "id": "firework",
     "name": "Luces / Bengala",
     "category": "Ocio",
-    "iconName": "sparkler",
+    "iconName": "firework",
     "keywords": [
       "chispas",
       "fuegos",
@@ -993,10 +993,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "stadium-variant-outline",
+    "id": "stadium",
     "name": "Concierto",
     "category": "Ocio",
-    "iconName": "stadium-variant-outline",
+    "iconName": "stadium",
     "keywords": [
       "estadio",
       "show",
@@ -1082,10 +1082,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "suitcase-outline",
+    "id": "bag-suitcase-outline",
     "name": "Equipaje",
     "category": "Transporte y viajes",
-    "iconName": "suitcase-outline",
+    "iconName": "bag-suitcase-outline",
     "keywords": [
       "maleta",
       "viaje",
@@ -1148,10 +1148,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "sailboat-outline",
+    "id": "sail-boat",
     "name": "Barco de vela",
     "category": "Transporte y viajes",
-    "iconName": "sailboat-outline",
+    "iconName": "sail-boat",
     "keywords": [
       "mar",
       "navegar",
@@ -1192,10 +1192,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "luggage-cart",
+    "id": "cart-variant",
     "name": "Carrito de maletas",
     "category": "Transporte y viajes",
-    "iconName": "luggage-cart",
+    "iconName": "cart-variant",
     "keywords": [
       "hotel",
       "aeropuerto",
@@ -1269,10 +1269,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "cable-car",
+    "id": "tram",
     "name": "Teleférico",
     "category": "Transporte y viajes",
-    "iconName": "cable-car",
+    "iconName": "tram",
     "keywords": [
       "montaña",
       "cable",
@@ -1335,10 +1335,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "flight-takeoff",
+    "id": "airplane-takeoff",
     "name": "Despegue",
     "category": "Transporte y viajes",
-    "iconName": "flight-takeoff",
+    "iconName": "airplane-takeoff",
     "keywords": [
       "vuelo",
       "avion",
@@ -1600,10 +1600,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "coin",
+    "id": "cash",
     "name": "Moneda",
     "category": "Finanzas y compras",
-    "iconName": "coin",
+    "iconName": "cash",
     "keywords": [
       "monedas",
       "cambio",
@@ -1952,10 +1952,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "qr-code",
+    "id": "qrcode",
     "name": "Código QR",
     "category": "Tecnología",
-    "iconName": "qr-code",
+    "iconName": "qrcode",
     "keywords": [
       "escaneo",
       "qr",
@@ -2087,7 +2087,7 @@ export const CATEGORY_ICONS = [
     "id": "desktop-mac",
     "name": "iMac / All-in-One",
     "category": "Computadora",
-    "iconName": "desktop-mac",
+    "iconName": "monitor",
     "keywords": [
       "apple",
       "mac",
@@ -2142,7 +2142,7 @@ export const CATEGORY_ICONS = [
     "id": "terminal",
     "name": "Consola / Terminal",
     "category": "Computadora",
-    "iconName": "terminal",
+    "iconName": "console",
     "keywords": [
       "bash",
       "comando",
@@ -2197,7 +2197,7 @@ export const CATEGORY_ICONS = [
     "id": "laptop-chromebook",
     "name": "Laptop Ligera",
     "category": "Computadora",
-    "iconName": "laptop-chromebook",
+    "iconName": "laptop",
     "keywords": [
       "chromebook",
       "estudio",
@@ -2249,10 +2249,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "cd",
+    "id": "disc",
     "name": "Disco CD/DVD",
     "category": "Computadora",
-    "iconName": "cd",
+    "iconName": "disc",
     "keywords": [
       "lectora",
       "disco",
@@ -2417,7 +2417,7 @@ export const CATEGORY_ICONS = [
     "id": "camera-party-outline",
     "name": "Cámara de fotos",
     "category": "Foto y video",
-    "iconName": "camera-party-outline",
+    "iconName": "camera-outline",
     "keywords": [
       "evento",
       "recuerdo",
@@ -2461,7 +2461,7 @@ export const CATEGORY_ICONS = [
     "id": "cinema",
     "name": "Pantalla de cine",
     "category": "Foto y video",
-    "iconName": "cinema",
+    "iconName": "filmstrip",
     "keywords": [
       "proyeccion",
       "pelicula",
@@ -2549,7 +2549,7 @@ export const CATEGORY_ICONS = [
     "id": "shutter-speed",
     "name": "Obturador",
     "category": "Foto y video",
-    "iconName": "shutter-speed",
+    "iconName": "camera-iris",
     "keywords": [
       "velocidad",
       "camara",
@@ -2648,7 +2648,7 @@ export const CATEGORY_ICONS = [
     "id": "photo-album",
     "name": "Álbum impreso",
     "category": "Foto y video",
-    "iconName": "photo-album",
+    "iconName": "image-multiple-outline",
     "keywords": [
       "recuerdos",
       "libro",
@@ -2659,7 +2659,7 @@ export const CATEGORY_ICONS = [
     "id": "slow-motion-video",
     "name": "Efecto CÁMARA LENTA",
     "category": "Foto y video",
-    "iconName": "slow-motion-video",
+    "iconName": "video-outline",
     "keywords": [
       "video",
       "efecto",
@@ -2799,10 +2799,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "drum",
+    "id": "drum-set",
     "name": "Batería / Tambor",
     "category": "Música y sonido",
-    "iconName": "drum",
+    "iconName": "guitar-acoustic",
     "keywords": [
       "percusion",
       "ritmo",
@@ -2931,10 +2931,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "tuning-fork",
+    "id": "music-note",
     "name": "Diapasón",
     "category": "Música y sonido",
-    "iconName": "tuning-fork",
+    "iconName": "music-note",
     "keywords": [
       "afinacion",
       "nota",
@@ -2964,10 +2964,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "wave-synth",
+    "id": "waveform",
     "name": "Sintetizador",
     "category": "Música y sonido",
-    "iconName": "wave-synth",
+    "iconName": "waveform",
     "keywords": [
       "onda",
       "synth",
@@ -2975,10 +2975,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "karaoke",
-    "name": "Karaoke",
+    "id": "microphone",
+    "name": "Micrófono",
     "category": "Música y sonido",
-    "iconName": "karaoke",
+    "iconName": "microphone",
     "keywords": [
       "cantar",
       "show",
@@ -3052,10 +3052,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "apple-snack",
+    "id": "food-apple",
     "name": "Fruta / Manzana",
     "category": "Comida y bebida",
-    "iconName": "apple-snack",
+    "iconName": "food-apple",
     "keywords": [
       "fruta",
       "saludable",
@@ -3118,10 +3118,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "bacon",
+    "id": "food-steak",
     "name": "Tocino",
     "category": "Comida y bebida",
-    "iconName": "bacon",
+    "iconName": "food-steak",
     "keywords": [
       "desayuno",
       "carne",
@@ -3143,7 +3143,7 @@ export const CATEGORY_ICONS = [
     "id": "burrito",
     "name": "Burrito",
     "category": "Comida y bebida",
-    "iconName": "burrito",
+    "iconName": "taco",
     "keywords": [
       "comida",
       "wrap",
@@ -3151,10 +3151,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "noodle",
+    "id": "noodles",
     "name": "Sopa de fideos / Ramen",
     "category": "Comida y bebida",
-    "iconName": "noodle",
+    "iconName": "noodles",
     "keywords": [
       "pasta",
       "ramen",
@@ -3198,7 +3198,7 @@ export const CATEGORY_ICONS = [
     "id": "donut",
     "name": "Dona / Rosquilla",
     "category": "Comida y bebida",
-    "iconName": "donut",
+    "iconName": "food-croissant",
     "keywords": [
       "glaseado",
       "postre",
@@ -3250,10 +3250,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "wine-glass",
+    "id": "glass-wine",
     "name": "Copa de vino",
     "category": "Comida y bebida",
-    "iconName": "wine-glass",
+    "iconName": "glass-wine",
     "keywords": [
       "vino",
       "brindis",
@@ -3283,10 +3283,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "watermelon",
+    "id": "fruit-watermelon",
     "name": "Sandía",
     "category": "Comida y bebida",
-    "iconName": "watermelon",
+    "iconName": "fruit-watermelon",
     "keywords": [
       "fruta",
       "fresco",
@@ -3338,10 +3338,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "store-outline",
+    "id": "store-24-hour",
     "name": "Tienda local",
     "category": "Lugares y edificios",
-    "iconName": "store-outline",
+    "iconName": "store-24-hour",
     "keywords": [
       "local",
       "negocio",
@@ -3393,7 +3393,7 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "castle",
+    "id": "castle-outline",
     "name": "Castillo / Monumento",
     "category": "Lugares y edificios",
     "iconName": "castle",
@@ -3404,10 +3404,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "bank-outline",
+    "id": "bank",
     "name": "Sede Bancaria",
     "category": "Lugares y edificios",
-    "iconName": "bank-outline",
+    "iconName": "bank",
     "keywords": [
       "banco",
       "edificio",
@@ -3437,10 +3437,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "home-city-outline",
+    "id": "home-modern",
     "name": "Condominio",
     "category": "Lugares y edificios",
-    "iconName": "home-city-outline",
+    "iconName": "home-modern",
     "keywords": [
       "departamento",
       "torre",
@@ -3503,7 +3503,7 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "tent",
+    "id": "tent-outline",
     "name": "Carpa / Refugio",
     "category": "Lugares y edificios",
     "iconName": "tent",
@@ -3536,10 +3536,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "monument",
+    "id": "statue",
     "name": "Estatua / Monumento",
     "category": "Lugares y edificios",
-    "iconName": "monument",
+    "iconName": "bank",
     "keywords": [
       "escultura",
       "historia",
@@ -3602,10 +3602,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "landmark",
+    "id": "city-variant-outline",
     "name": "Sitio histórico",
     "category": "Lugares y edificios",
-    "iconName": "landmark",
+    "iconName": "city-variant-outline",
     "keywords": [
       "columna",
       "patrimonio",
@@ -3624,10 +3624,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "house-siding",
+    "id": "home-variant",
     "name": "Casa suburbana",
     "category": "Lugares y edificios",
-    "iconName": "house-siding",
+    "iconName": "home-variant",
     "keywords": [
       "vivienda",
       "propiedad",
@@ -3635,10 +3635,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "store-24-hour",
+    "id": "store-clock-outline",
     "name": "Tienda 24h",
     "category": "Lugares y edificios",
-    "iconName": "store-24-hour",
+    "iconName": "store-clock-outline",
     "keywords": [
       "conveniencia",
       "abierto",
@@ -3867,10 +3867,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "origami",
+    "id": "shape",
     "name": "Origami / Papiroflexia",
     "category": "Artes",
-    "iconName": "origami",
+    "iconName": "shape",
     "keywords": [
       "papel",
       "figuras",
@@ -3903,7 +3903,7 @@ export const CATEGORY_ICONS = [
     "id": "auto-awesome",
     "name": "Brillo artístico",
     "category": "Artes",
-    "iconName": "auto-awesome",
+    "iconName": "creation",
     "keywords": [
       "magia",
       "destello",
@@ -3933,10 +3933,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "stamp",
+    "id": "rubber-stamp",
     "name": "Sello / Estampa",
     "category": "Artes",
-    "iconName": "stamp",
+    "iconName": "check-decagram",
     "keywords": [
       "impresion",
       "sello",
@@ -3944,10 +3944,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "easel",
+    "id": "presentation",
     "name": "Caballete de pintura",
     "category": "Artes",
-    "iconName": "easel",
+    "iconName": "presentation",
     "keywords": [
       "lienzo",
       "cuadro",
@@ -3958,7 +3958,7 @@ export const CATEGORY_ICONS = [
     "id": "hand-draw",
     "name": "Boceto a mano",
     "category": "Artes",
-    "iconName": "hand-draw",
+    "iconName": "draw",
     "keywords": [
       "manual",
       "dibujo",
@@ -3977,10 +3977,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "crop",
+    "id": "crop-free",
     "name": "Encuadre",
     "category": "Artes",
-    "iconName": "crop",
+    "iconName": "crop-free",
     "keywords": [
       "corte",
       "composicion",
@@ -4120,7 +4120,7 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "bowling",
+    "id": "bowling-outline",
     "name": "Boliche deportivo",
     "category": "Deportes",
     "iconName": "bowling",
@@ -4131,10 +4131,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "archery",
+    "id": "target",
     "name": "Tiro con arco",
     "category": "Deportes",
-    "iconName": "archery",
+    "iconName": "target",
     "keywords": [
       "flecha",
       "blanco",
@@ -4230,10 +4230,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "kayak",
+    "id": "rowing",
     "name": "Canotaje / Kayak",
     "category": "Deportes",
-    "iconName": "kayak",
+    "iconName": "rowing",
     "keywords": [
       "remo",
       "rio",
@@ -4244,7 +4244,7 @@ export const CATEGORY_ICONS = [
     "id": "sailboat",
     "name": "Vela deportiva",
     "category": "Deportes",
-    "iconName": "sailboat",
+    "iconName": "sail-boat",
     "keywords": [
       "regata",
       "mar",
@@ -4274,10 +4274,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "skitempo",
+    "id": "ski",
     "name": "Esquí de nieve",
     "category": "Deportes",
-    "iconName": "skitempo",
+    "iconName": "ski",
     "keywords": [
       "nieve",
       "montaña",
@@ -4395,10 +4395,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "sun-thought-outline",
+    "id": "weather-sunny",
     "name": "Sol radiante",
     "category": "Naturaleza",
-    "iconName": "sun-thought-outline",
+    "iconName": "weather-sunny",
     "keywords": [
       "dia",
       "clima",
@@ -4406,10 +4406,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "cloud-sun-outline",
+    "id": "weather-partly-cloudy",
     "name": "Día nublado",
     "category": "Naturaleza",
-    "iconName": "cloud-sun-outline",
+    "iconName": "weather-partly-cloudy",
     "keywords": [
       "sol",
       "nube",
@@ -4571,10 +4571,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "mountain",
+    "id": "image-filter-hdr",
     "name": "Montañas",
     "category": "Naturaleza",
-    "iconName": "mountain",
+    "iconName": "image-filter-hdr",
     "keywords": [
       "Cima",
       "paisaje",
@@ -4923,10 +4923,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "divide",
+    "id": "division",
     "name": "División",
     "category": "Matemáticas y ciencia",
-    "iconName": "divide",
+    "iconName": "division",
     "keywords": [
       "operacion",
       "fraccion",
@@ -5011,10 +5011,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "hourglass-bottom",
+    "id": "timer-sand-empty",
     "name": "Reloj de arena",
     "category": "Tiempo",
-    "iconName": "hourglass-bottom",
+    "iconName": "timer-sand-empty",
     "keywords": [
       "espera",
       "duracion",
@@ -5022,7 +5022,7 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "weather-sunny",
+    "id": "sun-thought-outline",
     "name": "Sol de mediodía",
     "category": "Tiempo",
     "iconName": "weather-sunny",
@@ -5154,10 +5154,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "watch-variant",
+    "id": "watch",
     "name": "Reloj de pulsera",
     "category": "Tiempo",
-    "iconName": "watch-variant",
+    "iconName": "watch",
     "keywords": [
       "accesorios",
       "hora",
@@ -5187,10 +5187,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "stop-watch",
+    "id": "stopwatch",
     "name": "Cronómetro digital",
     "category": "Tiempo",
-    "iconName": "stop-watch",
+    "iconName": "timer-outline",
     "keywords": [
       "segundos",
       "marca",
@@ -5198,7 +5198,7 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "weather-partly-cloudy",
+    "id": "cloud-sun-outline",
     "name": "Parcialmente nublado",
     "category": "Tiempo",
     "iconName": "weather-partly-cloudy",
@@ -5286,10 +5286,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "snooze",
+    "id": "sleep",
     "name": "Posponer alarma",
     "category": "Tiempo",
-    "iconName": "snooze",
+    "iconName": "sleep",
     "keywords": [
       "sueño",
       "dormir",
@@ -5363,10 +5363,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "flash-outline",
+    "id": "flash",
     "name": "Símbolo eléctrico",
     "category": "Herramientas",
-    "iconName": "flash-outline",
+    "iconName": "flash",
     "keywords": [
       "rayo",
       "energia",
@@ -5396,10 +5396,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "saw",
+    "id": "saw-blade",
     "name": "Serrucho / Sierra",
     "category": "Herramientas",
-    "iconName": "saw",
+    "iconName": "saw-blade",
     "keywords": [
       "corte",
       "carpinteria",
@@ -5495,10 +5495,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "welding",
+    "id": "tools",
     "name": "Soldadura",
     "category": "Herramientas",
-    "iconName": "welding",
+    "iconName": "tools",
     "keywords": [
       "chispas",
       "metal",
@@ -5506,10 +5506,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "construction",
+    "id": "hammer-screwdriver",
     "name": "Cono de obra",
     "category": "Herramientas",
-    "iconName": "construction",
+    "iconName": "hammer-screwdriver",
     "keywords": [
       "precaucion",
       "trabajos",
@@ -5572,10 +5572,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "sliders",
+    "id": "tune-vertical",
     "name": "Barra de controles",
     "category": "Herramientas",
-    "iconName": "sliders",
+    "iconName": "tune-vertical",
     "keywords": [
       "parametros",
       "config",
@@ -5858,10 +5858,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "chevrons-right",
+    "id": "chevron-double-right",
     "name": "Doble Chevron Derecha",
     "category": "Flechas",
-    "iconName": "chevrons-right",
+    "iconName": "chevron-double-right",
     "keywords": [
       "avance rapido",
       "siguiente",
@@ -5869,10 +5869,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "chevrons-left",
+    "id": "chevron-double-left",
     "name": "Doble Chevron Izquierda",
     "category": "Flechas",
-    "iconName": "chevrons-left",
+    "iconName": "chevron-double-left",
     "keywords": [
       "retroceso rapido",
       "atras",
@@ -5935,10 +5935,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "compass-outline",
+    "id": "compass",
     "name": "Orientación norte",
     "category": "Flechas",
-    "iconName": "compass-outline",
+    "iconName": "compass",
     "keywords": [
       "rumbo",
       "flecha",
@@ -6100,10 +6100,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "hashtag",
+    "id": "pound",
     "name": "Hashtag (#)",
     "category": "Caracteres y símbolos",
-    "iconName": "hashtag",
+    "iconName": "pound",
     "keywords": [
       "etiqueta",
       "tendencia",
@@ -6125,7 +6125,7 @@ export const CATEGORY_ICONS = [
     "id": "currency-usd-circle-outline",
     "name": "Símbolo Monetario ($)",
     "category": "Caracteres y símbolos",
-    "iconName": "currency-usd-circle-outline",
+    "iconName": "currency-usd",
     "keywords": [
       "pesos",
       "dolares",
@@ -6155,10 +6155,10 @@ export const CATEGORY_ICONS = [
     ]
   },
   {
-    "id": "registered",
+    "id": "registered-trademark",
     "name": "Marca oficial (®)",
     "category": "Caracteres y símbolos",
-    "iconName": "registered",
+    "iconName": "registered-trademark",
     "keywords": [
       "registrado",
       "oficial",
@@ -6235,7 +6235,7 @@ export const CATEGORY_ICONS = [
     "id": "award",
     "name": "Reconocimiento",
     "category": "Caracteres y símbolos",
-    "iconName": "award",
+    "iconName": "medal",
     "keywords": [
       "premio",
       "galardón",

@@ -9,8 +9,7 @@ import {
   FlatList,
   SectionList,
 } from 'react-native';
-import { Button, IconButton, Surface, Text, TextInput, Portal, Dialog } from 'react-native-paper';
-import ColorPicker, { Panel3, HueSlider, BrightnessSlider, InputWidget } from 'reanimated-color-picker';
+import { Button, IconButton, Surface, Text, TextInput } from 'react-native-paper';
 import { useAppTheme } from '../theme/ThemeContext';
 import { CATEGORY_ICONS, ICON_CATEGORIES, DEFAULT_ICON_ID, getIconById } from '../constants/categoryIcons';
 import { CATEGORY_COLORS, DEFAULT_COLOR_VALUE } from '../constants/categoryColors';
@@ -87,10 +86,6 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
   const [tempIconId, setTempIconId] = useState(DEFAULT_ICON_ID);
   const [iconSearchQuery, setIconSearchQuery] = useState('');
 
-  // Custom Color Dialog State
-  const [customColorDialogVisible, setCustomColorDialogVisible] = useState(false);
-  const [customHex, setCustomHex] = useState('#6366F1');
-
   // Specific Theme Tokens based on specifications
   const themeTokens = {
     modalBg: isDark ? '#161722' : '#FFFFFF',
@@ -105,11 +100,6 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
     primaryBtnText: '#FFFFFF',
   };
 
-  const isPredefinedColor = CATEGORY_COLORS.some(
-    (col) => col.value.toUpperCase() === selectedColor.toUpperCase()
-  );
-  const isCustomSelected = !isPredefinedColor;
-
   useEffect(() => {
     if (visible) {
       if (category) {
@@ -123,7 +113,6 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
         setSelectedColor(DEFAULT_COLOR_VALUE);
       }
       setIconPickerVisible(false);
-      setCustomColorDialogVisible(false);
     }
   }, [visible, category]);
 
@@ -153,15 +142,6 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
   const handleSelectTempIcon = useCallback((iconId) => {
     setTempIconId(iconId);
   }, []);
-
-  // Custom Color Picker Handlers
-  const handleApplyCustomColor = () => {
-    const validHexPattern = /^#([0-9A-F]{3}){1,2}$/i;
-    if (validHexPattern.test(customHex.trim())) {
-      setSelectedColor(customHex.trim().toUpperCase());
-    }
-    setCustomColorDialogVisible(false);
-  };
 
   // Memoized filtered icons and pre-chunked icon rows for ultra-fast rendering
   const filteredIcons = useMemo(() => {
@@ -299,15 +279,16 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
               </Text>
               <View style={styles.colorGrid}>
                 {CATEGORY_COLORS.map((col) => {
-                  const isSelected = selectedColor === col.value;
+                  const hexColor = col.value;
+                  const isSelected = selectedColor === hexColor;
                   return (
                     <TouchableOpacity
                       key={col.id}
                       activeOpacity={0.7}
-                      onPress={() => setSelectedColor(col.value)}
+                      onPress={() => setSelectedColor(hexColor)}
                       style={[
                         styles.colorCircle,
-                        { backgroundColor: col.value },
+                        { backgroundColor: hexColor },
                         isSelected && styles.colorCircleSelected,
                       ]}
                     >
@@ -315,32 +296,6 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                     </TouchableOpacity>
                   );
                 })}
-
-                {/* Custom Color Button */}
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    setCustomHex(selectedColor);
-                    setCustomColorDialogVisible(true);
-                  }}
-                  style={[
-                    styles.colorCircle,
-                    styles.customColorBtn,
-                    { borderColor: themeTokens.sectionTitle },
-                    isCustomSelected && {
-                      backgroundColor: selectedColor,
-                      borderStyle: 'solid',
-                      borderWidth: 3,
-                      borderColor: '#FFFFFF',
-                    },
-                  ]}
-                >
-                  {isCustomSelected ? (
-                    <IconButton icon="check" size={16} iconColor="#FFFFFF" style={{ margin: 0 }} />
-                  ) : (
-                    <IconButton icon="palette-outline" size={18} iconColor={themeTokens.sectionTitle} style={{ margin: 0 }} />
-                  )}
-                </TouchableOpacity>
               </View>
             </ScrollView>
 
@@ -453,75 +408,6 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
           </Pressable>
         </Pressable>
       </Modal>
-
-      {/* Custom Color Picker Interactive Dialog */}
-      <Portal>
-        <Dialog
-          visible={customColorDialogVisible}
-          onDismiss={() => setCustomColorDialogVisible(false)}
-          style={{ backgroundColor: themeTokens.dialogBg, borderRadius: 24, paddingHorizontal: 8 }}
-        >
-          <Dialog.Title style={{ color: themeTokens.titleText, fontWeight: '800' }}>
-            Color personalizado
-          </Dialog.Title>
-          <Dialog.Content>
-            <ColorPicker
-              value={customHex || selectedColor}
-              onChange={(color) => setCustomHex(color.hex.toUpperCase())}
-              style={{ width: '100%', gap: 16 }}
-            >
-              {/* Color Wheel / Spectrum */}
-              <View style={{ alignItems: 'center', marginVertical: 8 }}>
-                <Panel3 style={{ width: 200, height: 200 }} />
-              </View>
-
-              {/* Sliders for Brightness & Hue */}
-              <View style={{ gap: 12 }}>
-                <Text variant="labelMedium" style={{ color: themeTokens.subText, fontWeight: '700' }}>
-                  Brillo / Matiz
-                </Text>
-                <BrightnessSlider style={{ height: 28, borderRadius: 14 }} />
-                <HueSlider style={{ height: 28, borderRadius: 14 }} />
-              </View>
-
-              {/* HEX Text Input & Preview Swatch */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 }}>
-                <View
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 19,
-                    backgroundColor: /^#([0-9A-F]{3}){1,2}$/i.test(customHex) ? customHex : selectedColor,
-                    borderWidth: 2,
-                    borderColor: themeTokens.cardBorder,
-                  }}
-                />
-                <InputWidget
-                  defaultFormat="HEX"
-                  inputStyle={{
-                    height: 44,
-                    borderRadius: 12,
-                    borderWidth: 1,
-                    borderColor: themeTokens.cardBorder,
-                    backgroundColor: themeTokens.cardBg,
-                    color: themeTokens.titleText,
-                    paddingHorizontal: 12,
-                    fontWeight: '700',
-                  }}
-                />
-              </View>
-            </ColorPicker>
-          </Dialog.Content>
-          <Dialog.Actions style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
-            <Button onPress={() => setCustomColorDialogVisible(false)} textColor={themeTokens.subText}>
-              Cancelar
-            </Button>
-            <Button mode="contained" onPress={handleApplyCustomColor} style={{ backgroundColor: themeTokens.primaryBtn, borderRadius: 12 }}>
-              Aplicar
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
     </Modal>
   );
 }

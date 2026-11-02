@@ -3,7 +3,12 @@ import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { PaperProvider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import * as Notifications from 'expo-notifications';
+let Notifications;
+try {
+  Notifications = require('expo-notifications');
+} catch (e) {
+  console.warn('Failed to load expo-notifications', e);
+}
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider, migrateDbIfNeeded } from '../src/data/database';
 import { ThemeProvider, useAppTheme } from '../src/theme/ThemeContext';
@@ -15,6 +20,11 @@ function NavigationShell() {
   const { theme, isDark } = useAppTheme();
 
   useEffect(() => {
+    if (!Notifications) {
+      SplashScreen.hideAsync();
+      return;
+    }
+
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const taskId = response.notification.request.content.data?.taskId;
       if (taskId) router.push(`/task/${taskId}`);

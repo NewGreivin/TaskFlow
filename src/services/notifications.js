@@ -1,14 +1,19 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+let Notifications;
+try {
+  Notifications = require('expo-notifications');
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+} catch (e) {
+  console.warn('Failed to load expo-notifications', e);
+}
 
 export const REMINDER_OPTIONS = [
   { value: 1440, label: '1 día antes' },
@@ -22,6 +27,7 @@ export const REMINDER_OPTIONS = [
 export const RECURRENCE_OPTIONS = ['No se repite', 'Cada día', 'Cada semana', 'Cada mes'];
 
 export async function configureNotifications() {
+  if (!Notifications) return false;
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('task-reminders', {
       name: 'Recordatorios de tareas',
@@ -51,6 +57,7 @@ export function getReminderDate(dueDate, dueTime, reminderMinutes = 30) {
 }
 
 export async function scheduleTaskNotification({ taskId, title, dueDate, dueTime, reminderMinutes = 30, recurrence = 'No se repite' }) {
+  if (!Notifications) return null;
   const granted = await configureNotifications();
   if (!granted) throw new Error('PERMISSION_DENIED');
 
@@ -79,6 +86,7 @@ export async function scheduleTaskNotification({ taskId, title, dueDate, dueTime
 }
 
 export async function cancelTaskNotification(notificationId) {
+  if (!Notifications) return;
   if (notificationId) await Notifications.cancelScheduledNotificationAsync(notificationId);
 }
 
