@@ -10,7 +10,7 @@ import {
   SectionList,
 } from 'react-native';
 import { Button, IconButton, Surface, Text, TextInput, Portal, Dialog } from 'react-native-paper';
-import ColorPicker, { Wheel, HueSlider, BrightnessSlider, Input, Panel1 } from 'reanimated-color-picker';
+import ColorPicker, { Panel3, HueSlider, BrightnessSlider, InputWidget } from 'reanimated-color-picker';
 import { useAppTheme } from '../theme/ThemeContext';
 import { CATEGORY_ICONS, ICON_CATEGORIES, DEFAULT_ICON_ID, getIconById } from '../constants/categoryIcons';
 import { CATEGORY_COLORS, DEFAULT_COLOR_VALUE } from '../constants/categoryColors';
@@ -472,7 +472,7 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
             >
               {/* Color Wheel / Spectrum */}
               <View style={{ alignItems: 'center', marginVertical: 8 }}>
-                <Wheel size={200} />
+                <Panel3 style={{ width: 200, height: 200 }} />
               </View>
 
               {/* Sliders for Brightness & Hue */}
@@ -496,9 +496,9 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                     borderColor: themeTokens.cardBorder,
                   }}
                 />
-                <Input
-                  style={{
-                    flex: 1,
+                <InputWidget
+                  defaultFormat="HEX"
+                  inputStyle={{
                     height: 44,
                     borderRadius: 12,
                     borderWidth: 1,
@@ -508,8 +508,6 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                     paddingHorizontal: 12,
                     fontWeight: '700',
                   }}
-                  placeholder="#6366F1"
-                  placeholderTextColor={themeTokens.subText}
                 />
               </View>
             </ColorPicker>
