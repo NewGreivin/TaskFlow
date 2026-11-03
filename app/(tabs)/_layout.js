@@ -76,10 +76,10 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="stats"
+        name="projects"
         options={{
-          title: 'Estadísticas',
-          tabBarIcon: tabIcon('chart-donut'),
+          title: 'Proyectos',
+          tabBarIcon: tabIcon('folder-star-outline'),
         }}
       />
 
