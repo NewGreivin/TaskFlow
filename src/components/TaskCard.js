@@ -8,6 +8,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useAppTheme } from '../theme/ThemeContext';
+import { toLocalDateKey, addDays, formatShortDateEs } from '../data/date';
 
 const statusMap = {
   Pendiente: 'clock-outline',
@@ -34,6 +35,32 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
   };
 
   const completed = task.status === 'Completada';
+
+  const getRelativeDate = () => {
+    if (!task.due_date) return task.time !== 'Sin hora' ? task.time : '';
+    const today = toLocalDateKey();
+    const tomorrow = addDays(today, 1);
+
+    let baseDate = '';
+    if (task.due_date === today) baseDate = 'Hoy';
+    else if (task.due_date === tomorrow) baseDate = 'Mañana';
+    else baseDate = formatShortDateEs(task.due_date);
+
+    if (task.time && task.time !== 'Sin hora') {
+      return `${baseDate} · ${task.time}`;
+    }
+    return baseDate;
+  };
+
+  const priorityColor =
+    {
+      Baja: palette.low,
+      Media: palette.medium,
+      Alta: palette.high,
+      Urgente: palette.urgent,
+    }[task.priority] || palette.muted;
+
+  const dateText = getRelativeDate();
 
   return (
     <Animated.View entering={FadeInDown.delay(Math.min(index, 8) * 35).duration(280)}>
@@ -85,23 +112,63 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
               />
             </View>
             <View style={styles.bottom}>
-              <View style={styles.metaBadge}>
-                <Icon source="clock-outline" size={14} color={palette.muted} />
-                <Text variant="bodySmall" style={{ color: palette.muted, marginLeft: 4 }}>
-                  {task.time}
-                </Text>
-              </View>
               {task.category ? (
-                <View style={[styles.metaBadge, { backgroundColor: palette.surfaceVariant, paddingHorizontal: 6, borderRadius: 6 }]}>
-                  <Icon source="folder-outline" size={14} color={palette.muted} />
-                  <Text variant="bodySmall" style={{ color: palette.muted, marginLeft: 4 }}>
+                <View
+                  style={[
+                    styles.metaBadge,
+                    {
+                      backgroundColor: `${task.color}25`,
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                      marginRight: 8,
+                    },
+                  ]}
+                >
+                  <Icon
+                    source={task.category_icon || 'folder-outline'}
+                    size={14}
+                    color={task.color}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: task.color, marginLeft: 6, fontWeight: '500' }}
+                  >
                     {task.category}
                   </Text>
                 </View>
               ) : null}
-              <View style={[styles.metaBadge, { backgroundColor: `${task.color}15`, paddingHorizontal: 6, borderRadius: 6, borderColor: `${task.color}30`, borderWidth: 1 }]}>
-                <Icon source="flag-outline" size={12} color={task.color} />
-                <Text variant="bodySmall" style={{ color: task.color, fontWeight: '700', fontSize: 10, marginLeft: 4 }}>
+              {dateText ? (
+                <>
+                  {task.category && (
+                    <Text style={{ color: palette.border, marginRight: 8, fontSize: 12 }}>|</Text>
+                  )}
+                  <Icon source="calendar-blank-outline" size={14} color={palette.muted} />
+                  <Text variant="bodySmall" style={{ color: palette.muted, marginLeft: 4 }}>
+                    {dateText}
+                  </Text>
+                </>
+              ) : null}
+            </View>
+            <View style={[styles.bottom, { marginTop: 8 }]}>
+              <View
+                style={[
+                  styles.metaBadge,
+                  {
+                    backgroundColor: `${priorityColor}15`,
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    borderRadius: 8,
+                    borderColor: `${priorityColor}40`,
+                    borderWidth: 1,
+                  },
+                ]}
+              >
+                <Icon source="flag-outline" size={12} color={priorityColor} />
+                <Text
+                  variant="bodySmall"
+                  style={{ color: priorityColor, fontWeight: '700', fontSize: 11, marginLeft: 4 }}
+                >
                   {task.priority}
                 </Text>
               </View>
@@ -135,10 +202,8 @@ const styles = StyleSheet.create({
   title: { flex: 1, fontWeight: '700' },
   bottom: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     alignItems: 'center',
     marginTop: 12,
-    gap: 8,
   },
   metaBadge: {
     flexDirection: 'row',
