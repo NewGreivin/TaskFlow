@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { FAB, IconButton, Surface, Text } from 'react-native-paper';
+import { FAB, IconButton, Surface, Text, TouchableRipple } from 'react-native-paper';
 import { useSQLiteContext } from '../../src/data/database';
 import { getProjectStats } from '../../src/data/taskRepository';
 import { useCallback, useState } from 'react';
@@ -81,6 +81,10 @@ export default function Projects() {
               ]}
               elevation={0}
             >
+              <TouchableRipple
+                style={styles.cardRipple}
+                onPress={() => router.push({ pathname: '/project_tasks', params: { projectId: p.id, projectName: p.name } })}
+              >
               <View style={styles.cardHeader}>
                 <View style={styles.cardHeaderLeft}>
                   <View style={[styles.iconBox, { backgroundColor: `${color}20` }]}>
@@ -110,6 +114,7 @@ export default function Projects() {
                   {Math.round(progressPercent)}%
                 </Text>
               </View>
+              </TouchableRipple>
             </Surface>
           );
         })}
@@ -124,7 +129,7 @@ export default function Projects() {
       />
 
       {/* Category Creation / Editing Modal */}
-      <CategoryModal
+      <CategoryModal type="project"
         visible={modalOpen}
         category={editingCategory}
         onSave={handleSaveCategory}
@@ -145,10 +150,14 @@ const styles = StyleSheet.create({
   },
   title: { fontWeight: '850', fontSize: 28 },
   card: {
-    padding: 16,
+    padding: 0,
     borderRadius: 16,
     borderWidth: 1,
     marginBottom: 12,
+    overflow: 'hidden',
+  },
+  cardRipple: {
+    padding: 16,
   },
   cardHeader: {
     flexDirection: 'row',
