@@ -85,35 +85,37 @@ export default function Projects() {
                 style={styles.cardRipple}
                 onPress={() => router.push({ pathname: '/project_tasks', params: { projectId: p.id, projectName: p.name } })}
               >
-              <View style={styles.cardHeader}>
-                <View style={styles.cardHeaderLeft}>
-                  <View style={[styles.iconBox, { backgroundColor: `${color}20` }]}>
-                    <CategoryIcon iconId={p.icon} color={color} size={22} />
+                <View>
+                  <View style={styles.cardHeader}>
+                    <View style={styles.cardHeaderLeft}>
+                      <View style={[styles.iconBox, { backgroundColor: `${color}20` }]}>
+                        <CategoryIcon iconId={p.icon} color={color} size={22} />
+                      </View>
+                      <Text variant="titleMedium" style={[styles.name, { color: palette.text }]}>
+                        {p.name}
+                      </Text>
+                    </View>
+                    <IconButton icon="dots-vertical" size={20} onPress={() => { setEditingCategory(p); setModalOpen(true); }} style={{ margin: 0 }}/>
                   </View>
-                  <Text variant="titleMedium" style={[styles.name, { color: palette.text }]}>
-                    {p.name}
+
+                  <Text style={[styles.statsText, { color: palette.muted }]}>
+                    {total} {total === 1 ? 'tarea' : 'tareas'} · {stateLabel}
                   </Text>
-                </View>
-                <IconButton icon="dots-vertical" size={20} onPress={() => { setEditingCategory(p); setModalOpen(true); }} style={{ margin: 0 }}/>
-              </View>
 
-              <Text style={[styles.statsText, { color: palette.muted }]}>
-                {total} {total === 1 ? 'tarea' : 'tareas'} · {stateLabel}
-              </Text>
-
-              <View style={styles.progressRow}>
-                <View style={[styles.track, { backgroundColor: palette.border }]}>
-                  <View
-                    style={[
-                      styles.fill,
-                      { width: `${Math.min(100, progressPercent)}%`, backgroundColor: color },
-                    ]}
-                  />
+                  <View style={styles.progressRow}>
+                    <View style={[styles.track, { backgroundColor: palette.border }]}>
+                      <View
+                        style={[
+                          styles.fill,
+                          { width: `${Math.min(100, progressPercent)}%`, backgroundColor: color },
+                        ]}
+                      />
+                    </View>
+                    <Text style={[styles.progressPercent, { color: palette.text }]}>
+                      {Math.round(progressPercent)}%
+                    </Text>
+                  </View>
                 </View>
-                <Text style={[styles.progressPercent, { color: palette.text }]}>
-                  {Math.round(progressPercent)}%
-                </Text>
-              </View>
               </TouchableRipple>
             </Surface>
           );
