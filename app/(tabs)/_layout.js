@@ -79,15 +79,15 @@ export default function TabsLayout() {
         name="projects"
         options={{
           title: 'Proyectos',
-          tabBarIcon: tabIcon('folder-outline'),
+          tabBarIcon: tabIcon('folder-star-outline'),
         }}
       />
 
       <Tabs.Screen
-        name="reports"
+        name="profile"
         options={{
-          title: 'Reportes',
-          tabBarIcon: tabIcon('chart-box-outline'),
+          title: 'Perfil',
+          tabBarIcon: tabIcon('account-outline'),
         }}
       />
     </Tabs>
