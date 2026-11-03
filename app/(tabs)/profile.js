@@ -92,12 +92,6 @@ export default function Profile() {
           title="Categorías"
           palette={palette}
           onPress={() => router.push('/categories')}
-        />
-        <MenuItem
-          icon="flag-outline"
-          title="Prioridades"
-          palette={palette}
-          onPress={() => router.push('/settings/priorities')}
           isLast
         />
       </Surface>
