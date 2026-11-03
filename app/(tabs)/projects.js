@@ -1,14 +1,13 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { FAB, IconButton, Surface, Text, TouchableRipple } from 'react-native-paper';
 import { useSQLiteContext } from '../../src/data/database';
-import { getProjectStats } from '../../src/data/taskRepository';
+import { getProjectStats, createProject, updateProject } from '../../src/data/taskRepository';
 import { useCallback, useState } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useAppTheme } from '../../src/theme/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CategoryIcon from '../../src/components/CategoryIcon';
-import CategoryModal from '../../src/components/CategoryModal';
-import { createCategory, updateCategory, deleteCategory } from '../../src/data/taskRepository';
+import ProjectModal from '../../src/components/ProjectModal';
 
 export default function Projects() {
   const router = useRouter();
@@ -19,7 +18,7 @@ export default function Projects() {
 
   const [projects, setProjects] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingProject, setEditingProject] = useState(null);
 
   const load = useCallback(() => getProjectStats(db).then(setProjects), [db]);
 
@@ -30,18 +29,18 @@ export default function Projects() {
   );
 
   const handleOpenCreate = () => {
-    setEditingCategory(null);
+    setEditingProject(null);
     setModalOpen(true);
   };
 
-  const handleSaveCategory = async (data) => {
-    if (editingCategory) {
-      await updateCategory(db, editingCategory.id, data);
+  const handleSaveProject = async (data) => {
+    if (editingProject) {
+      await updateProject(db, editingProject.id, data);
     } else {
-      await createCategory(db, data);
+      await createProject(db, data);
     }
     setModalOpen(false);
-    setEditingCategory(null);
+    setEditingProject(null);
     load();
   };
 
@@ -53,6 +52,14 @@ export default function Projects() {
             Proyectos
           </Text>
         </View>
+
+        {projects.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyText, { color: palette.muted }]}>
+              Aún no tienes proyectos. Crea uno para empezar.
+            </Text>
+          </View>
+        ) : null}
 
         {projects.map((p) => {
           const color = p.color || palette.primary;
@@ -95,7 +102,7 @@ export default function Projects() {
                         {p.name}
                       </Text>
                     </View>
-                    <IconButton icon="dots-vertical" size={20} onPress={() => { setEditingCategory(p); setModalOpen(true); }} style={{ margin: 0 }}/>
+                    <IconButton icon="dots-vertical" size={20} onPress={() => { setEditingProject(p); setModalOpen(true); }} style={{ margin: 0 }}/>
                   </View>
 
                   <Text style={[styles.statsText, { color: palette.muted }]}>
@@ -130,11 +137,11 @@ export default function Projects() {
         onPress={handleOpenCreate}
       />
 
-      {/* Category Creation / Editing Modal */}
-      <CategoryModal type="project"
+      {/* Project Creation / Editing Modal */}
+      <ProjectModal
         visible={modalOpen}
-        category={editingCategory}
-        onSave={handleSaveCategory}
+        project={editingProject}
+        onSave={handleSaveProject}
         onClose={() => setModalOpen(false)}
       />
     </View>
@@ -200,6 +207,16 @@ const styles = StyleSheet.create({
   progressPercent: {
     fontSize: 12,
     fontWeight: '700',
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: 'center',
   },
   fab: { position: 'absolute', right: 20, bottom: 90, borderRadius: 18 },
 });

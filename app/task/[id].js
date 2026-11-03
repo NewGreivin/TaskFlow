@@ -183,6 +183,7 @@ export default function TaskDetail() {
           <Info palette={palette} icon="calendar-outline" text={task.due_date} />
           <Info palette={palette} icon="clock-outline" text={task.due_time || 'Sin hora'} />
           <Info palette={palette} icon="folder-outline" text={task.category || 'Sin categoría'} />
+          <Info palette={palette} icon="briefcase-outline" text={task.project_name || 'Sin proyecto'} />
           <Info
             palette={palette}
             icon="flag-outline"

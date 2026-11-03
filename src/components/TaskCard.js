@@ -121,7 +121,7 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
                 </View>
               ) : null}
 
-              {dateText && task.category && (
+              {dateText && (task.category || task.project_name) && (
                 <Text style={{ color: palette.border, fontSize: 12, marginHorizontal: 2 }}>|</Text>
               )}
 
@@ -130,7 +130,7 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
                   style={[
                     styles.metaBadge,
                     {
-                      backgroundColor: `${task.color}25`,
+                      backgroundColor: `${task.category_color || task.color}25`,
                       paddingHorizontal: 8,
                       paddingVertical: 4,
                       borderRadius: 8,
@@ -140,13 +140,39 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
                   <Icon
                     source={task.category_icon || 'folder-outline'}
                     size={14}
-                    color={task.color}
+                    color={task.category_color || task.color}
                   />
                   <Text
                     variant="bodySmall"
-                    style={{ color: task.color, marginLeft: 6, fontWeight: '500' }}
+                    style={{ color: task.category_color || task.color, marginLeft: 6, fontWeight: '500' }}
                   >
                     {task.category}
+                  </Text>
+                </View>
+              ) : null}
+
+              {task.project_name ? (
+                <View
+                  style={[
+                    styles.metaBadge,
+                    {
+                      backgroundColor: `${task.project_color || task.color}25`,
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                    },
+                  ]}
+                >
+                  <Icon
+                    source={task.project_icon || 'briefcase-outline'}
+                    size={14}
+                    color={task.project_color || task.color}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: task.project_color || task.color, marginLeft: 6, fontWeight: '500' }}
+                  >
+                    {task.project_name}
                   </Text>
                 </View>
               ) : null}
