@@ -18,6 +18,8 @@ import { toLocalDateKey, weekFrom, formatDateEs } from '../../src/data/date';
 import TaskCard from '../../src/components/TaskCard';
 import SectionHeader from '../../src/components/SectionHeader';
 
+import { getSettings } from '../../src/data/settingsRepository';
+
 export default function Today() {
   const router = useRouter();
   const db = useSQLiteContext();
@@ -29,22 +31,28 @@ export default function Today() {
   const [tasks, setTasks] = useState([]);
   const [, setStats] = useState(null);
   const [datesWithTasks, setDatesWithTasks] = useState(new Set());
+  const [settings, setSettings] = useState(null);
 
-  const days = useMemo(() => weekFrom(), []);
+  const days = useMemo(
+    () => weekFrom(new Date(), settings?.first_day_of_week || 'Lunes'),
+    [settings]
+  );
 
   const load = useCallback(async () => {
     const startKey = days[0]?.key;
     const endKey = days[days.length - 1]?.key;
 
-    const [rows, s, taskDatesSet] = await Promise.all([
+    const [rows, s, taskDatesSet, userSettings] = await Promise.all([
       getTasks(db, { date: selected }),
       getStats(db),
       startKey && endKey ? getDatesWithTasks(db, startKey, endKey) : new Set(),
+      getSettings(db),
     ]);
 
     setTasks(rows.map(toTaskCard));
     setStats(s);
     setDatesWithTasks(taskDatesSet);
+    setSettings(userSettings);
   }, [db, selected, days]);
 
   useFocusEffect(

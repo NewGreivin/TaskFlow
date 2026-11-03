@@ -21,7 +21,10 @@ import {
 } from '../../src/data/date';
 import TaskCard from '../../src/components/TaskCard';
 
-const WEEKDAYS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+import { getSettings } from '../../src/data/settingsRepository';
+
+const WEEKDAYS_MONDAY = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+const WEEKDAYS_SUNDAY = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 
 export default function Calendar() {
   const router = useRouter();
@@ -38,10 +41,14 @@ export default function Calendar() {
   const [currentMonth, setCurrentMonth] = useState(todayDate.getMonth());
   const [tasks, setTasks] = useState([]);
   const [datesWithTasks, setDatesWithTasks] = useState(new Set());
+  const [settings, setSettings] = useState(null);
+
+  const firstDayPref = settings?.first_day_of_week || 'Lunes';
+  const WEEKDAYS = firstDayPref === 'Domingo' ? WEEKDAYS_SUNDAY : WEEKDAYS_MONDAY;
 
   const calendarDays = useMemo(() => {
-    return getMonthCalendarDays(currentYear, currentMonth);
-  }, [currentYear, currentMonth]);
+    return getMonthCalendarDays(currentYear, currentMonth, firstDayPref);
+  }, [currentYear, currentMonth, firstDayPref]);
 
   const loadTasks = useCallback(async () => {
     const list = await getTasks(db, { date: selected });
@@ -52,8 +59,12 @@ export default function Calendar() {
     if (!calendarDays.length) return;
     const startKey = calendarDays[0].key;
     const endKey = calendarDays[calendarDays.length - 1].key;
-    const taskDatesSet = await getDatesWithTasks(db, startKey, endKey);
+    const [taskDatesSet, userSettings] = await Promise.all([
+      getDatesWithTasks(db, startKey, endKey),
+      getSettings(db),
+    ]);
     setDatesWithTasks(taskDatesSet);
+    setSettings(userSettings);
   }, [db, calendarDays]);
 
   const load = useCallback(async () => {

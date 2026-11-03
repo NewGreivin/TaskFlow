@@ -21,6 +21,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useSQLiteContext } from '../../src/data/database';
 import { createTask, getCategories, getTask, updateTask } from '../../src/data/taskRepository';
+import { getSettings } from '../../src/data/settingsRepository';
 import {
   cancelTaskNotifications,
   replaceTaskNotification,
@@ -71,6 +72,11 @@ export default function NewTask() {
   useEffect(() => {
     (async () => {
       setCategories(await getCategories(db));
+      const userSettings = await getSettings(db);
+      if (userSettings) {
+        setReminder(!!userSettings.notif_reminders);
+        setReminderMinutes(userSettings.notif_anticipation ?? 30);
+      }
       if (editing) {
         const t = await getTask(db, editId);
         if (t) {

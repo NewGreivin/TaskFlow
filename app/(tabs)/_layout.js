@@ -76,18 +76,18 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="categories"
-        options={{
-          title: 'Categorías',
-          tabBarIcon: tabIcon('folder-outline'),
-        }}
-      />
-
-      <Tabs.Screen
         name="stats"
         options={{
           title: 'Estadísticas',
           tabBarIcon: tabIcon('chart-donut'),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Perfil',
+          tabBarIcon: tabIcon('account-outline'),
         }}
       />
     </Tabs>

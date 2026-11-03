@@ -88,6 +88,26 @@ export async function migrateDbIfNeeded(db) {
   await db.runAsync(
     `INSERT OR IGNORE INTO settings (id, theme, language, notifications_enabled) VALUES (1, 'system', 'es', 1)`
   );
+
+  const addColumn = async (colName, defVal) => {
+    try {
+      await db.execAsync(`ALTER TABLE settings ADD COLUMN ${colName} ${defVal}`);
+    } catch (e) {}
+  };
+  await addColumn('first_day_of_week', "TEXT NOT NULL DEFAULT 'Lunes'");
+  await addColumn('notif_reminders', 'INTEGER NOT NULL DEFAULT 1');
+  await addColumn('notif_anticipation', 'INTEGER NOT NULL DEFAULT 15');
+  await addColumn('notif_summary', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumn('notif_summary_time', "TEXT NOT NULL DEFAULT '20:00'");
+  await addColumn('notif_overdue', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumn('notif_completed', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumn('notif_date_changed', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumn('notif_sound', 'INTEGER NOT NULL DEFAULT 1');
+  await addColumn('notif_vibration', 'INTEGER NOT NULL DEFAULT 1');
+  await addColumn(
+    'notif_days',
+    "TEXT NOT NULL DEFAULT 'Lunes,Martes,Miércoles,Jueves,Viernes,Sábado,Domingo'"
+  );
 }
 
 export { SQLiteProvider, useSQLiteContext };

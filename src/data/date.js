@@ -26,10 +26,17 @@ export function addDays(key, amount) {
   date.setDate(date.getDate() + amount);
   return toLocalDateKey(date);
 }
-export function weekFrom(date = new Date()) {
+export function weekFrom(date = new Date(), firstDayOfWeek = 'Lunes') {
   const base = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const mondayOffset = (base.getDay() + 6) % 7;
-  base.setDate(base.getDate() - mondayOffset);
+
+  if (firstDayOfWeek === 'Domingo') {
+    const sundayOffset = base.getDay();
+    base.setDate(base.getDate() - sundayOffset);
+  } else {
+    const mondayOffset = (base.getDay() + 6) % 7;
+    base.setDate(base.getDate() - mondayOffset);
+  }
+
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(base);
     d.setDate(base.getDate() + i);
@@ -48,11 +55,17 @@ export function formatMonthYearEs(year, month) {
   return new Intl.DateTimeFormat('es-CR', { month: 'long', year: 'numeric' }).format(date);
 }
 
-export function getMonthCalendarDays(year, month) {
+export function getMonthCalendarDays(year, month, firstDayOfWeek = 'Lunes') {
   const firstDay = new Date(year, month, 1);
   const startDayOfWeek = firstDay.getDay(); // 0 = Sunday
 
-  const startDate = new Date(year, month, 1 - startDayOfWeek);
+  // Calculate start date based on firstDayOfWeek
+  let offset = startDayOfWeek;
+  if (firstDayOfWeek === 'Lunes') {
+    offset = (startDayOfWeek + 6) % 7;
+  }
+
+  const startDate = new Date(year, month, 1 - offset);
 
   const days = [];
   // 6 weeks * 7 days = 42 cells to cover any month view fixed grid
