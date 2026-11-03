@@ -112,6 +112,19 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
               />
             </View>
             <View style={styles.bottom}>
+              {dateText ? (
+                <View style={styles.metaBadge}>
+                  <Icon source="calendar-blank-outline" size={14} color={palette.muted} />
+                  <Text variant="bodySmall" style={{ color: palette.muted, marginLeft: 4 }}>
+                    {dateText}
+                  </Text>
+                </View>
+              ) : null}
+
+              {dateText && task.category && (
+                <Text style={{ color: palette.border, fontSize: 12, marginHorizontal: 2 }}>|</Text>
+              )}
+
               {task.category ? (
                 <View
                   style={[
@@ -121,7 +134,6 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
                       paddingHorizontal: 8,
                       paddingVertical: 4,
                       borderRadius: 8,
-                      marginRight: 8,
                     },
                   ]}
                 >
@@ -138,19 +150,6 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
                   </Text>
                 </View>
               ) : null}
-              {dateText ? (
-                <>
-                  {task.category && (
-                    <Text style={{ color: palette.border, marginRight: 8, fontSize: 12 }}>|</Text>
-                  )}
-                  <Icon source="calendar-blank-outline" size={14} color={palette.muted} />
-                  <Text variant="bodySmall" style={{ color: palette.muted, marginLeft: 4 }}>
-                    {dateText}
-                  </Text>
-                </>
-              ) : null}
-            </View>
-            <View style={[styles.bottom, { marginTop: 8 }]}>
               <View
                 style={[
                   styles.metaBadge,
@@ -203,7 +202,9 @@ const styles = StyleSheet.create({
   bottom: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     marginTop: 12,
+    gap: 8,
   },
   metaBadge: {
     flexDirection: 'row',
