@@ -59,7 +59,7 @@ export default function NewTask() {
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(toLocalDateKey());
   const [dueTime, setDueTime] = useState('10:00');
-  const [categoryId, setCategoryId] = useState(null);
+  const [categoryId, setCategoryId] = useState(params.categoryId ? Number(params.categoryId) : null);
   const [priority, setPriority] = useState('Media');
   const [status, setStatus] = useState('Pendiente');
   const [reminder, setReminder] = useState(false);
