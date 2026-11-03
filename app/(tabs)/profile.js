@@ -151,25 +151,25 @@ export default function Profile() {
           icon="export"
           title="Exportar datos"
           palette={palette}
-          onPress={() => dummyAlert('Exportar datos')}
+          onPress={() => router.push('/settings/export')}
         />
         <MenuItem
           icon="cloud-upload-outline"
           title="Copias de seguridad"
           palette={palette}
-          onPress={() => dummyAlert('Copias de seguridad')}
+          onPress={() => router.push('/settings/backup')}
         />
         <MenuItem
           icon="help-circle-outline"
           title="Ayuda y soporte"
           palette={palette}
-          onPress={() => dummyAlert('Ayuda y soporte')}
+          onPress={() => router.push('/settings/help')}
         />
         <MenuItem
           icon="shield-check-outline"
           title="Privacidad y términos"
           palette={palette}
-          onPress={() => dummyAlert('Privacidad y términos')}
+          onPress={() => router.push('/settings/privacy')}
           isLast
         />
       </Surface>
