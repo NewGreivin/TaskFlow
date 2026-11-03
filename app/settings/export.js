@@ -103,12 +103,11 @@ export default function ExportScreen() {
         </html>
       `;
 
-      const { uri: tempUri } = await Print.printToFileAsync({ html });
+      const { base64 } = await Print.printToFileAsync({ html, base64: true });
       const finalUri = FileSystem.documentDirectory + 'tareas.pdf';
 
-      await FileSystem.copyAsync({
-        from: tempUri,
-        to: finalUri,
+      await FileSystem.writeAsStringAsync(finalUri, base64, {
+        encoding: FileSystem.EncodingType.Base64,
       });
 
       await Sharing.shareAsync(finalUri, {
