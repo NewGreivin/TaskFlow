@@ -5,7 +5,6 @@ import {
   Surface,
   Text,
   TouchableRipple,
-  Switch,
   Button,
 } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -92,6 +91,12 @@ export default function Profile() {
           title="Categorías"
           palette={palette}
           onPress={() => router.push('/categories')}
+        />
+        <MenuItem
+          icon="chart-donut"
+          title="Estadísticas"
+          palette={palette}
+          onPress={() => router.push('/statistics_view')}
           isLast
         />
       </Surface>

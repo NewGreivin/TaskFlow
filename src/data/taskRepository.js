@@ -186,6 +186,18 @@ export async function getStats(db) {
   return { totals, priorities };
 }
 
+export async function getProjectStats(db) {
+  return db.getAllAsync(
+    `SELECT c.id, c.name, c.icon, c.color,
+            COUNT(t.id) as total_tasks,
+            SUM(CASE WHEN t.status IN ('Completada','Terminada') THEN 1 ELSE 0 END) as completed_tasks
+     FROM categories c
+     LEFT JOIN tasks t ON c.id = t.category_id
+     GROUP BY c.id
+     ORDER BY c.name COLLATE NOCASE`
+  );
+}
+
 export async function getDatesWithTasks(db, startKey, endKey) {
   const rows = await db.getAllAsync(
     'SELECT DISTINCT due_date FROM tasks WHERE due_date >= ? AND due_date <= ?',

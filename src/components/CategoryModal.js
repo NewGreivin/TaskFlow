@@ -78,7 +78,7 @@ const IconRow = memo(
   }
 );
 
-export default function CategoryModal({ visible, category, onSave, onClose }) {
+export default function CategoryModal({ visible, category, onSave, onClose, type = 'category' }) {
   const { palette, isDark } = useAppTheme();
 
   // Form State
@@ -219,7 +219,7 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
             {/* Header: Title left, Close button (✕) right */}
             <View style={styles.header}>
               <Text variant="titleLarge" style={[styles.title, { color: themeTokens.titleText }]}>
-                {category ? 'Editar categoría' : 'Crear categoría'}
+                {category ? (type === 'project' ? 'Editar proyecto' : 'Editar categoría') : (type === 'project' ? 'Crear proyecto' : 'Crear categoría')}
               </Text>
               <IconButton
                 icon="close"
@@ -255,14 +255,14 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                   variant="titleMedium"
                   style={[styles.previewName, { color: themeTokens.titleText }]}
                 >
-                  {name.trim() || 'Nombre de la categoría'}
+                  {name.trim() || (type === 'project' ? 'Nombre del proyecto' : 'Nombre de la categoría')}
                 </Text>
               </Surface>
 
               {/* Input for category name */}
               <TextInput
-                label="Nombre de la categoría"
-                placeholder="Nombre de la categoría"
+                label={type === 'project' ? 'Nombre del proyecto' : 'Nombre de la categoría'}
+                placeholder={type === 'project' ? 'Nombre del proyecto' : 'Nombre de la categoría'}
                 value={name}
                 onChangeText={setName}
                 mode="outlined"
@@ -302,7 +302,7 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                 variant="labelLarge"
                 style={[styles.sectionTitle, { color: themeTokens.sectionTitle, marginTop: 16 }]}
               >
-                COLOR DE CATEGORÍA
+                {type === 'project' ? 'COLOR DEL PROYECTO' : 'COLOR DE CATEGORÍA'}
               </Text>
               <View style={styles.colorGrid}>
                 {CATEGORY_COLORS.map((col) => {
@@ -352,7 +352,7 @@ export default function CategoryModal({ visible, category, onSave, onClose }) {
                 ]}
                 textColor={themeTokens.primaryBtnText}
               >
-                Guardar categoría
+                {type === 'project' ? 'Guardar proyecto' : 'Guardar categoría'}
               </Button>
             </View>
           </Surface>
