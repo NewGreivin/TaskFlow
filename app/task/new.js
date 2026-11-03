@@ -62,7 +62,7 @@ export default function NewTask() {
   const [categoryId, setCategoryId] = useState(null);
   const [priority, setPriority] = useState('Media');
   const [status, setStatus] = useState('Pendiente');
-  const [reminder, setReminder] = useState(true);
+  const [reminder, setReminder] = useState(false);
   const [reminderMinutes, setReminderMinutes] = useState(30);
   const [recurrence, setRecurrence] = useState('No se repite');
   const [notes, setNotes] = useState('');
@@ -74,7 +74,6 @@ export default function NewTask() {
       setCategories(await getCategories(db));
       const userSettings = await getSettings(db);
       if (userSettings) {
-        setReminder(!!userSettings.notif_reminders);
         setReminderMinutes(userSettings.notif_anticipation ?? 30);
       }
       if (editing) {
