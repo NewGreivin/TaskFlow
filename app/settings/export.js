@@ -38,7 +38,7 @@ export default function ExportScreen() {
       XLSX.utils.book_append_sheet(wb, ws, 'Tareas');
 
       const wbout = XLSX.write(wb, { type: 'base64', bookType: 'xlsx' });
-      const uri = FileSystem.cacheDirectory + 'tareas.xlsx';
+      const uri = FileSystem.documentDirectory + 'tareas.xlsx';
 
       await FileSystem.writeAsStringAsync(uri, wbout, {
         encoding: FileSystem.EncodingType.Base64,
@@ -103,8 +103,18 @@ export default function ExportScreen() {
         </html>
       `;
 
-      const { uri } = await Print.printToFileAsync({ html });
-      await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+      const { uri: tempUri } = await Print.printToFileAsync({ html });
+      const finalUri = FileSystem.documentDirectory + 'tareas.pdf';
+
+      await FileSystem.copyAsync({
+        from: tempUri,
+        to: finalUri,
+      });
+
+      await Sharing.shareAsync(finalUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Exportar PDF',
+      });
     } catch (e) {
       console.error(e);
       Alert.alert('Error', 'No se pudo generar el archivo PDF.');

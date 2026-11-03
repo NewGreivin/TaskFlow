@@ -35,7 +35,7 @@ export default function BackupScreen() {
       };
 
       const jsonString = JSON.stringify(backupData, null, 2);
-      const backupUri = FileSystem.cacheDirectory + 'backup_taskflow.json';
+      const backupUri = FileSystem.documentDirectory + 'backup_taskflow.json';
 
       await FileSystem.writeAsStringAsync(backupUri, jsonString, {
         encoding: FileSystem.EncodingType.UTF8,
