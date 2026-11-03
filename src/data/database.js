@@ -70,7 +70,6 @@ export async function migrateDbIfNeeded(db) {
     CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
     CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
     CREATE INDEX IF NOT EXISTS idx_tasks_category ON tasks(category_id);
-    CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id);
 
     CREATE TABLE IF NOT EXISTS settings (
       id INTEGER PRIMARY KEY CHECK (id = 1),
@@ -87,7 +86,7 @@ export async function migrateDbIfNeeded(db) {
       ['Estudio', 'school-outline', '#7C5CFC'],
       ['Personal', 'account-outline', '#36B37E'],
       ['Salud', 'heart-outline', '#FF4D6D'],
-      ['Finanzas', 'cash-outline', '#F3B51B'],
+      ['Finanzas', 'cash', '#F3B51B'],
       ['Hogar', 'home-outline', '#FF8A4C'],
       ['Otras', 'dots-horizontal', '#8A8F9F'],
     ];
@@ -105,6 +104,11 @@ export async function migrateDbIfNeeded(db) {
     `INSERT OR IGNORE INTO settings (id, theme, language, notifications_enabled) VALUES (1, 'system', 'es', 1)`
   );
 
+  // Fix: Convert non-existent 'cash-outline' to 'cash' for users updating the app
+  try {
+    await db.execAsync(`UPDATE categories SET icon = 'cash' WHERE icon = 'cash-outline';`);
+  } catch (e) {}
+
   const addColumn = async (tableName, colName, defVal) => {
     try {
       await db.execAsync(`ALTER TABLE ${tableName} ADD COLUMN ${colName} ${defVal}`);
@@ -112,6 +116,12 @@ export async function migrateDbIfNeeded(db) {
   };
 
   await addColumn('tasks', 'project_id', 'INTEGER REFERENCES projects(id) ON DELETE SET NULL');
+
+  // Create index for project_id AFTER ensuring the column exists (safe for updates)
+  try {
+    await db.execAsync(`CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id);`);
+  } catch (e) {}
+
   await addColumn('settings', 'first_day_of_week', "TEXT NOT NULL DEFAULT 'Lunes'");
   await addColumn('settings', 'notif_reminders', 'INTEGER NOT NULL DEFAULT 1');
   await addColumn('settings', 'notif_anticipation', 'INTEGER NOT NULL DEFAULT 15');

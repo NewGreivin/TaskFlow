@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { FAB, IconButton, Surface, Text, TouchableRipple } from 'react-native-paper';
 import { useSQLiteContext } from '../../src/data/database';
-import { getProjectStats, createProject, updateProject } from '../../src/data/taskRepository';
+import { getProjectStats, createProject, updateProject, deleteProject } from '../../src/data/taskRepository';
 import { useCallback, useState } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useAppTheme } from '../../src/theme/ThemeContext';
@@ -39,6 +39,13 @@ export default function Projects() {
     } else {
       await createProject(db, data);
     }
+    setModalOpen(false);
+    setEditingProject(null);
+    load();
+  };
+
+  const handleDeleteProject = async (id) => {
+    await deleteProject(db, id);
     setModalOpen(false);
     setEditingProject(null);
     load();
@@ -142,6 +149,7 @@ export default function Projects() {
         visible={modalOpen}
         project={editingProject}
         onSave={handleSaveProject}
+        onDelete={handleDeleteProject}
         onClose={() => setModalOpen(false)}
       />
     </View>

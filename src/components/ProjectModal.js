@@ -8,6 +8,7 @@ import {
   View,
   FlatList,
   SectionList,
+  Alert,
 } from 'react-native';
 import { Button, IconButton, Surface, Text, TextInput } from 'react-native-paper';
 import { useAppTheme } from '../theme/ThemeContext';
@@ -82,7 +83,7 @@ import DatePickerModal from './DatePickerModal';
 import DropdownSelect from './DropdownSelect';
 import { toLocalDateKey } from '../data/date';
 
-export default function ProjectModal({ visible, category, onSave, onClose }) {
+export default function ProjectModal({ visible, category, onSave, onClose, onDelete }) {
   const { palette, isDark } = useAppTheme();
 
   // Form State
@@ -159,6 +160,21 @@ export default function ProjectModal({ visible, category, onSave, onClose }) {
       color: selectedColor,
     });
     onClose?.();
+  };
+
+  const handleDelete = () => {
+    if (!category || !category.id) return;
+    Alert.alert(
+      "Eliminar Proyecto",
+      "¿Estás seguro de que deseas eliminar este proyecto? Las tareas asociadas no se eliminarán, pero perderán su asignación al proyecto.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Eliminar", style: "destructive", onPress: () => {
+          onDelete?.(category.id);
+          onClose?.();
+        }}
+      ]
+    );
   };
 
   // Icon Picker Submodal Handlers
@@ -250,12 +266,22 @@ export default function ProjectModal({ visible, category, onSave, onClose }) {
               <Text variant="titleLarge" style={[styles.title, { color: themeTokens.titleText }]}>
                 {category ? 'Editar proyecto' : 'Crear proyecto'}
               </Text>
-              <IconButton
-                icon="close"
-                size={22}
-                iconColor={themeTokens.titleText}
-                onPress={onClose}
-              />
+              <View style={{ flexDirection: 'row' }}>
+                {category && onDelete && (
+                  <IconButton
+                    icon="delete-outline"
+                    size={22}
+                    iconColor={themeTokens.titleText}
+                    onPress={handleDelete}
+                  />
+                )}
+                <IconButton
+                  icon="close"
+                  size={22}
+                  iconColor={themeTokens.titleText}
+                  onPress={onClose}
+                />
+              </View>
             </View>
 
             <ScrollView
