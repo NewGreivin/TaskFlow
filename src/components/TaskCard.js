@@ -85,25 +85,26 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
               />
             </View>
             <View style={styles.bottom}>
-              <View style={styles.meta}>
-                <Icon source="clock-outline" size={15} color={palette.muted} />
-                <Text variant="bodySmall" style={{ color: palette.muted }}>
+              <View style={styles.metaBadge}>
+                <Icon source="clock-outline" size={14} color={palette.muted} />
+                <Text variant="bodySmall" style={{ color: palette.muted, marginLeft: 4 }}>
                   {task.time}
                 </Text>
-                {task.category ? (
-                  <Text variant="bodySmall" style={{ color: palette.muted }}>
-                    · {task.category}
-                  </Text>
-                ) : null}
               </View>
-              <Chip
-                compact
-                mode="flat"
-                style={[styles.chip, { backgroundColor: `${task.color}20` }]}
-                textStyle={{ color: task.color, fontSize: 10, fontWeight: '800' }}
-              >
-                {task.priority}
-              </Chip>
+              {task.category ? (
+                <View style={[styles.metaBadge, { backgroundColor: palette.surfaceVariant, paddingHorizontal: 6, borderRadius: 6 }]}>
+                  <Icon source="folder-outline" size={14} color={palette.muted} />
+                  <Text variant="bodySmall" style={{ color: palette.muted, marginLeft: 4 }}>
+                    {task.category}
+                  </Text>
+                </View>
+              ) : null}
+              <View style={[styles.metaBadge, { backgroundColor: `${task.color}15`, paddingHorizontal: 6, borderRadius: 6, borderColor: `${task.color}30`, borderWidth: 1 }]}>
+                <Icon source="flag-outline" size={12} color={task.color} />
+                <Text variant="bodySmall" style={{ color: task.color, fontWeight: '700', fontSize: 10, marginLeft: 4 }}>
+                  {task.priority}
+                </Text>
+              </View>
             </View>
           </View>
         </Pressable>
@@ -134,12 +135,16 @@ const styles = StyleSheet.create({
   title: { flex: 1, fontWeight: '700' },
   bottom: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
     alignItems: 'center',
-    marginTop: 11,
+    marginTop: 12,
+    gap: 8,
   },
-  meta: { flexDirection: 'row', alignItems: 'center', gap: 5, flex: 1 },
-  chip: { height: 27 },
+  metaBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 2,
+  },
 });
 
 export default memo(TaskCard, (prev, next) => {

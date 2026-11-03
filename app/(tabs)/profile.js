@@ -94,10 +94,10 @@ export default function Profile() {
           onPress={() => router.push('/categories')}
         />
         <MenuItem
-          icon="tag-outline"
-          title="Etiquetas y prioridades"
+          icon="flag-outline"
+          title="Prioridades"
           palette={palette}
-          onPress={() => dummyAlert('Etiquetas y prioridades')}
+          onPress={() => router.push('/settings/priorities')}
           isLast
         />
       </Surface>
