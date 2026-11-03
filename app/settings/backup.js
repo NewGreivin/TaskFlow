@@ -4,38 +4,46 @@ import { IconButton, Surface, Text, Button } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../src/theme/ThemeContext';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
-
-// Note: In an Expo project we usually use `expo-updates` to restart the app,
-// but for a bare minimal restart we might just alert the user to reopen the app.
-// I will alert the user to reopen the app after restoring.
+import { useSQLiteContext } from '../../src/data/database';
 
 export default function BackupScreen() {
   const router = useRouter();
   const { palette } = useAppTheme();
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(false);
-
-  const dbName = 'app.db';
-  const dbDir = FileSystem.documentDirectory + 'SQLite/';
-  const dbPath = dbDir + dbName;
+  const db = useSQLiteContext();
 
   const handleCreateBackup = async () => {
     try {
       setLoading(true);
-      const dbInfo = await FileSystem.getInfoAsync(dbPath);
-      if (!dbInfo.exists) {
-        Alert.alert('Error', 'No se encontró la base de datos.');
-        return;
-      }
 
-      const backupUri = FileSystem.cacheDirectory + 'backup_taskflow.db';
-      await FileSystem.copyAsync({ from: dbPath, to: backupUri });
+      const categories = await db.getAllAsync('SELECT * FROM categories');
+      const tasks = await db.getAllAsync('SELECT * FROM tasks');
+      const subtasks = await db.getAllAsync('SELECT * FROM subtasks');
+      const notifications = await db.getAllAsync('SELECT * FROM notifications');
+      const settings = await db.getAllAsync('SELECT * FROM settings');
+
+      const backupData = {
+        categories,
+        tasks,
+        subtasks,
+        notifications,
+        settings,
+      };
+
+      const jsonString = JSON.stringify(backupData, null, 2);
+      const backupUri = FileSystem.cacheDirectory + 'backup_taskflow.json';
+
+      await FileSystem.writeAsStringAsync(backupUri, jsonString, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
 
       await Sharing.shareAsync(backupUri, {
         dialogTitle: 'Exportar copia de seguridad',
+        mimeType: 'application/json',
       });
     } catch (error) {
       console.error(error);
@@ -55,32 +63,117 @@ export default function BackupScreen() {
       if (result.canceled) return;
 
       const file = result.assets[0];
-      if (!file.name.endsWith('.db')) {
+      if (!file.name.endsWith('.json')) {
         Alert.alert(
           'Formato incorrecto',
-          'Por favor selecciona un archivo de base de datos válido (.db).'
+          'Por favor selecciona un archivo de copia de seguridad válido (.json).'
         );
         return;
       }
 
       setLoading(true);
 
-      // Verify destination dir exists
-      const dirInfo = await FileSystem.getInfoAsync(dbDir);
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(dbDir, { intermediates: true });
+      const jsonString = await FileSystem.readAsStringAsync(file.uri, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      const backupData = JSON.parse(jsonString);
+
+      if (!backupData.tasks || !backupData.categories) {
+        throw new Error('Invalid backup format');
       }
 
-      await FileSystem.copyAsync({ from: file.uri, to: dbPath });
+      await db.withTransactionAsync(async () => {
+        // Clear existing
+        await db.execAsync('DELETE FROM subtasks');
+        await db.execAsync('DELETE FROM notifications');
+        await db.execAsync('DELETE FROM tasks');
+        await db.execAsync('DELETE FROM categories');
+        await db.execAsync('DELETE FROM settings');
 
-      Alert.alert(
-        'Restauración Exitosa',
-        'La copia de seguridad ha sido importada. Reinicia la aplicación para aplicar los cambios.',
-        [{ text: 'Entendido' }]
-      );
+        // Restore Categories
+        for (const cat of backupData.categories) {
+          await db.runAsync(
+            'INSERT INTO categories (id, name, icon, color, created_at) VALUES (?, ?, ?, ?, ?)',
+            cat.id,
+            cat.name,
+            cat.icon,
+            cat.color,
+            cat.created_at
+          );
+        }
+
+        // Restore Tasks
+        for (const task of backupData.tasks) {
+          await db.runAsync(
+            'INSERT INTO tasks (id, title, description, status, priority, category_id, due_date, due_time, reminder_enabled, reminder_minutes, recurrence, notes, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            task.id,
+            task.title,
+            task.description,
+            task.status,
+            task.priority,
+            task.category_id,
+            task.due_date,
+            task.due_time,
+            task.reminder_enabled,
+            task.reminder_minutes,
+            task.recurrence,
+            task.notes,
+            task.created_at,
+            task.updated_at
+          );
+        }
+
+        // Restore Subtasks
+        if (backupData.subtasks) {
+          for (const sub of backupData.subtasks) {
+            await db.runAsync(
+              'INSERT INTO subtasks (id, task_id, title, completed, position) VALUES (?, ?, ?, ?, ?)',
+              sub.id,
+              sub.task_id,
+              sub.title,
+              sub.completed,
+              sub.position
+            );
+          }
+        }
+
+        // Restore Notifications
+        if (backupData.notifications) {
+          for (const notif of backupData.notifications) {
+            await db.runAsync(
+              'INSERT INTO notifications (id, task_id, notification_id, scheduled_at, status) VALUES (?, ?, ?, ?, ?)',
+              notif.id,
+              notif.task_id,
+              notif.notification_id,
+              notif.scheduled_at,
+              notif.status
+            );
+          }
+        }
+
+        // Restore Settings
+        if (backupData.settings) {
+          for (const set of backupData.settings) {
+            const keys = Object.keys(set).join(', ');
+            const placeholders = Object.keys(set)
+              .map(() => '?')
+              .join(', ');
+            const values = Object.values(set);
+            await db.runAsync(`INSERT INTO settings (${keys}) VALUES (${placeholders})`, ...values);
+          }
+        }
+      });
+
+      Alert.alert('Restauración Exitosa', 'La copia de seguridad ha sido importada exitosamente.', [
+        { text: 'Entendido' },
+      ]);
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Hubo un problema al importar la copia de seguridad.');
+      Alert.alert(
+        'Error',
+        'Hubo un problema al importar la copia de seguridad. El archivo podría estar corrupto o tener un formato inválido.'
+      );
     } finally {
       setLoading(false);
     }
@@ -110,7 +203,8 @@ export default function BackupScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={[styles.description, { color: palette.muted }]}>
-          Guarda o restaura una copia de seguridad de todas tus tareas, categorías y preferencias.
+          Guarda o restaura una copia de seguridad de todas tus tareas, categorías y preferencias en
+          formato JSON.
         </Text>
 
         <Surface
@@ -122,10 +216,10 @@ export default function BackupScreen() {
           </View>
           <View style={styles.info}>
             <Text variant="titleMedium" style={{ fontWeight: '700', color: palette.text }}>
-              Exportar base de datos
+              Exportar datos
             </Text>
             <Text variant="bodySmall" style={{ color: palette.muted }}>
-              Crea un archivo .db con tu información actual.
+              Crea un archivo .json con tu información actual.
             </Text>
           </View>
           <Button
@@ -147,10 +241,10 @@ export default function BackupScreen() {
           </View>
           <View style={styles.info}>
             <Text variant="titleMedium" style={{ fontWeight: '700', color: palette.text }}>
-              Importar base de datos
+              Importar datos
             </Text>
             <Text variant="bodySmall" style={{ color: palette.muted }}>
-              Restaura un archivo .db previamente exportado.
+              Restaura un archivo .json previamente exportado.
             </Text>
           </View>
           <Button

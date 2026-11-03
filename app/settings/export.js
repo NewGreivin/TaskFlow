@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../src/theme/ThemeContext';
 import { useSQLiteContext } from '../../src/data/database';
 import { getTasks } from '../../src/data/taskRepository';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
 import XLSX from 'xlsx';
