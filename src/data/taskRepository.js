@@ -6,9 +6,13 @@ export async function getTasks(db, { date, status, search, priority, categoryId,
     params.push(date);
   }
   if (status && status !== 'Todas') {
-    if (status === 'Terminadas') where.push("t.status IN ('Completada','Terminada')");
-    else where.push('t.status = ?');
-    if (status !== 'Terminadas') params.push(status);
+    if (status === 'Terminadas') {
+      where.push("t.status IN ('Completada','Terminada')");
+    } else {
+      where.push('t.status = ?');
+      const statusValue = status === 'Pendientes' ? 'Pendiente' : status;
+      params.push(statusValue);
+    }
   }
   if (priority && priority !== 'Todas') {
     where.push('t.priority = ?');
