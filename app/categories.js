@@ -1,20 +1,21 @@
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { FAB, IconButton, Surface, Text } from 'react-native-paper';
-import { useSQLiteContext } from '../../src/data/database';
+import { useSQLiteContext } from '../src/data/database';
 import {
   createCategory,
   deleteCategory,
   getCategories,
   updateCategory,
-} from '../../src/data/taskRepository';
-import { useAppTheme } from '../../src/theme/ThemeContext';
+} from '../src/data/taskRepository';
+import { useAppTheme } from '../src/theme/ThemeContext';
 import { useCallback, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CategoryIcon from '../../src/components/CategoryIcon';
-import CategoryModal from '../../src/components/CategoryModal';
+import CategoryIcon from '../src/components/CategoryIcon';
+import CategoryModal from '../src/components/CategoryModal';
 
 export default function Categories() {
+  const router = useRouter();
   const db = useSQLiteContext();
   const insets = useSafeAreaInsets();
   const fabBottom = 60 + Math.max(insets.bottom, 6) + 16;
@@ -70,7 +71,14 @@ export default function Categories() {
     <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <View>
+          <IconButton
+            icon="arrow-left"
+            size={24}
+            iconColor={palette.text}
+            onPress={() => router.back()}
+            style={{ margin: 0, marginRight: 4 }}
+          />
+          <View style={{ flex: 1 }}>
             <Text variant="labelLarge" style={{ color: palette.primary, fontWeight: '800' }}>
               ORGANIZA
             </Text>

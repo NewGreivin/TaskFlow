@@ -8,6 +8,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useAppTheme } from '../theme/ThemeContext';
+import { toLocalDateKey, addDays, formatShortDateEs } from '../data/date';
 
 const statusMap = {
   Pendiente: 'clock-outline',
@@ -34,6 +35,32 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
   };
 
   const completed = task.status === 'Completada';
+
+  const getRelativeDate = () => {
+    if (!task.due_date) return task.time !== 'Sin hora' ? task.time : '';
+    const today = toLocalDateKey();
+    const tomorrow = addDays(today, 1);
+
+    let baseDate = '';
+    if (task.due_date === today) baseDate = 'Hoy';
+    else if (task.due_date === tomorrow) baseDate = 'Mañana';
+    else baseDate = formatShortDateEs(task.due_date);
+
+    if (task.time && task.time !== 'Sin hora') {
+      return `${baseDate} · ${task.time}`;
+    }
+    return baseDate;
+  };
+
+  const priorityColor =
+    {
+      Baja: palette.low,
+      Media: palette.medium,
+      Alta: palette.high,
+      Urgente: palette.urgent,
+    }[task.priority] || palette.muted;
+
+  const dateText = getRelativeDate();
 
   return (
     <Animated.View entering={FadeInDown.delay(Math.min(index, 8) * 35).duration(280)}>
@@ -85,26 +112,123 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
               />
             </View>
             <View style={styles.bottom}>
-              <View style={styles.meta}>
-                <Icon source="clock-outline" size={15} color={palette.muted} />
-                <Text variant="bodySmall" style={{ color: palette.muted }}>
-                  {task.time}
-                </Text>
-                {task.category ? (
-                  <Text variant="bodySmall" style={{ color: palette.muted }}>
-                    · {task.category}
+              {dateText ? (
+                <View style={styles.metaBadge}>
+                  <Icon source="calendar-blank-outline" size={14} color={palette.muted} />
+                  <Text variant="bodySmall" style={{ color: palette.muted, marginLeft: 4 }}>
+                    {dateText}
                   </Text>
-                ) : null}
-              </View>
-              <Chip
-                compact
-                mode="flat"
-                style={[styles.chip, { backgroundColor: `${task.color}20` }]}
-                textStyle={{ color: task.color, fontSize: 10, fontWeight: '800' }}
-              >
-                {task.priority}
-              </Chip>
+                </View>
+              ) : null}
+
+              {dateText && (task.category || task.project_name) && (
+                <Text style={{ color: palette.border, fontSize: 12, marginHorizontal: 2 }}>|</Text>
+              )}
+
+              {task.category ? (
+                <View
+                  style={[
+                    styles.metaBadge,
+                    {
+                      backgroundColor: `${task.category_color || task.color}25`,
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                    },
+                  ]}
+                >
+                  <Icon
+                    source={task.category_icon || 'folder-outline'}
+                    size={14}
+                    color={task.category_color || task.color}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: task.category_color || task.color, marginLeft: 6, fontWeight: '500' }}
+                  >
+                    {task.category}
+                  </Text>
+                </View>
+              ) : null}
+
+              {task.project_name && !(task.category && task.priority) ? (
+                <View
+                  style={[
+                    styles.metaBadge,
+                    {
+                      backgroundColor: `${task.project_color || task.color}25`,
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                    },
+                  ]}
+                >
+                  <Icon
+                    source={task.project_icon || 'briefcase-outline'}
+                    size={14}
+                    color={task.project_color || task.color}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: task.project_color || task.color, marginLeft: 6, fontWeight: '500' }}
+                  >
+                    {task.project_name}
+                  </Text>
+                </View>
+              ) : null}
+
+              {task.priority && (
+                <View
+                  style={[
+                    styles.metaBadge,
+                    {
+                      backgroundColor: `${priorityColor}15`,
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                      borderColor: `${priorityColor}40`,
+                      borderWidth: 1,
+                    },
+                  ]}
+                >
+                  <Icon source="flag-outline" size={12} color={priorityColor} />
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: priorityColor, fontWeight: '700', fontSize: 11, marginLeft: 4 }}
+                  >
+                    {task.priority}
+                  </Text>
+                </View>
+              )}
             </View>
+
+            {task.project_name && task.category && task.priority ? (
+              <View style={[styles.projectSection, { borderTopColor: palette.border }]}>
+                <View
+                  style={[
+                    styles.metaBadge,
+                    {
+                      backgroundColor: `${task.project_color || task.color}25`,
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                    },
+                  ]}
+                >
+                  <Icon
+                    source={task.project_icon || 'briefcase-outline'}
+                    size={14}
+                    color={task.project_color || task.color}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: task.project_color || task.color, marginLeft: 6, fontWeight: '500' }}
+                  >
+                    {task.project_name}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
           </View>
         </Pressable>
       </Animated.View>
@@ -134,12 +258,25 @@ const styles = StyleSheet.create({
   title: { flex: 1, fontWeight: '700' },
   bottom: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 11,
+    flexWrap: 'wrap',
+    marginTop: 12,
+    gap: 8,
   },
-  meta: { flexDirection: 'row', alignItems: 'center', gap: 5, flex: 1 },
-  chip: { height: 27 },
+  metaBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 2,
+  },
+  projectSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    gap: 8,
+  },
 });
 
 export default memo(TaskCard, (prev, next) => {

@@ -5,7 +5,6 @@ import {
   Surface,
   Text,
   TouchableRipple,
-  Switch,
   Button,
 } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -94,10 +93,10 @@ export default function Profile() {
           onPress={() => router.push('/categories')}
         />
         <MenuItem
-          icon="tag-outline"
-          title="Etiquetas y prioridades"
+          icon="chart-donut"
+          title="Estadísticas"
           palette={palette}
-          onPress={() => dummyAlert('Etiquetas y prioridades')}
+          onPress={() => router.push('/statistics_view')}
           isLast
         />
       </Surface>
@@ -157,25 +156,25 @@ export default function Profile() {
           icon="export"
           title="Exportar datos"
           palette={palette}
-          onPress={() => dummyAlert('Exportar datos')}
+          onPress={() => router.push('/settings/export')}
         />
         <MenuItem
           icon="cloud-upload-outline"
           title="Copias de seguridad"
           palette={palette}
-          onPress={() => dummyAlert('Copias de seguridad')}
+          onPress={() => router.push('/settings/backup')}
         />
         <MenuItem
           icon="help-circle-outline"
           title="Ayuda y soporte"
           palette={palette}
-          onPress={() => dummyAlert('Ayuda y soporte')}
+          onPress={() => router.push('/settings/help')}
         />
         <MenuItem
           icon="shield-check-outline"
           title="Privacidad y términos"
           palette={palette}
-          onPress={() => dummyAlert('Privacidad y términos')}
+          onPress={() => router.push('/settings/privacy')}
           isLast
         />
       </Surface>
