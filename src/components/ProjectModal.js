@@ -83,7 +83,7 @@ import DatePickerModal from './DatePickerModal';
 import DropdownSelect from './DropdownSelect';
 import { toLocalDateKey } from '../data/date';
 
-export default function ProjectModal({ visible, category, onSave, onClose, onDelete }) {
+export default function ProjectModal({ visible, project, onSave, onClose, onDelete }) {
   const { palette, isDark } = useAppTheme();
 
   // Form State
@@ -125,15 +125,15 @@ export default function ProjectModal({ visible, category, onSave, onClose, onDel
 
   useEffect(() => {
     if (visible) {
-      if (category) {
-        setName(category.name || '');
-        setDescription(category.description || '');
-        setStartDate(category.start_date || '');
-        setDueDate(category.due_date || '');
-        setStatus(category.status || 'Activo');
-        const matchingIcon = getIconById(category.icon);
-        setSelectedIconId(matchingIcon ? matchingIcon.id : category.icon || DEFAULT_ICON_ID);
-        setSelectedColor(category.color || DEFAULT_COLOR_VALUE);
+      if (project) {
+        setName(project.name || '');
+        setDescription(project.description || '');
+        setStartDate(project.start_date || '');
+        setDueDate(project.due_date || '');
+        setStatus(project.status || 'Activo');
+        const matchingIcon = getIconById(project.icon);
+        setSelectedIconId(matchingIcon ? matchingIcon.id : project.icon || DEFAULT_ICON_ID);
+        setSelectedColor(project.color || DEFAULT_COLOR_VALUE);
       } else {
         setName('');
         setDescription('');
@@ -145,7 +145,7 @@ export default function ProjectModal({ visible, category, onSave, onClose, onDel
       }
       setIconPickerVisible(false);
     }
-  }, [visible, category]);
+  }, [visible, project]);
 
   // Handle Main Modal Save
   const handleSave = () => {
@@ -163,14 +163,14 @@ export default function ProjectModal({ visible, category, onSave, onClose, onDel
   };
 
   const handleDelete = () => {
-    if (!category || !category.id) return;
+    if (!project || !project.id) return;
     Alert.alert(
       "Eliminar Proyecto",
       "¿Estás seguro de que deseas eliminar este proyecto? Las tareas asociadas no se eliminarán, pero perderán su asignación al proyecto.",
       [
         { text: "Cancelar", style: "cancel" },
         { text: "Eliminar", style: "destructive", onPress: () => {
-          onDelete?.(category.id);
+          onDelete?.(project.id);
           onClose?.();
         }}
       ]
@@ -264,10 +264,10 @@ export default function ProjectModal({ visible, category, onSave, onClose, onDel
             {/* Header: Title left, Close button (✕) right */}
             <View style={styles.header}>
               <Text variant="titleLarge" style={[styles.title, { color: themeTokens.titleText }]}>
-                {category ? 'Editar proyecto' : 'Crear proyecto'}
+                {project ? 'Editar proyecto' : 'Crear proyecto'}
               </Text>
               <View style={{ flexDirection: 'row' }}>
-                {category && onDelete && (
+                {project && onDelete && (
                   <IconButton
                     icon="delete-outline"
                     size={22}

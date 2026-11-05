@@ -7,9 +7,23 @@ import { useSQLiteContext } from '../data/database';
 
 export default function AssignTasksModal({ visible, projectId, onClose, onSave }) {
   const db = useSQLiteContext();
-  const { themeTokens, palette, isDark } = useAppTheme();
+  const { palette, isDark } = useAppTheme();
   const [tasks, setTasks] = useState([]);
   const [selectedIds, setSelectedIds] = useState(new Set());
+
+  // Specific Theme Tokens based on specifications
+  const themeTokens = {
+    modalBg: isDark ? '#161722' : '#FFFFFF',
+    dialogBg: isDark ? '#1E202C' : '#FFFFFF',
+    cardBg: isDark ? '#12131C' : '#F8FAFC',
+    cardBorder: isDark ? '#2B2D3C' : '#E2E8F0',
+    titleText: isDark ? '#FFFFFF' : '#0F172A',
+    sectionTitle: isDark ? '#818CF8' : '#6366F1',
+    subText: isDark ? '#71788E' : '#94A3B8',
+    neutralIcon: isDark ? '#CBD5E1' : '#475569',
+    primaryBtn: isDark ? '#2E334D' : '#4F46E5',
+    primaryBtnText: '#FFFFFF',
+  };
 
   useEffect(() => {
     if (visible) {
@@ -20,8 +34,9 @@ export default function AssignTasksModal({ visible, projectId, onClose, onSave }
   const loadTasks = async () => {
     // Only fetch tasks not already assigned to a project (or optionally to any project, for now we let users pick any task without a project)
     const allTasks = await getTasks(db);
-    // Filter tasks that are NOT already in this project
-    const unassignedTasks = allTasks.filter(t => t.project_id !== projectId);
+    // Filter tasks that are NOT already in this project (ensure projectId is treated as a Number)
+    const numericProjectId = Number(projectId);
+    const unassignedTasks = allTasks.filter(t => t.project_id !== numericProjectId);
     setTasks(unassignedTasks);
     setSelectedIds(new Set());
   };
