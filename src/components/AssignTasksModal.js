@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Button, Checkbox, IconButton, Surface, Text } from 'react-native-paper';
+import { Button, Icon, IconButton, Surface, Text } from 'react-native-paper';
 import { useAppTheme } from '../theme/ThemeContext';
 import { getTasks, assignTasksToProject } from '../data/taskRepository';
 import { useSQLiteContext } from '../data/database';
@@ -95,11 +95,13 @@ export default function AssignTasksModal({ visible, projectId, onClose, onSave }
                         { borderColor: themeTokens.cardBorder, backgroundColor: themeTokens.cardBg }
                       ]}
                     >
-                      <Checkbox.Android
-                        status={isSelected ? 'checked' : 'unchecked'}
-                        onPress={() => toggleTask(task.id)}
-                        color={themeTokens.primaryBtn}
-                      />
+                      <View style={{ marginRight: 12 }}>
+                        <Icon
+                          source={isSelected ? "checkbox-marked" : "checkbox-blank-outline"}
+                          size={24}
+                          color={isSelected ? themeTokens.sectionTitle : themeTokens.subText}
+                        />
+                      </View>
                       <Text style={[styles.taskTitle, { color: themeTokens.titleText }]}>
                         {task.title}
                       </Text>
