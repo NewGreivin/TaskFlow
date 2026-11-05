@@ -151,7 +151,7 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
                 </View>
               ) : null}
 
-              {task.project_name ? (
+              {task.project_name && !(task.category && task.priority) ? (
                 <View
                   style={[
                     styles.metaBadge,
@@ -176,28 +176,59 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
                   </Text>
                 </View>
               ) : null}
-              <View
-                style={[
-                  styles.metaBadge,
-                  {
-                    backgroundColor: `${priorityColor}15`,
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                    borderRadius: 8,
-                    borderColor: `${priorityColor}40`,
-                    borderWidth: 1,
-                  },
-                ]}
-              >
-                <Icon source="flag-outline" size={12} color={priorityColor} />
-                <Text
-                  variant="bodySmall"
-                  style={{ color: priorityColor, fontWeight: '700', fontSize: 11, marginLeft: 4 }}
+
+              {task.priority && (
+                <View
+                  style={[
+                    styles.metaBadge,
+                    {
+                      backgroundColor: `${priorityColor}15`,
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                      borderColor: `${priorityColor}40`,
+                      borderWidth: 1,
+                    },
+                  ]}
                 >
-                  {task.priority}
-                </Text>
-              </View>
+                  <Icon source="flag-outline" size={12} color={priorityColor} />
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: priorityColor, fontWeight: '700', fontSize: 11, marginLeft: 4 }}
+                  >
+                    {task.priority}
+                  </Text>
+                </View>
+              )}
             </View>
+
+            {task.project_name && task.category && task.priority ? (
+              <View style={[styles.projectSection, { borderTopColor: palette.border }]}>
+                <View
+                  style={[
+                    styles.metaBadge,
+                    {
+                      backgroundColor: `${task.project_color || task.color}25`,
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                    },
+                  ]}
+                >
+                  <Icon
+                    source="link-variant"
+                    size={14}
+                    color={task.project_color || task.color}
+                  />
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: task.project_color || task.color, marginLeft: 6, fontWeight: '500' }}
+                  >
+                    {task.project_name}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
           </View>
         </Pressable>
       </Animated.View>
@@ -236,6 +267,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 2,
+  },
+  projectSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    gap: 8,
   },
 });
 

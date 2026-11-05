@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { IconButton, Surface, Text, FAB, ProgressBar } from 'react-native-paper';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from '../src/data/database';
-import { getTasks, getProjectById } from '../src/data/taskRepository';
+import { getTasks, getProjectById, updateTaskStatus } from '../src/data/taskRepository';
 import { useAppTheme } from '../src/theme/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCallback, useState } from 'react';
@@ -35,6 +35,12 @@ export default function ProjectTasks() {
       loadData();
     }, [loadData])
   );
+
+  const toggleTaskStatus = async (t) => {
+    const nextStatus = t.status === 'Completada' ? 'Pendiente' : 'Completada';
+    await updateTaskStatus(db, t.id, nextStatus);
+    loadData();
+  };
 
   const pendingCount = tasks.filter(t => t.status !== 'Completada' && t.status !== 'Terminada').length;
   const completedCount = tasks.filter(t => t.status === 'Completada' || t.status === 'Terminada').length;
@@ -97,7 +103,7 @@ export default function ProjectTasks() {
           </Text>
         ) : (
           tasks.map(task => (
-            <TaskCard key={task.id} task={task} onPress={() => router.push(`/task/${task.id}`)} />
+            <TaskCard key={task.id} task={task} onPress={() => router.push(`/task/${task.id}`)} onToggle={() => toggleTaskStatus(task)} />
           ))
         )}
       </ScrollView>
