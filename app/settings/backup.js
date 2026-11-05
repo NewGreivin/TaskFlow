@@ -154,12 +154,22 @@ export default function BackupScreen() {
 
         // Restore Settings
         if (backupData.settings) {
+          const allowedSettingsCols = [
+            'id', 'theme', 'language', 'notifications_enabled',
+            'first_day_of_week', 'notif_reminders', 'notif_anticipation',
+            'notif_summary', 'notif_summary_time', 'notif_overdue',
+            'notif_completed', 'notif_date_changed', 'notif_sound',
+            'notif_vibration', 'notif_days'
+          ];
+
           for (const set of backupData.settings) {
-            const keys = Object.keys(set).join(', ');
-            const placeholders = Object.keys(set)
-              .map(() => '?')
-              .join(', ');
-            const values = Object.values(set);
+            const safeKeys = Object.keys(set).filter(key => allowedSettingsCols.includes(key));
+            if (safeKeys.length === 0) continue;
+
+            const keys = safeKeys.join(', ');
+            const placeholders = safeKeys.map(() => '?').join(', ');
+            const values = safeKeys.map(key => set[key]);
+
             await db.runAsync(`INSERT INTO settings (${keys}) VALUES (${placeholders})`, ...values);
           }
         }
