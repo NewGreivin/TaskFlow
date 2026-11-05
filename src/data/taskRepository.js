@@ -1,4 +1,4 @@
-export async function getTasks(db, { date, status, search, priority, categoryId } = {}) {
+export async function getTasks(db, { date, status, search, priority, categoryId, projectId } = {}) {
   const where = [];
   const params = [];
   if (date) {
@@ -6,9 +6,13 @@ export async function getTasks(db, { date, status, search, priority, categoryId 
     params.push(date);
   }
   if (status && status !== 'Todas') {
-    if (status === 'Terminadas') where.push("t.status IN ('Completada','Terminada')");
-    else where.push('t.status = ?');
-    if (status !== 'Terminadas') params.push(status);
+    if (status === 'Terminadas') {
+      where.push("t.status IN ('Completada','Terminada')");
+    } else {
+      where.push('t.status = ?');
+      const statusValue = status === 'Pendientes' ? 'Pendiente' : status;
+      params.push(statusValue);
+    }
   }
   if (priority && priority !== 'Todas') {
     where.push('t.priority = ?');
@@ -18,14 +22,22 @@ export async function getTasks(db, { date, status, search, priority, categoryId 
     where.push('t.category_id = ?');
     params.push(Number(categoryId));
   }
+  if (projectId) {
+    where.push('t.project_id = ?');
+    params.push(Number(projectId));
+  }
   if (search?.trim()) {
     where.push('(t.title LIKE ? OR t.description LIKE ? OR t.notes LIKE ?)');
     const q = `%${search.trim()}%`;
     params.push(q, q, q);
   }
   const sql = `
-    SELECT t.*, c.name AS category, c.icon AS category_icon, c.color AS category_color
-    FROM tasks t LEFT JOIN categories c ON c.id = t.category_id
+    SELECT t.*,
+           c.name AS category, c.icon AS category_icon, c.color AS category_color,
+           p.name AS project_name, p.icon AS project_icon, p.color AS project_color
+    FROM tasks t
+    LEFT JOIN categories c ON c.id = t.category_id
+    LEFT JOIN projects p ON p.id = t.project_id
     ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
     ORDER BY CASE t.status WHEN 'Pendiente' THEN 1 WHEN 'En progreso' THEN 2 WHEN 'Completada' THEN 3 ELSE 4 END,
              CASE t.priority WHEN 'Urgente' THEN 1 WHEN 'Alta' THEN 2 WHEN 'Media' THEN 3 ELSE 4 END,
@@ -37,8 +49,13 @@ export async function getTasks(db, { date, status, search, priority, categoryId 
 export async function getTask(db, id) {
   const task = await db.getFirstAsync(
     `
-    SELECT t.*, c.name AS category, c.icon AS category_icon, c.color AS category_color
-    FROM tasks t LEFT JOIN categories c ON c.id = t.category_id WHERE t.id = ?
+    SELECT t.*,
+           c.name AS category, c.icon AS category_icon, c.color AS category_color,
+           p.name AS project_name, p.icon AS project_icon, p.color AS project_color
+    FROM tasks t
+    LEFT JOIN categories c ON c.id = t.category_id
+    LEFT JOIN projects p ON p.id = t.project_id
+    WHERE t.id = ?
   `,
     Number(id)
   );
@@ -52,13 +69,14 @@ export async function getTask(db, id) {
 
 export async function createTask(db, input) {
   const result = await db.runAsync(
-    `INSERT INTO tasks (title, description, status, priority, category_id, due_date, due_time, reminder_enabled, reminder_minutes, recurrence, notes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO tasks (title, description, status, priority, category_id, project_id, due_date, due_time, reminder_enabled, reminder_minutes, recurrence, notes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     input.title.trim(),
     input.description?.trim() ?? '',
     input.status ?? 'Pendiente',
     input.priority ?? 'Media',
     input.categoryId ?? null,
+    input.projectId ?? null,
     input.dueDate,
     input.dueTime || null,
     input.reminderEnabled ? 1 : 0,
@@ -80,12 +98,13 @@ export async function createTask(db, input) {
 
 export async function updateTask(db, id, input) {
   await db.runAsync(
-    `UPDATE tasks SET title=?, description=?, status=?, priority=?, category_id=?, due_date=?, due_time=?, reminder_enabled=?, reminder_minutes=?, recurrence=?, notes=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+    `UPDATE tasks SET title=?, description=?, status=?, priority=?, category_id=?, project_id=?, due_date=?, due_time=?, reminder_enabled=?, reminder_minutes=?, recurrence=?, notes=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
     input.title.trim(),
     input.description?.trim() ?? '',
     input.status,
     input.priority,
     input.categoryId ?? null,
+    input.projectId ?? null,
     input.dueDate,
     input.dueTime || null,
     input.reminderEnabled ? 1 : 0,
@@ -188,13 +207,68 @@ export async function getStats(db) {
 
 export async function getProjectStats(db) {
   return db.getAllAsync(
-    `SELECT c.id, c.name, c.icon, c.color,
+    `SELECT p.id, p.name, p.icon, p.color, p.description, p.start_date, p.due_date, p.status,
             COUNT(t.id) as total_tasks,
             SUM(CASE WHEN t.status IN ('Completada','Terminada') THEN 1 ELSE 0 END) as completed_tasks
-     FROM categories c
-     LEFT JOIN tasks t ON c.id = t.category_id
-     GROUP BY c.id
-     ORDER BY c.name COLLATE NOCASE`
+     FROM projects p
+     LEFT JOIN tasks t ON p.id = t.project_id
+     GROUP BY p.id
+     ORDER BY p.name COLLATE NOCASE`
+  );
+}
+
+export async function getProjectById(db, projectId) {
+  return db.getFirstAsync(
+    `SELECT p.id, p.name, p.icon, p.color, p.description, p.start_date, p.due_date, p.status,
+            COUNT(t.id) as total_tasks,
+            SUM(CASE WHEN t.status IN ('Completada','Terminada') THEN 1 ELSE 0 END) as completed_tasks
+     FROM projects p
+     LEFT JOIN tasks t ON p.id = t.project_id
+     WHERE p.id = ?
+     GROUP BY p.id`,
+    Number(projectId)
+  );
+}
+
+export async function createProject(db, { name, description = '', icon = 'briefcase-outline', color = '#5B4BFF', startDate = null, dueDate = null, status = 'Activo' }) {
+  const result = await db.runAsync(
+    'INSERT INTO projects (name, description, icon, color, start_date, due_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    name.trim(),
+    description.trim(),
+    icon,
+    color,
+    startDate,
+    dueDate,
+    status
+  );
+  return result.lastInsertRowId;
+}
+
+export async function updateProject(db, id, { name, description = '', icon, color, startDate = null, dueDate = null, status = 'Activo' }) {
+  await db.runAsync(
+    'UPDATE projects SET name=?, description=?, icon=?, color=?, start_date=?, due_date=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?',
+    name.trim(),
+    description.trim(),
+    icon,
+    color,
+    startDate,
+    dueDate,
+    status,
+    Number(id)
+  );
+}
+
+export async function deleteProject(db, id) {
+  await db.runAsync('DELETE FROM projects WHERE id=?', Number(id));
+}
+
+export async function assignTasksToProject(db, projectId, taskIds) {
+  if (!taskIds || taskIds.length === 0) return;
+  const placeholders = taskIds.map(() => '?').join(',');
+  await db.runAsync(
+    `UPDATE tasks SET project_id = ? WHERE id IN (${placeholders})`,
+    Number(projectId),
+    ...taskIds.map(Number)
   );
 }
 

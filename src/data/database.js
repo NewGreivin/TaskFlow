@@ -15,6 +15,19 @@ export async function migrateDbIfNeeded(db) {
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS projects (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      description TEXT DEFAULT '',
+      icon TEXT NOT NULL DEFAULT 'briefcase-outline',
+      color TEXT NOT NULL DEFAULT '#5B4BFF',
+      start_date TEXT,
+      due_date TEXT,
+      status TEXT NOT NULL DEFAULT 'Activo',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS tasks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
@@ -22,6 +35,7 @@ export async function migrateDbIfNeeded(db) {
       status TEXT NOT NULL DEFAULT 'Pendiente',
       priority TEXT NOT NULL DEFAULT 'Media',
       category_id INTEGER,
+      project_id INTEGER,
       due_date TEXT NOT NULL,
       due_time TEXT,
       reminder_enabled INTEGER NOT NULL DEFAULT 0,
@@ -30,7 +44,8 @@ export async function migrateDbIfNeeded(db) {
       notes TEXT DEFAULT '',
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+      FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
     );
 
     CREATE TABLE IF NOT EXISTS subtasks (
@@ -71,7 +86,7 @@ export async function migrateDbIfNeeded(db) {
       ['Estudio', 'school-outline', '#7C5CFC'],
       ['Personal', 'account-outline', '#36B37E'],
       ['Salud', 'heart-outline', '#FF4D6D'],
-      ['Finanzas', 'cash-outline', '#F3B51B'],
+      ['Finanzas', 'cash', '#F3B51B'],
       ['Hogar', 'home-outline', '#FF8A4C'],
       ['Otras', 'dots-horizontal', '#8A8F9F'],
     ];
@@ -89,22 +104,35 @@ export async function migrateDbIfNeeded(db) {
     `INSERT OR IGNORE INTO settings (id, theme, language, notifications_enabled) VALUES (1, 'system', 'es', 1)`
   );
 
-  const addColumn = async (colName, defVal) => {
+  // Fix: Convert non-existent 'cash-outline' to 'cash' for users updating the app
+  try {
+    await db.execAsync(`UPDATE categories SET icon = 'cash' WHERE icon = 'cash-outline';`);
+  } catch (e) {}
+
+  const addColumn = async (tableName, colName, defVal) => {
     try {
-      await db.execAsync(`ALTER TABLE settings ADD COLUMN ${colName} ${defVal}`);
+      await db.execAsync(`ALTER TABLE ${tableName} ADD COLUMN ${colName} ${defVal}`);
     } catch (e) {}
   };
-  await addColumn('first_day_of_week', "TEXT NOT NULL DEFAULT 'Lunes'");
-  await addColumn('notif_reminders', 'INTEGER NOT NULL DEFAULT 1');
-  await addColumn('notif_anticipation', 'INTEGER NOT NULL DEFAULT 15');
-  await addColumn('notif_summary', 'INTEGER NOT NULL DEFAULT 0');
-  await addColumn('notif_summary_time', "TEXT NOT NULL DEFAULT '20:00'");
-  await addColumn('notif_overdue', 'INTEGER NOT NULL DEFAULT 0');
-  await addColumn('notif_completed', 'INTEGER NOT NULL DEFAULT 0');
-  await addColumn('notif_date_changed', 'INTEGER NOT NULL DEFAULT 0');
-  await addColumn('notif_sound', 'INTEGER NOT NULL DEFAULT 1');
-  await addColumn('notif_vibration', 'INTEGER NOT NULL DEFAULT 1');
-  await addColumn(
+
+  await addColumn('tasks', 'project_id', 'INTEGER REFERENCES projects(id) ON DELETE SET NULL');
+
+  // Create index for project_id AFTER ensuring the column exists (safe for updates)
+  try {
+    await db.execAsync(`CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id);`);
+  } catch (e) {}
+
+  await addColumn('settings', 'first_day_of_week', "TEXT NOT NULL DEFAULT 'Lunes'");
+  await addColumn('settings', 'notif_reminders', 'INTEGER NOT NULL DEFAULT 1');
+  await addColumn('settings', 'notif_anticipation', 'INTEGER NOT NULL DEFAULT 15');
+  await addColumn('settings', 'notif_summary', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumn('settings', 'notif_summary_time', "TEXT NOT NULL DEFAULT '20:00'");
+  await addColumn('settings', 'notif_overdue', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumn('settings', 'notif_completed', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumn('settings', 'notif_date_changed', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumn('settings', 'notif_sound', 'INTEGER NOT NULL DEFAULT 1');
+  await addColumn('settings', 'notif_vibration', 'INTEGER NOT NULL DEFAULT 1');
+  await addColumn('settings',
     'notif_days',
     "TEXT NOT NULL DEFAULT 'Lunes,Martes,Miércoles,Jueves,Viernes,Sábado,Domingo'"
   );

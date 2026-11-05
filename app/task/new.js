@@ -20,7 +20,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useSQLiteContext } from '../../src/data/database';
-import { createTask, getCategories, getTask, updateTask } from '../../src/data/taskRepository';
+import { createTask, getCategories, getTask, updateTask, getProjectStats } from '../../src/data/taskRepository';
 import { getSettings } from '../../src/data/settingsRepository';
 import {
   cancelTaskNotifications,
@@ -51,6 +51,7 @@ export default function NewTask() {
   const [loading, setLoading] = useState(editing);
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [projects, setProjects] = useState([]);
 
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [timePickerOpen, setTimePickerOpen] = useState(false);
@@ -59,7 +60,8 @@ export default function NewTask() {
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(toLocalDateKey());
   const [dueTime, setDueTime] = useState('10:00');
-  const [categoryId, setCategoryId] = useState(null);
+  const [categoryId, setCategoryId] = useState(params.categoryId ? Number(params.categoryId) : null);
+  const [projectId, setProjectId] = useState(params.projectId ? Number(params.projectId) : null);
   const [priority, setPriority] = useState('Media');
   const [status, setStatus] = useState('Pendiente');
   const [reminder, setReminder] = useState(false);
@@ -72,6 +74,7 @@ export default function NewTask() {
   useEffect(() => {
     (async () => {
       setCategories(await getCategories(db));
+      setProjects(await getProjectStats(db));
       const userSettings = await getSettings(db);
       if (userSettings) {
         setReminderMinutes(userSettings.notif_anticipation ?? 30);
@@ -84,6 +87,7 @@ export default function NewTask() {
           setDueDate(t.due_date);
           setDueTime(t.due_time || '10:00');
           setCategoryId(t.category_id);
+          setProjectId(t.project_id);
           setPriority(t.priority);
           setStatus(t.status);
           setReminder(!!t.reminder_enabled);
@@ -124,6 +128,7 @@ export default function NewTask() {
         dueDate,
         dueTime,
         categoryId,
+        projectId,
         priority,
         status,
         reminderEnabled: reminder,
@@ -177,6 +182,16 @@ export default function NewTask() {
       value: c.id,
       icon: c.icon || 'folder-outline',
       color: c.color,
+    })),
+  ];
+
+  const projectDropdownOptions = [
+    { label: 'Sin proyecto', value: null, icon: 'briefcase-outline' },
+    ...projects.map((p) => ({
+      label: p.name,
+      value: p.id,
+      icon: p.icon || 'briefcase-outline',
+      color: p.color,
     })),
   ];
 
@@ -301,6 +316,15 @@ export default function NewTask() {
           options={categoryDropdownOptions}
           onSelect={setCategoryId}
           icon="folder-outline"
+        />
+
+        {/* Standardized Project Dropdown */}
+        <DropdownSelect
+          label="Proyecto"
+          value={projectId}
+          options={projectDropdownOptions}
+          onSelect={setProjectId}
+          icon="briefcase-outline"
         />
 
         {/* 4. Priority Dropdown */}
