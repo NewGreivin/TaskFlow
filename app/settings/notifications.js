@@ -139,6 +139,9 @@ export default function NotificationsSettings() {
                   <Pressable
                     key={opt.value}
                     onPress={() => updateAnticipation(opt.value)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: settings.notif_anticipation === opt.value }}
+                    accessibilityLabel={`Anticipación: ${opt.label}`}
                     style={[
                       styles.chip,
                       {
@@ -262,6 +265,9 @@ export default function NotificationsSettings() {
                 <Pressable
                   key={day}
                   onPress={() => toggleDay(day)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: isSelected }}
+                  accessibilityLabel={day}
                   style={[
                     styles.dayCircle,
                     {
@@ -298,7 +304,14 @@ export default function NotificationsSettings() {
 
 function SettingSwitch({ title, subtitle, value, onToggle, palette }) {
   return (
-    <TouchableRipple onPress={onToggle} style={styles.settingRow}>
+    <TouchableRipple
+      onPress={onToggle}
+      style={styles.settingRow}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      accessibilityLabel={title}
+      accessibilityHint={subtitle}
+    >
       <View style={styles.settingInner}>
         <View style={{ flex: 1, paddingRight: 16 }}>
           <Text variant="titleMedium" style={{ color: palette.text, fontWeight: '600' }}>
@@ -318,7 +331,12 @@ function SettingSwitch({ title, subtitle, value, onToggle, palette }) {
 
 function SettingButton({ title, value, onPress, palette }) {
   return (
-    <TouchableRipple onPress={onPress} style={styles.settingRow}>
+    <TouchableRipple
+      onPress={onPress}
+      style={styles.settingRow}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}, actual: ${value}`}
+    >
       <View style={styles.settingInner}>
         <Text variant="titleMedium" style={{ color: palette.text, fontWeight: '600', flex: 1 }}>
           {title}

@@ -7,7 +7,6 @@ import { FlashList } from '@shopify/flash-list';
 import { useSQLiteContext } from '../../src/data/database';
 import {
   getDatesWithTasks,
-  getStats,
   getTasks,
   toTaskCard,
   updateTaskStatus,
@@ -29,7 +28,6 @@ export default function Today() {
 
   const [selected, setSelected] = useState(toLocalDateKey());
   const [tasks, setTasks] = useState([]);
-  const [, setStats] = useState(null);
   const [datesWithTasks, setDatesWithTasks] = useState(new Set());
   const [settings, setSettings] = useState(null);
 
@@ -42,15 +40,13 @@ export default function Today() {
     const startKey = days[0]?.key;
     const endKey = days[days.length - 1]?.key;
 
-    const [rows, s, taskDatesSet, userSettings] = await Promise.all([
+    const [rows, taskDatesSet, userSettings] = await Promise.all([
       getTasks(db, { date: selected }),
-      getStats(db),
       startKey && endKey ? getDatesWithTasks(db, startKey, endKey) : new Set(),
       getSettings(db),
     ]);
 
     setTasks(rows.map(toTaskCard));
-    setStats(s);
     setDatesWithTasks(taskDatesSet);
     setSettings(userSettings);
   }, [db, selected, days]);
@@ -103,11 +99,13 @@ export default function Today() {
                   icon={isDark ? 'white-balance-sunny' : 'weather-night'}
                   mode="contained-tonal"
                   onPress={() => router.push('/appearance')}
+                  accessibilityLabel="Cambiar tema de apariencia"
                 />
                 <IconButton
                   icon="bell-outline"
                   mode="contained-tonal"
                   onPress={() => router.push('/notifications')}
+                  accessibilityLabel="Ver notificaciones"
                 />
               </View>
             </View>
@@ -120,6 +118,9 @@ export default function Today() {
                   <Pressable
                     key={d.key}
                     onPress={() => setSelected(d.key)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: isSelected }}
+                    accessibilityLabel={`Seleccionar fecha: ${d.day} ${d.date}`}
                     style={[
                       styles.day,
                       { backgroundColor: palette.surface, borderColor: palette.border },

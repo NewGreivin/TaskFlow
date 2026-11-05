@@ -10,7 +10,12 @@ export default function SectionHeader({ title, action, onAction }) {
         {title}
       </Text>
       {action ? (
-        <Text onPress={onAction} style={[styles.action, { color: palette.primary }]}>
+        <Text
+          onPress={onAction}
+          style={[styles.action, { color: palette.primary }]}
+          accessibilityRole="button"
+          accessibilityLabel={`${action} ${title}`}
+        >
           {action}
         </Text>
       ) : null}

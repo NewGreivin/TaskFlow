@@ -61,15 +61,24 @@ export default function ExportScreen() {
       setLoading(true);
       const tasks = await getTasks(db);
 
+      const escapeHtml = (unsafe) => {
+        return (unsafe || '').toString()
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+      };
+
       const rows = tasks
         .map(
           (t) => `
         <tr>
-          <td>${t.title}</td>
-          <td>${t.status}</td>
-          <td>${t.priority}</td>
-          <td>${t.category || '-'}</td>
-          <td>${t.due_date || '-'}</td>
+          <td>${escapeHtml(t.title)}</td>
+          <td>${escapeHtml(t.status)}</td>
+          <td>${escapeHtml(t.priority)}</td>
+          <td>${escapeHtml(t.category || '-')}</td>
+          <td>${escapeHtml(t.due_date || '-')}</td>
         </tr>
       `
         )

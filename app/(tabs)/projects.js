@@ -97,6 +97,8 @@ export default function Projects() {
             >
               <TouchableRipple
                 style={styles.cardRipple}
+                accessibilityRole="button"
+                accessibilityLabel={`Ver tareas del proyecto: ${p.name}`}
                 onPress={() => router.push({ pathname: '/project_tasks', params: { projectId: p.id, projectName: p.name } })}
               >
                 <View>
@@ -109,7 +111,7 @@ export default function Projects() {
                         {p.name}
                       </Text>
                     </View>
-                    <IconButton icon="dots-vertical" size={20} onPress={() => { setEditingProject(p); setModalOpen(true); }} style={{ margin: 0 }}/>
+                    <IconButton icon="dots-vertical" size={20} onPress={() => { setEditingProject(p); setModalOpen(true); }} style={{ margin: 0 }} accessibilityLabel="Editar proyecto"/>
                   </View>
 
                   <Text style={[styles.statsText, { color: palette.muted }]}>

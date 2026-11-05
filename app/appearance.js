@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, Pressable } from 'react-native';
 import { Icon, IconButton, RadioButton, Surface, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../src/theme/ThemeContext';
@@ -63,34 +63,42 @@ export default function Appearance() {
       </Text>
 
       {options.map((option) => (
-        <Surface
+        <Pressable
           key={option.value}
-          style={[
-            styles.option,
-            {
-              backgroundColor: palette.surface,
-              borderColor: mode === option.value ? palette.primary : palette.border,
-            },
-          ]}
-          elevation={0}
+          onPress={() => changeMode(option.value)}
+          accessibilityRole="radio"
+          accessibilityState={{ checked: mode === option.value }}
+          accessibilityLabel={`Tema de apariencia: ${option.title}`}
+          accessibilityHint={option.subtitle}
         >
-          <View style={[styles.optionIcon, { backgroundColor: palette.primarySoft }]}>
-            <Icon source={option.icon} size={23} color={palette.primary} />
-          </View>
-          <View style={styles.info}>
-            <Text variant="titleMedium" style={[styles.optionTitle, { color: palette.text }]}>
-              {option.title}
-            </Text>
-            <Text variant="bodySmall" style={{ color: palette.muted }}>
-              {option.subtitle}
-            </Text>
-          </View>
-          <RadioButton
-            value={option.value}
-            status={mode === option.value ? 'checked' : 'unchecked'}
-            onPress={() => changeMode(option.value)}
-          />
-        </Surface>
+          <Surface
+            style={[
+              styles.option,
+              {
+                backgroundColor: palette.surface,
+                borderColor: mode === option.value ? palette.primary : palette.border,
+              },
+            ]}
+            elevation={0}
+          >
+            <View style={[styles.optionIcon, { backgroundColor: palette.primarySoft }]}>
+              <Icon source={option.icon} size={23} color={palette.primary} />
+            </View>
+            <View style={styles.info}>
+              <Text variant="titleMedium" style={[styles.optionTitle, { color: palette.text }]}>
+                {option.title}
+              </Text>
+              <Text variant="bodySmall" style={{ color: palette.muted }}>
+                {option.subtitle}
+              </Text>
+            </View>
+            <RadioButton
+              value={option.value}
+              status={mode === option.value ? 'checked' : 'unchecked'}
+              onPress={() => changeMode(option.value)}
+            />
+          </Surface>
+        </Pressable>
       ))}
 
       <Surface
