@@ -216,7 +216,7 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
                   ]}
                 >
                   <Icon
-                    source="link-variant"
+                    source={task.project_icon || 'briefcase-outline'}
                     size={14}
                     color={task.project_color || task.color}
                   />
