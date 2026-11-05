@@ -67,6 +67,8 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
       <Animated.View style={animatedStyle}>
         <Pressable
           onPress={press}
+          accessibilityRole="button"
+          accessibilityLabel={`Ver detalles de la tarea: ${task.title}. Estado: ${task.status}.`}
           style={({ pressed }) => [
             styles.card,
             {
@@ -84,7 +86,10 @@ function TaskCard({ task, onPress, onToggle, index = 0 }) {
                   e.stopPropagation();
                   onToggle?.();
                 }}
-                hitSlop={8}
+                hitSlop={12}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: completed }}
+                accessibilityLabel={completed ? "Marcar tarea como pendiente" : "Marcar tarea como completada"}
                 style={[
                   styles.check,
                   {

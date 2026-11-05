@@ -111,12 +111,12 @@ export default function TaskDetail() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <IconButton icon="arrow-left" onPress={() => router.back()} />
+          <IconButton icon="arrow-left" onPress={() => router.back()} accessibilityLabel="Volver" />
           <Text variant="titleLarge" style={[styles.title, { color: palette.text }]}>
             Detalle de tarea
           </Text>
-          <IconButton icon="pencil-outline" onPress={() => router.push(`/task/edit?id=${id}`)} />
-          <IconButton icon="delete-outline" onPress={remove} />
+          <IconButton icon="pencil-outline" onPress={() => router.push(`/task/edit?id=${id}`)} accessibilityLabel="Editar tarea" />
+          <IconButton icon="delete-outline" onPress={remove} accessibilityLabel="Eliminar tarea" />
         </View>
 
         {/* Main Card */}
@@ -149,6 +149,9 @@ export default function TaskDetail() {
                     key={s.key}
                     activeOpacity={0.7}
                     onPress={() => changeStatus(s.key)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: isSelected }}
+                    accessibilityLabel={`Estado: ${s.label}`}
                     style={[
                       styles.statusChip,
                       {
@@ -225,6 +228,9 @@ export default function TaskDetail() {
                 key={s.id}
                 activeOpacity={0.7}
                 onPress={() => handleToggleSubtask(s.id, !!s.completed)}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: !!s.completed }}
+                accessibilityLabel={`Subtarea: ${s.title}`}
                 style={[
                   styles.subtaskRow,
                   {

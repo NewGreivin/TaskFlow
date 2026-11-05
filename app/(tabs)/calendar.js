@@ -130,7 +130,7 @@ export default function Calendar() {
                   Calendario
                 </Text>
               </View>
-              <IconButton icon="calendar-today" mode="contained-tonal" onPress={handleGoToToday} />
+              <IconButton icon="calendar-today" mode="contained-tonal" onPress={handleGoToToday} accessibilityLabel="Ir a hoy" />
             </View>
 
             <Surface
@@ -151,6 +151,7 @@ export default function Calendar() {
                     iconColor={palette.text}
                     onPress={handlePrevMonth}
                     style={styles.navButton}
+                    accessibilityLabel="Mes anterior"
                   />
                   <IconButton
                     icon="chevron-right"
@@ -158,6 +159,7 @@ export default function Calendar() {
                     iconColor={palette.text}
                     onPress={handleNextMonth}
                     style={styles.navButton}
+                    accessibilityLabel="Mes siguiente"
                   />
                 </View>
               </View>
@@ -183,6 +185,9 @@ export default function Calendar() {
                           setCurrentMonth(d.month);
                         }
                       }}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isSelected }}
+                      accessibilityLabel={`Seleccionar fecha: ${d.dateNumber}`}
                       style={styles.dayCell}
                     >
                       <View

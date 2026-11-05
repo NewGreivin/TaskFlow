@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { FAB, IconButton, Searchbar, Text } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { useSQLiteContext } from '../../src/data/database';
@@ -17,8 +17,20 @@ export default function Tasks() {
     fabBottom = 60 + Math.max(insets.bottom, 6) + 16,
     { palette } = useAppTheme();
   const [filter, setFilter] = useState('Todas'),
+    [searchInput, setSearchInput] = useState(''),
     [query, setQuery] = useState(''),
     [tasks, setTasks] = useState([]);
+
+  // Debounce search input to prevent SQL queries on every keystroke
+  const debounceTimer = useRef(null);
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      setQuery(searchInput);
+    }, 300);
+    return () => clearTimeout(debounceTimer.current);
+  }, [searchInput]);
+
   const load = useCallback(
     async () => setTasks((await getTasks(db, { search: query, status: filter })).map(toTaskCard)),
     [db, query, filter]
@@ -57,8 +69,8 @@ export default function Tasks() {
             </View>
             <Searchbar
               placeholder="Buscar tareas..."
-              value={query}
-              onChangeText={setQuery}
+              value={searchInput}
+              onChangeText={setSearchInput}
               style={[styles.search, { backgroundColor: palette.surface }]}
               inputStyle={{ color: palette.text }}
             />

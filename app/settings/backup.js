@@ -21,6 +21,7 @@ export default function BackupScreen() {
       setLoading(true);
 
       const categories = await db.getAllAsync('SELECT * FROM categories');
+      const projects = await db.getAllAsync('SELECT * FROM projects');
       const tasks = await db.getAllAsync('SELECT * FROM tasks');
       const subtasks = await db.getAllAsync('SELECT * FROM subtasks');
       const notifications = await db.getAllAsync('SELECT * FROM notifications');
@@ -28,6 +29,7 @@ export default function BackupScreen() {
 
       const backupData = {
         categories,
+        projects,
         tasks,
         subtasks,
         notifications,
@@ -88,6 +90,7 @@ export default function BackupScreen() {
         await db.execAsync('DELETE FROM subtasks');
         await db.execAsync('DELETE FROM notifications');
         await db.execAsync('DELETE FROM tasks');
+        await db.execAsync('DELETE FROM projects');
         await db.execAsync('DELETE FROM categories');
         await db.execAsync('DELETE FROM settings');
 
@@ -101,6 +104,25 @@ export default function BackupScreen() {
             cat.color,
             cat.created_at
           );
+        }
+
+        // Restore Projects
+        if (backupData.projects) {
+          for (const proj of backupData.projects) {
+            await db.runAsync(
+              'INSERT INTO projects (id, name, description, icon, color, start_date, due_date, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+              proj.id,
+              proj.name,
+              proj.description,
+              proj.icon,
+              proj.color,
+              proj.start_date,
+              proj.due_date,
+              proj.status,
+              proj.created_at,
+              proj.updated_at
+            );
+          }
         }
 
         // Restore Tasks
