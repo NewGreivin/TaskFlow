@@ -110,7 +110,7 @@ export default function Today() {
               </View>
             </View>
 
-            <View style={{ flexDirection: 'row', gap: 8, paddingBottom: 2, overflow: 'scroll' }}>
+            <View style={{ flexDirection: 'row', gap: 6, paddingBottom: 2, justifyContent: 'space-between' }}>
               {days.map((d) => {
                 const hasTasks = datesWithTasks.has(d.key);
                 const isSelected = selected === d.key;
@@ -253,8 +253,8 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 18 },
   headerActions: { flexDirection: 'row' },
   greeting: { fontWeight: '850', marginTop: 3 },
-  days: { gap: 8, paddingBottom: 2 },
-  day: { width: 55, paddingVertical: 10, borderRadius: 16, alignItems: 'center', borderWidth: 1 },
+  days: { gap: 6, paddingBottom: 2, justifyContent: 'space-between' },
+  day: { flex: 1, paddingVertical: 10, borderRadius: 16, alignItems: 'center', borderWidth: 1, marginHorizontal: 2 },
   dayDot: { width: 4, height: 4, borderRadius: 2, marginTop: 5 },
   metrics: { flexDirection: 'row', gap: 9, marginTop: 18, marginBottom: 25 },
   metric: {
