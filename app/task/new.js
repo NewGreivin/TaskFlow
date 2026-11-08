@@ -1,5 +1,4 @@
 import {
-  List,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -9,7 +8,6 @@ import {
   View,
 } from 'react-native';
 import {
-  List,
   Button,
   Divider,
   Icon,
@@ -18,24 +16,23 @@ import {
   Text,
   TextInput,
   Surface,
+  List,
 } from 'react-native-paper';
 import {
-  List, useLocalSearchParams, useRouter } from 'expo-router';
+  useLocalSearchParams, useRouter } from 'expo-router';
 import {
-  List, useEffect, useState } from 'react';
+  useEffect, useState } from 'react';
 import {
-  List, useSQLiteContext } from '../../src/data/database';
+  useSQLiteContext } from '../../src/data/database';
 import {
-  List, createTask, getCategories, getTask, updateTask, getProjectStats } from '../../src/data/taskRepository';
+  createTask, getCategories, getTask, updateTask, getProjectStats } from '../../src/data/taskRepository';
 import {
-  List, getSettings } from '../../src/data/settingsRepository';
+  getSettings } from '../../src/data/settingsRepository';
 import {
-  List,
   cancelTaskNotifications,
   replaceTaskNotification,
 } from '../../src/data/notificationRepository';
 import {
-  List,
   configureNotifications,
   getReminderDate,
   RECURRENCE_OPTIONS,
@@ -43,11 +40,11 @@ import {
   scheduleTaskNotification,
 } from '../../src/services/notifications';
 import {
-  List, validateTaskInput } from '../../src/utils/validation';
+  validateTaskInput } from '../../src/utils/validation';
 import {
-  List, toLocalDateKey } from '../../src/data/date';
+  toLocalDateKey } from '../../src/data/date';
 import {
-  List, useAppTheme } from '../../src/theme/ThemeContext';
+  useAppTheme } from '../../src/theme/ThemeContext';
 import DropdownSelect from '../../src/components/DropdownSelect';
 import DatePickerModal from '../../src/components/DatePickerModal';
 import TimePickerModal from '../../src/components/TimePickerModal';
