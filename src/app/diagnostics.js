@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, Surface, Text } from 'react-native-paper';
 import { useState } from 'react';
-import { useSQLiteContext } from '../src/data/database';
+import { useSQLiteContext } from '../data/database';
 export default function Diagnostics() {
   const db = useSQLiteContext(),
     [result, setResult] = useState(null);

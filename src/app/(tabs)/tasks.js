@@ -4,12 +4,12 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
-import { useSQLiteContext } from '../../src/data/database';
-import { getTasks, toTaskCard, updateTaskStatus } from '../../src/data/taskRepository';
-import { useAppTheme } from '../../src/theme/ThemeContext';
-import { cancelTaskNotifications } from '../../src/data/notificationRepository';
-import TaskCard from '../../src/components/TaskCard';
-import FilterPills from '../../src/components/FilterPills';
+import { useSQLiteContext } from '../../data/database';
+import { getTasks, toTaskCard, updateTaskStatus } from '../../data/taskRepository';
+import { useAppTheme } from '../../theme/ThemeContext';
+import { cancelTaskNotifications } from '../../data/notificationRepository';
+import TaskCard from '../../components/TaskCard';
+import FilterPills from '../../components/FilterPills';
 export default function Tasks() {
   const router = useRouter(),
     db = useSQLiteContext(),

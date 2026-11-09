@@ -10,9 +10,9 @@ import {
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSQLiteContext } from '../../src/data/database';
-import { useAppTheme } from '../../src/theme/ThemeContext';
-import { getSettings, updateSetting } from '../../src/data/settingsRepository';
+import { useSQLiteContext } from '../../data/database';
+import { useAppTheme } from '../../theme/ThemeContext';
+import { getSettings, updateSetting } from '../../data/settingsRepository';
 
 export default function Profile() {
   const router = useRouter();

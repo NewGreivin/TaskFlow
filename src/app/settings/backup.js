@@ -3,11 +3,11 @@ import { ScrollView, StyleSheet, View, Alert } from 'react-native';
 import { IconButton, Surface, Text, Button } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppTheme } from '../../src/theme/ThemeContext';
+import { useAppTheme } from '../../theme/ThemeContext';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
-import { useSQLiteContext } from '../../src/data/database';
+import { useSQLiteContext } from '../../data/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   authorizeGoogleDrive,
@@ -15,7 +15,7 @@ import {
   logoutGoogleDrive,
   uploadBackupToDrive,
   getBackupFromDrive
-} from '../../src/services/googleDrive';
+} from '../../services/googleDrive';
 import XLSX from 'xlsx';
 
 export default function BackupScreen() {

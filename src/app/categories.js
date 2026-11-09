@@ -1,18 +1,18 @@
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { FAB, IconButton, Surface, Text } from 'react-native-paper';
-import { useSQLiteContext } from '../src/data/database';
+import { useSQLiteContext } from '../data/database';
 import {
   createCategory,
   deleteCategory,
   getCategories,
   updateCategory,
-} from '../src/data/taskRepository';
-import { useAppTheme } from '../src/theme/ThemeContext';
+} from '../data/taskRepository';
+import { useAppTheme } from '../theme/ThemeContext';
 import { useCallback, useState } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CategoryIcon from '../src/components/CategoryIcon';
-import CategoryModal from '../src/components/CategoryModal';
+import CategoryIcon from '../components/CategoryIcon';
+import CategoryModal from '../components/CategoryModal';
 
 export default function Categories() {
   const router = useRouter();

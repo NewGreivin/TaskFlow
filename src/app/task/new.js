@@ -23,31 +23,31 @@ import {
 import {
   useEffect, useState } from 'react';
 import {
-  useSQLiteContext } from '../../src/data/database';
+  useSQLiteContext } from '../../data/database';
 import {
-  createTask, getCategories, getTask, updateTask, getProjectStats } from '../../src/data/taskRepository';
+  createTask, getCategories, getTask, updateTask, getProjectStats } from '../../data/taskRepository';
 import {
-  getSettings } from '../../src/data/settingsRepository';
+  getSettings } from '../../data/settingsRepository';
 import {
   cancelTaskNotifications,
   replaceTaskNotification,
-} from '../../src/data/notificationRepository';
+} from '../../data/notificationRepository';
 import {
   configureNotifications,
   getReminderDate,
   RECURRENCE_OPTIONS,
   REMINDER_OPTIONS,
   scheduleTaskNotification,
-} from '../../src/services/notifications';
+} from '../../services/notifications';
 import {
-  validateTaskInput } from '../../src/utils/validation';
+  validateTaskInput } from '../../utils/validation';
 import {
-  toLocalDateKey } from '../../src/data/date';
+  toLocalDateKey } from '../../data/date';
 import {
-  useAppTheme } from '../../src/theme/ThemeContext';
-import DropdownSelect from '../../src/components/DropdownSelect';
-import DatePickerModal from '../../src/components/DatePickerModal';
-import TimePickerModal from '../../src/components/TimePickerModal';
+  useAppTheme } from '../../theme/ThemeContext';
+import DropdownSelect from '../../components/DropdownSelect';
+import DatePickerModal from '../../components/DatePickerModal';
+import TimePickerModal from '../../components/TimePickerModal';
 
 export default function NewTask() {
   const router = useRouter();

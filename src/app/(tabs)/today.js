@@ -4,20 +4,20 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
-import { useSQLiteContext } from '../../src/data/database';
+import { useSQLiteContext } from '../../data/database';
 import {
   getDatesWithTasks,
   getTasks,
   toTaskCard,
   updateTaskStatus,
-} from '../../src/data/taskRepository';
-import { useAppTheme } from '../../src/theme/ThemeContext';
-import { cancelTaskNotifications } from '../../src/data/notificationRepository';
-import { toLocalDateKey, weekFrom, formatDateEs } from '../../src/data/date';
-import TaskCard from '../../src/components/TaskCard';
-import SectionHeader from '../../src/components/SectionHeader';
+} from '../../data/taskRepository';
+import { useAppTheme } from '../../theme/ThemeContext';
+import { cancelTaskNotifications } from '../../data/notificationRepository';
+import { toLocalDateKey, weekFrom, formatDateEs } from '../../data/date';
+import TaskCard from '../../components/TaskCard';
+import SectionHeader from '../../components/SectionHeader';
 
-import { getSettings } from '../../src/data/settingsRepository';
+import { getSettings } from '../../data/settingsRepository';
 
 export default function Today() {
   const router = useRouter();

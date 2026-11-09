@@ -4,13 +4,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 WebBrowser.maybeCompleteAuthSession();
 
-// Hardcoded logic for standard Expo OAuth Google Drive integration
-// A real app would use environment variables or dynamic credentials,
-// but we do this as requested for manual authentication.
-const GOOGLE_OAUTH_CLIENT_ID = '354228945654-72s3pveom69q8c1i8eio8f34fng5k2h2.apps.googleusercontent.com'; // Dummy testing ID, placeholder format
-const GOOGLE_AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
-const GOOGLE_DRIVE_API = 'https://www.googleapis.com/drive/v3';
-const GOOGLE_UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3';
+const GOOGLE_OAUTH_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_OAUTH_CLIENT_ID;
+const GOOGLE_AUTH_ENDPOINT = process.env.EXPO_PUBLIC_GOOGLE_AUTH_ENDPOINT;
+const GOOGLE_DRIVE_API = process.env.EXPO_PUBLIC_GOOGLE_DRIVE_API;
+const GOOGLE_UPLOAD_API = process.env.EXPO_PUBLIC_GOOGLE_UPLOAD_API;
 
 export async function authorizeGoogleDrive() {
   const redirectUri = AuthSession.makeRedirectUri({
@@ -37,10 +34,10 @@ export async function authorizeGoogleDrive() {
   }
 
   if (result.type === 'cancel' || result.type === 'dismiss') {
-    throw new Error('User cancelled authorization.');
+    throw new Error('Usuario cancelo la autorizacion de Google Drive.');
   }
 
-  throw new Error('Authorization failed.');
+  throw new Error('Autorizacion fallida.');
 }
 
 export async function getGoogleDriveToken() {
@@ -72,7 +69,6 @@ export async function uploadBackupToDrive(jsonContent) {
   let url = `${GOOGLE_UPLOAD_API}/files?uploadType=multipart`;
   let method = 'POST';
 
-  // If a previous backup exists, update it to avoid duplicates
   if (existingFileId) {
     url = `${GOOGLE_UPLOAD_API}/files/${existingFileId}?uploadType=multipart`;
     method = 'PATCH';
@@ -87,7 +83,6 @@ export async function uploadBackupToDrive(jsonContent) {
   });
 
   if (response.status === 401) {
-    // Token expired or revoked
     token = await authorizeGoogleDrive();
     response = await fetch(url, {
       method,
@@ -99,7 +94,7 @@ export async function uploadBackupToDrive(jsonContent) {
   }
 
   if (!response.ok) {
-    throw new Error('Failed to upload backup to Google Drive.');
+    throw new Error('Error al suber la backup a Google Drive.');
   }
 
   const data = await response.json();
@@ -131,7 +126,7 @@ export async function getBackupFromDrive() {
     }
 
     if (!searchResponse.ok) {
-        throw new Error('Failed to search for backup.');
+        throw new Error('Error al buscar la backup.');
     }
 
     const searchData = await searchResponse.json();
@@ -165,7 +160,7 @@ async function downloadFile(fileId, token) {
   }
 
   if (!response.ok) {
-    throw new Error('Failed to download backup from Google Drive.');
+    throw new Error('Error en la descargar de Google Drive.');
   }
 
   const text = await response.text();

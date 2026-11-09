@@ -2,15 +2,15 @@ import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-nat
 import { Button, Divider, Icon, IconButton, Surface, Text } from 'react-native-paper';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { useSQLiteContext } from '../../src/data/database';
+import { useSQLiteContext } from '../../data/database';
 import {
   deleteTask,
   getTask,
   toggleSubtask,
   updateTaskStatus,
-} from '../../src/data/taskRepository';
-import { cancelTaskNotifications } from '../../src/data/notificationRepository';
-import { useAppTheme } from '../../src/theme/ThemeContext';
+} from '../../data/taskRepository';
+import { cancelTaskNotifications } from '../../data/notificationRepository';
+import { useAppTheme } from '../../theme/ThemeContext';
 
 export default function TaskDetail() {
   const router = useRouter();

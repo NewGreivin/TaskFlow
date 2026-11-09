@@ -1,13 +1,13 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { FAB, IconButton, Surface, Text, TouchableRipple } from 'react-native-paper';
-import { useSQLiteContext } from '../../src/data/database';
-import { getProjectStats, createProject, updateProject, deleteProject } from '../../src/data/taskRepository';
+import { useSQLiteContext } from '../../data/database';
+import { getProjectStats, createProject, updateProject, deleteProject } from '../../data/taskRepository';
 import { useCallback, useState } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useAppTheme } from '../../src/theme/ThemeContext';
+import { useAppTheme } from '../../theme/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CategoryIcon from '../../src/components/CategoryIcon';
-import ProjectModal from '../../src/components/ProjectModal';
+import CategoryIcon from '../../components/CategoryIcon';
+import ProjectModal from '../../components/ProjectModal';
 
 export default function Projects() {
   const router = useRouter();

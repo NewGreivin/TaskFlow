@@ -4,24 +4,24 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
-import { useSQLiteContext } from '../../src/data/database';
+import { useSQLiteContext } from '../../data/database';
 import {
   getTasks,
   toTaskCard,
   updateTaskStatus,
   getDatesWithTasks,
-} from '../../src/data/taskRepository';
-import { useAppTheme } from '../../src/theme/ThemeContext';
-import { cancelTaskNotifications } from '../../src/data/notificationRepository';
+} from '../../data/taskRepository';
+import { useAppTheme } from '../../theme/ThemeContext';
+import { cancelTaskNotifications } from '../../data/notificationRepository';
 import {
   toLocalDateKey,
   formatDateEs,
   getMonthCalendarDays,
   formatMonthYearEs,
-} from '../../src/data/date';
-import TaskCard from '../../src/components/TaskCard';
+} from '../../data/date';
+import TaskCard from '../../components/TaskCard';
 
-import { getSettings } from '../../src/data/settingsRepository';
+import { getSettings } from '../../data/settingsRepository';
 
 const WEEKDAYS_MONDAY = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
 const WEEKDAYS_SUNDAY = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
