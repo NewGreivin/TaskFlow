@@ -2,11 +2,11 @@ import { ScrollView, StyleSheet, View, Pressable, Platform, Alert } from 'react-
 import { Icon, IconButton, Surface, Text, Switch, TouchableRipple } from 'react-native-paper';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { useSQLiteContext } from '../../src/data/database';
-import { useAppTheme } from '../../src/theme/ThemeContext';
-import { getSettings, updateSetting } from '../../src/data/settingsRepository';
-import TimePickerModal from '../../src/components/TimePickerModal';
-import { configureNotifications } from '../../src/services/notifications';
+import { useSQLiteContext } from '../../data/database';
+import { useAppTheme } from '../../theme/ThemeContext';
+import { getSettings, updateSetting } from '../../data/settingsRepository';
+import TimePickerModal from '../../components/TimePickerModal';
+import { configureNotifications } from '../../services/notifications';
 
 const ANTICIPATION_OPTIONS = [
   { value: 5, label: '5 minutos' },

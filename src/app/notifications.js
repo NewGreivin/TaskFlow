@@ -2,9 +2,9 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Icon, IconButton, Surface, Text } from 'react-native-paper';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { useSQLiteContext } from '../src/data/database';
-import { useAppTheme } from '../src/theme/ThemeContext';
-import { formatShortDateEs } from '../src/data/date';
+import { useSQLiteContext } from '../data/database';
+import { useAppTheme } from '../theme/ThemeContext';
+import { formatShortDateEs } from '../data/date';
 
 export default function Notifications() {
   const db = useSQLiteContext();

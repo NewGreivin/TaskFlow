@@ -4,20 +4,20 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
-import { useSQLiteContext } from '../../src/data/database';
+import { useSQLiteContext } from '../../data/database';
 import {
   getDatesWithTasks,
   getTasks,
   toTaskCard,
   updateTaskStatus,
-} from '../../src/data/taskRepository';
-import { useAppTheme } from '../../src/theme/ThemeContext';
-import { cancelTaskNotifications } from '../../src/data/notificationRepository';
-import { toLocalDateKey, weekFrom, formatDateEs } from '../../src/data/date';
-import TaskCard from '../../src/components/TaskCard';
-import SectionHeader from '../../src/components/SectionHeader';
+} from '../../data/taskRepository';
+import { useAppTheme } from '../../theme/ThemeContext';
+import { cancelTaskNotifications } from '../../data/notificationRepository';
+import { toLocalDateKey, weekFrom, formatDateEs } from '../../data/date';
+import TaskCard from '../../components/TaskCard';
+import SectionHeader from '../../components/SectionHeader';
 
-import { getSettings } from '../../src/data/settingsRepository';
+import { getSettings } from '../../data/settingsRepository';
 
 export default function Today() {
   const router = useRouter();
@@ -110,7 +110,7 @@ export default function Today() {
               </View>
             </View>
 
-            <View style={{ flexDirection: 'row', gap: 8, paddingBottom: 2, overflow: 'scroll' }}>
+            <View style={{ flexDirection: 'row', gap: 6, paddingBottom: 2, justifyContent: 'space-between' }}>
               {days.map((d) => {
                 const hasTasks = datesWithTasks.has(d.key);
                 const isSelected = selected === d.key;
@@ -253,8 +253,8 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 18 },
   headerActions: { flexDirection: 'row' },
   greeting: { fontWeight: '850', marginTop: 3 },
-  days: { gap: 8, paddingBottom: 2 },
-  day: { width: 55, paddingVertical: 10, borderRadius: 16, alignItems: 'center', borderWidth: 1 },
+  days: { gap: 6, paddingBottom: 2, justifyContent: 'space-between' },
+  day: { flex: 1, paddingVertical: 10, borderRadius: 16, alignItems: 'center', borderWidth: 1, marginHorizontal: 2 },
   dayDot: { width: 4, height: 4, borderRadius: 2, marginTop: 5 },
   metrics: { flexDirection: 'row', gap: 9, marginTop: 18, marginBottom: 25 },
   metric: {

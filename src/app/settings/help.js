@@ -3,9 +3,9 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { IconButton, Surface, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppTheme } from '../../src/theme/ThemeContext';
+import { useAppTheme } from '../../theme/ThemeContext';
 
-export default function PrivacyScreen() {
+export default function HelpScreen() {
   const router = useRouter();
   const { palette } = useAppTheme();
   const insets = useSafeAreaInsets();
@@ -27,12 +27,16 @@ export default function PrivacyScreen() {
         />
         <View style={{ flex: 1 }}>
           <Text variant="headlineSmall" style={[styles.title, { color: palette.text }]}>
-            Privacidad y términos
+            Ayuda y soporte
           </Text>
         </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        <Text style={[styles.description, { color: palette.muted }]}>
+          Encuentra respuestas a las preguntas más frecuentes sobre el uso de la aplicación.
+        </Text>
+
         <Surface
           style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.border }]}
           elevation={0}
@@ -41,16 +45,11 @@ export default function PrivacyScreen() {
             variant="titleMedium"
             style={{ fontWeight: '700', color: palette.text, marginBottom: 8 }}
           >
-            Políticas de Privacidad
-          </Text>
-          <Text variant="bodyMedium" style={{ color: palette.muted, marginBottom: 10 }}>
-            Tus datos están seguros. Toda la información de tus tareas, categorías y configuraciones
-            se almacena localmente en tu dispositivo. No compartimos ni subimos tu información a
-            servidores externos.
+            ¿Cómo crear una nueva tarea?
           </Text>
           <Text variant="bodyMedium" style={{ color: palette.muted }}>
-            Las copias de seguridad generadas por ti son administradas bajo tu propia
-            responsabilidad.
+            Dirígete a la pestaña central de "Tareas" en la barra de navegación inferior y presiona
+            el botón "+" para crear una nueva tarea.
           </Text>
         </Surface>
 
@@ -62,12 +61,27 @@ export default function PrivacyScreen() {
             variant="titleMedium"
             style={{ fontWeight: '700', color: palette.text, marginBottom: 8 }}
           >
-            Términos de Servicio
+            ¿Cómo organizo mis categorías?
           </Text>
           <Text variant="bodyMedium" style={{ color: palette.muted }}>
-            El uso de esta aplicación es bajo tu propio riesgo. Nos esforzamos por ofrecer una
-            experiencia fluida, pero no nos hacemos responsables por la pérdida accidental de datos.
-            Recomendamos utilizar la función de copias de seguridad de forma periódica.
+            Ve a la pestaña de "Perfil" y selecciona "Categorías". Allí podrás agregar, editar y
+            eliminar las categorías que utilizas para clasificar tus tareas.
+          </Text>
+        </Surface>
+
+        <Surface
+          style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.border }]}
+          elevation={0}
+        >
+          <Text
+            variant="titleMedium"
+            style={{ fontWeight: '700', color: palette.text, marginBottom: 8 }}
+          >
+            ¿Dónde configuro mis notificaciones?
+          </Text>
+          <Text variant="bodyMedium" style={{ color: palette.muted }}>
+            En la sección "Perfil", ingresa a "Notificaciones" para ajustar cuándo deseas recibir
+            alertas sobre tus tareas pendientes y definir tu horario de resumen diario.
           </Text>
         </Surface>
       </ScrollView>
@@ -85,6 +99,7 @@ const styles = StyleSheet.create({
   },
   title: { fontWeight: '800' },
   content: { padding: 20, paddingBottom: 60 },
+  description: { marginBottom: 20 },
   card: {
     padding: 16,
     borderRadius: 16,

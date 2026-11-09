@@ -88,7 +88,7 @@ export async function createTask(db, input) {
   if (input.subtasks && input.subtasks.length > 0) {
     await db.withTransactionAsync(async () => {
       for (let i = 0; i < input.subtasks.length; i++) {
-        const title = input.subtasks[i]?.trim();
+        const title = input.subtasks[i]?.title?.trim();
         if (title) await addSubtask(db, id, title, i);
       }
     });
