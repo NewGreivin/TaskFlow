@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Icon } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppTheme } from '../../src/theme/ThemeContext';
+import { useAppTheme } from '../../theme/ThemeContext';
 
 const tabIcon =
   (name) =>

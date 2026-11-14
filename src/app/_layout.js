@@ -10,8 +10,8 @@ try {
   console.warn('Failed to load expo-notifications', e);
 }
 import * as SplashScreen from 'expo-splash-screen';
-import { SQLiteProvider, migrateDbIfNeeded } from '../src/data/database';
-import { ThemeProvider, useAppTheme } from '../src/theme/ThemeContext';
+import { SQLiteProvider, migrateDbIfNeeded } from '../data/database';
+import { ThemeProvider, useAppTheme } from '../theme/ThemeContext';
 
 SplashScreen.preventAutoHideAsync();
 

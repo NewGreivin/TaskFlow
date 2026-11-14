@@ -1,14 +1,14 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { IconButton, Surface, Text, FAB, ProgressBar } from 'react-native-paper';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
-import { useSQLiteContext } from '../src/data/database';
-import { getTasks, getProjectById, updateTaskStatus } from '../src/data/taskRepository';
-import { useAppTheme } from '../src/theme/ThemeContext';
+import { useSQLiteContext } from '../data/database';
+import { getTasks, getProjectById, updateTaskStatus } from '../data/taskRepository';
+import { useAppTheme } from '../theme/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCallback, useState } from 'react';
-import TaskCard from '../src/components/TaskCard';
-import AssignTasksModal from '../src/components/AssignTasksModal';
-import CategoryIcon from '../src/components/CategoryIcon';
+import TaskCard from '../components/TaskCard';
+import AssignTasksModal from '../components/AssignTasksModal';
+import CategoryIcon from '../components/CategoryIcon';
 
 export default function ProjectTasks() {
   const { projectId } = useLocalSearchParams();
