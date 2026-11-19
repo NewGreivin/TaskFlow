@@ -16,29 +16,38 @@ import {
   Text,
   TextInput,
   Surface,
+  List,
 } from 'react-native-paper';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { useSQLiteContext } from '../../src/data/database';
-import { createTask, getCategories, getTask, updateTask, getProjectStats } from '../../src/data/taskRepository';
-import { getSettings } from '../../src/data/settingsRepository';
+import {
+  useLocalSearchParams, useRouter } from 'expo-router';
+import {
+  useEffect, useState } from 'react';
+import {
+  useSQLiteContext } from '../../data/database';
+import {
+  createTask, getCategories, getTask, updateTask, getProjectStats } from '../../data/taskRepository';
+import {
+  getSettings } from '../../data/settingsRepository';
 import {
   cancelTaskNotifications,
   replaceTaskNotification,
-} from '../../src/data/notificationRepository';
+} from '../../data/notificationRepository';
 import {
   configureNotifications,
   getReminderDate,
   RECURRENCE_OPTIONS,
   REMINDER_OPTIONS,
   scheduleTaskNotification,
-} from '../../src/services/notifications';
-import { validateTaskInput } from '../../src/utils/validation';
-import { toLocalDateKey } from '../../src/data/date';
-import { useAppTheme } from '../../src/theme/ThemeContext';
-import DropdownSelect from '../../src/components/DropdownSelect';
-import DatePickerModal from '../../src/components/DatePickerModal';
-import TimePickerModal from '../../src/components/TimePickerModal';
+} from '../../services/notifications';
+import {
+  validateTaskInput } from '../../utils/validation';
+import {
+  toLocalDateKey } from '../../data/date';
+import {
+  useAppTheme } from '../../theme/ThemeContext';
+import DropdownSelect from '../../components/DropdownSelect';
+import DatePickerModal from '../../components/DatePickerModal';
+import TimePickerModal from '../../components/TimePickerModal';
 
 export default function NewTask() {
   const router = useRouter();
@@ -237,7 +246,7 @@ export default function NewTask() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* 1. Header */}
+                        {/* 1. Header */}
         <View style={styles.header}>
           <IconButton icon="close" onPress={() => router.back()} />
           <Text variant="titleLarge" style={[styles.title, { color: palette.text }]}>
@@ -250,7 +259,7 @@ export default function NewTask() {
 
         {/* 2. Details */}
         <Text variant="labelLarge" style={[styles.eyebrow, { color: palette.primary }]}>
-          DETALLES
+          CREACIÓN RÁPIDA
         </Text>
         <TextInput
           label="Título"
@@ -272,9 +281,6 @@ export default function NewTask() {
         />
 
         {/* 3. Schedule */}
-        <Text variant="labelLarge" style={[styles.eyebrow, { color: palette.primary }]}>
-          CUÁNDO
-        </Text>
         <View style={styles.row}>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -336,97 +342,108 @@ export default function NewTask() {
           icon="flag-outline"
         />
 
-        {/* 5. Status Dropdown */}
-        <DropdownSelect
-          label="Estado"
-          value={status}
-          options={statusOptions}
-          onSelect={setStatus}
-          icon="checkbox-marked-circle-outline"
-        />
-
-        <Divider style={[styles.divider, { backgroundColor: palette.border }]} />
-
-        {/* 6. Reminder Switch & Dropdown */}
-        <View style={styles.switchRow}>
-          <View style={[styles.settingIcon, { backgroundColor: palette.primary + '18' }]}>
-            <Icon source="bell-outline" size={21} color={palette.primary} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text variant="titleMedium" style={{ color: palette.text, fontWeight: '700' }}>
-              Recordatorio
-            </Text>
-            <Text style={{ color: palette.muted }}>Avisarme antes de la tarea</Text>
-          </View>
-          <Switch value={reminder} onValueChange={setReminder} />
-        </View>
-
-        {reminder && (
+        <List.Accordion
+          title="Más opciones"
+          left={props => <List.Icon {...props} icon="cog-outline" color={palette.primary} />}
+          titleStyle={{ color: palette.text, fontWeight: 'bold' }}
+          style={{ backgroundColor: palette.background, marginHorizontal: -8, marginTop: 10 }}
+        >
+          {/* 5. Status Dropdown */}
           <DropdownSelect
-            value={reminderMinutes}
-            options={reminderDropdownOptions}
-            onSelect={setReminderMinutes}
-            icon="clock-alert-outline"
-            style={{ marginTop: 4 }}
+            label="Estado"
+            value={status}
+            options={statusOptions}
+            onSelect={setStatus}
+            icon="checkbox-marked-circle-outline"
           />
-        )}
 
-        {/* 7. Recurrence Dropdown */}
-        <DropdownSelect
-          label="Repetir"
-          value={recurrence}
-          options={recurrenceDropdownOptions}
-          onSelect={setRecurrence}
-          icon="repeat"
-        />
+          <Divider style={[styles.divider, { backgroundColor: palette.border }]} />
 
-        {/* 8. Subtasks */}
-        <Text variant="titleMedium" style={[styles.label, { color: palette.text }]}>
-          Subtareas
-        </Text>
-        {subtasks.map((s, i) => (
-          <Surface
-            key={s.id || i}
-            style={[
-              styles.subtask,
-              { backgroundColor: palette.surface, borderColor: palette.border },
-            ]}
-            elevation={0}
-          >
-            <Icon
-              source={s.completed ? 'checkbox-marked' : 'checkbox-blank-outline'}
-              size={20}
-              color={palette.primary}
+          {/* 6. Reminder Switch & Dropdown */}
+          <View style={styles.switchRow}>
+            <View style={[styles.settingIcon, { backgroundColor: palette.primary + '18' }]}>
+              <Icon source="bell-outline" size={21} color={palette.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text variant="titleMedium" style={{ color: palette.text, fontWeight: '700' }}>
+                Recordatorio
+              </Text>
+              <Text style={{ color: palette.muted }}>Avisarme antes de la tarea</Text>
+            </View>
+            <Switch value={reminder} onValueChange={setReminder} />
+          </View>
+
+          {reminder && (
+            <DropdownSelect
+              value={reminderMinutes}
+              options={reminderDropdownOptions}
+              onSelect={setReminderMinutes}
+              icon="clock-alert-outline"
+              style={{ marginTop: 4 }}
             />
-            <Text style={{ flex: 1, color: palette.text }}>{s.title}</Text>
-            <IconButton
-              icon="close"
-              size={18}
-              onPress={() => setSubtasks(subtasks.filter((_, j) => j !== i))}
+          )}
+
+          {/* 7. Recurrence Dropdown */}
+          <DropdownSelect
+            label="Repetir"
+            value={recurrence}
+            options={recurrenceDropdownOptions}
+            onSelect={setRecurrence}
+            icon="repeat"
+          />
+
+          {/* 8. Subtasks */}
+          <Text variant="titleMedium" style={[styles.label, { color: palette.text, marginTop: 20 }]}>
+            Subtareas
+          </Text>
+          {subtasks.map((s, i) => (
+            <Surface
+              key={s.id || i}
+              style={[
+                styles.subtask,
+                { backgroundColor: palette.surface, borderColor: palette.border },
+              ]}
+              elevation={0}
+            >
+              <Icon
+                source={s.completed ? 'checkbox-marked' : 'checkbox-blank-outline'}
+                size={20}
+                color={palette.primary}
+              />
+              <Text style={{ flex: 1, color: palette.text }}>{s.title}</Text>
+              <IconButton
+                icon="close"
+                size={18}
+                onPress={() => setSubtasks(subtasks.filter((_, j) => j !== i))}
+              />
+            </Surface>
+          ))}
+          <View style={styles.subtaskInput}>
+            <TextInput
+              label="Nueva subtarea"
+              value={subtask}
+              onChangeText={setSubtask}
+              mode="outlined"
+              style={{ flex: 1, backgroundColor: palette.surface }}
             />
-          </Surface>
-        ))}
-        <View style={styles.subtaskInput}>
+            <IconButton icon="plus" mode="contained-tonal" onPress={addSubtask} />
+          </View>
+
+          {/* 9. Notes */}
           <TextInput
-            label="Nueva subtarea"
-            value={subtask}
-            onChangeText={setSubtask}
+            label="Notas"
+            value={notes}
+            onChangeText={setNotes}
             mode="outlined"
-            style={{ flex: 1, backgroundColor: palette.surface }}
+            multiline
+            numberOfLines={4}
+            style={[styles.input, { backgroundColor: palette.surface, marginTop: 14, marginBottom: 14 }]}
           />
-          <IconButton icon="plus" mode="contained-tonal" onPress={addSubtask} />
-        </View>
+        </List.Accordion>
 
-        {/* 9. Notes */}
-        <TextInput
-          label="Notas"
-          value={notes}
-          onChangeText={setNotes}
-          mode="outlined"
-          multiline
-          numberOfLines={4}
-          style={[styles.input, { backgroundColor: palette.surface, marginTop: 14 }]}
-        />
+        <Button mode="contained" loading={saving} disabled={saving} onPress={save} style={{ marginTop: 20, marginBottom: 20, borderRadius: 12, paddingVertical: 6 }}>
+          Guardar Tarea
+        </Button>
       </ScrollView>
 
       {/* Graphical Date & Time Picker Modals */}

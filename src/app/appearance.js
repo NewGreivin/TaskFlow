@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View, Pressable } from 'react-native';
 import { Icon, IconButton, RadioButton, Surface, Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import { useAppTheme } from '../src/theme/ThemeContext';
+import { useAppTheme } from '../theme/ThemeContext';
 
 const options = [
   {

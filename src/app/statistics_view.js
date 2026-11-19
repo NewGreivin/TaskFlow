@@ -1,10 +1,10 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Surface, Text, IconButton } from 'react-native-paper';
-import { useSQLiteContext } from '../src/data/database';
-import { getStats } from '../src/data/taskRepository';
+import { useSQLiteContext } from '../data/database';
+import { getStats } from '../data/taskRepository';
 import { useCallback, useState } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useAppTheme } from '../src/theme/ThemeContext';
+import { useAppTheme } from '../theme/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function StatisticsView() {
